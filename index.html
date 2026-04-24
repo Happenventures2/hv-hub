@@ -1345,26 +1345,10 @@
         </div>
       </div>
       <div class="page-actions">
-        <button class="btn"><span class="material-symbols-outlined">keyboard</span> Shortcuts</button>
-        <button class="btn primary"><span class="material-symbols-outlined">play_arrow</span> Focus mode</button>
       </div>
     </div>
 
 
-
-    <!-- MODE SUBFILTER -->
-    <div class="mode-strip">
-      <span class="label">Mode:</span>
-      <button class="mode-btn active">All <span class="count">6</span></button>
-      <button class="mode-btn">
-        <span style="width:6px;height:6px;border-radius:50%;background:#1F9A8D;"></span>
-        Approval Required <span class="count">4</span>
-      </button>
-      <button class="mode-btn">
-        <span style="width:6px;height:6px;border-radius:50%;background:#D97706;"></span>
-        Escalated <span class="count">2</span>
-      </button>
-    </div>
 
     <!-- SPLIT LAYOUT -->
     <div class="queue-split">
@@ -1373,7 +1357,6 @@
       <aside class="queue-list">
         <div class="queue-list-head">
           <span>6 Items</span>
-          <span>Oldest first</span>
           <button class="queue-collapse-btn" id="queueCollapseBtn" title="Collapse list" aria-label="Collapse queue list">
             <span class="material-symbols-outlined">chevron_left</span>
           </button>
@@ -1798,14 +1781,6 @@ R3 Operations · Happen Ventures</div>
       queueCollapseBtn.setAttribute('aria-label', isCollapsed ? 'Expand queue list' : 'Collapse queue list');
     });
   }
-
-  // Mode buttons
-  document.querySelectorAll('.mode-btn').forEach(b => {
-    b.addEventListener('click', () => {
-      document.querySelectorAll('.mode-btn').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-    });
-  });
 
   // ============ AIRTABLE TASKS ============
   const userSelect = document.getElementById('userSelect');
