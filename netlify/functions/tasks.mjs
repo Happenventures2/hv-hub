@@ -51,6 +51,7 @@ export default async (req) => {
       const f = r.fields || {};
       const due = f["Due Date"] ? new Date(f["Due Date"] + "T00:00:00") : null;
       const isOverdue = !!(due && due < today && f["Status"] !== "Closed");
+
       return {
         id: r.id,
         name: f["Task Name"] || "(untitled)",
@@ -70,9 +71,43 @@ export default async (req) => {
       };
     });
 
+    // Also fetch closed-this-week count (separate small query)
+    let doneThisWeek = 0;
+    try {
+      const weekAgo = new Date(today);
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const weekAgoIso = weekAgo.toISOString().slice(0, 10);
+      const doneFormula = `AND(
+        FIND("${user.name}", ARRAYJOIN({Assigned To})) > 0,
+        {Status} = "Closed",
+        IS_AFTER({Completion Date}, "${weekAgoIso}")
+      )`.replace(/\s+/g, " ");
+      const dParams = new URLSearchParams({ filterByFormula: doneFormula, pageSize: "100" });
+      const dRes = await fetch(`https://api.airtable.com/v0/${TASKS_BASE_ID}/${TASKS_TABLE_ID}?${dParams}`, {
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      });
+      if (dRes.ok) {
+        const dData = await dRes.json();
+        doneThisWeek = (dData.records || []).length;
+      }
+    } catch (_) {}
+
+    // Compute summary stats
+    const stats = {
+      total: tasks.length,
+      overdue: tasks.filter(t => t.overdue).length,
+      dueToday: tasks.filter(t => {
+        if (!t.dueDate || t.overdue) return false;
+        const d = new Date(t.dueDate + "T00:00:00");
+        return d.getTime() === today.getTime();
+      }).length,
+      doneThisWeek,
+    };
+
     return json({
       user: { email, name: user.name, role: user.role },
       count: tasks.length,
+      stats,
       tasks,
       fetchedAt: new Date().toISOString(),
     });

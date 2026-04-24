@@ -218,6 +218,61 @@
   .two-col-detail { display: grid; grid-template-columns: 1fr 320px; gap: 16px; align-items: start; }
   .aside-card { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 20px 22px; position: sticky; top: 88px; }
 
+  /* ============ HOME PAGE ============ */
+  .home-greeting { margin-bottom: 24px; }
+  .home-greeting h1 { font-size: 24px; font-weight: 700; color: var(--color-text); letter-spacing: -0.4px; margin-bottom: 4px; }
+  .home-greeting p { font-size: 13px; color: var(--color-muted); }
+
+  .home-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+  .home-stat { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 16px 18px; transition: border-color 0.12s; cursor: pointer; }
+  .home-stat:hover { border-color: var(--color-text); }
+  .home-stat-label { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--color-muted); margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+  .home-stat-label .material-symbols-outlined { font-size: 12px; }
+  .home-stat-value { font-size: 28px; font-weight: 700; color: var(--color-text); line-height: 1; letter-spacing: -0.5px; }
+  .home-stat.urgent .home-stat-value { color: var(--color-red); }
+  .home-stat.warn .home-stat-value { color: var(--color-amber); }
+  .home-stat.good .home-stat-value { color: var(--color-green); }
+  .home-stat-sub { font-size: 11px; color: var(--color-muted); margin-top: 4px; }
+
+  .home-section { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); margin-bottom: 16px; overflow: hidden; }
+  .home-section-head { padding: 14px 18px; border-bottom: 1px solid var(--color-gray-100); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .home-section-head h3 { font-size: 13px; font-weight: 700; color: var(--color-text); display: flex; align-items: center; gap: 8px; }
+  .home-section-head h3 .material-symbols-outlined { font-size: 16px; color: var(--color-text-secondary); }
+  .home-section-link { font-size: 12px; color: var(--color-text-secondary); text-decoration: none; display: inline-flex; align-items: center; gap: 3px; padding: 4px 8px; border-radius: 5px; transition: all 0.12s; cursor: pointer; background: transparent; border: none; font-family: inherit; }
+  .home-section-link:hover { background: var(--color-gray-50); color: var(--color-text); }
+  .home-section-link .material-symbols-outlined { font-size: 13px; }
+
+  .home-task-row { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; padding: 12px 18px; border-top: 1px solid var(--color-gray-100); align-items: center; cursor: pointer; transition: background 0.1s; }
+  .home-task-row:first-child { border-top: none; }
+  .home-task-row:hover { background: var(--color-gray-50); }
+  .home-task-pri { width: 4px; align-self: stretch; border-radius: 2px; background: var(--color-gray-100); }
+  .home-task-pri.urgent { background: var(--color-red); }
+  .home-task-pri.warn { background: var(--color-amber); }
+  .home-task-pri.normal { background: var(--color-text); opacity: 0.3; }
+  .home-task-content { min-width: 0; }
+  .home-task-name { font-size: 13px; font-weight: 600; color: var(--color-text); margin-bottom: 3px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .home-task-meta { font-size: 11px; color: var(--color-muted); display: flex; align-items: center; gap: 8px; }
+  .home-task-meta .urgent { color: var(--color-red); font-weight: 600; }
+  .home-task-meta .warn { color: var(--color-amber); font-weight: 600; }
+  .home-task-action { font-size: 11px; color: var(--color-text-secondary); padding: 4px 8px; border-radius: 5px; }
+  .home-task-row:hover .home-task-action { background: var(--color-text); color: var(--color-bg); }
+
+  .home-empty-row { padding: 24px 18px; text-align: center; color: var(--color-muted); font-size: 12px; font-style: italic; }
+
+  .home-quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .home-action { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 16px; cursor: pointer; transition: all 0.12s; text-align: left; font-family: inherit; color: var(--color-text); }
+  .home-action:hover { border-color: var(--color-text); transform: translateY(-1px); }
+  .home-action-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--color-gray-50); display: flex; align-items: center; justify-content: center; margin-bottom: 10px; color: var(--color-text); }
+  .home-action-icon .material-symbols-outlined { font-size: 18px; }
+  .home-action-title { font-size: 13px; font-weight: 600; color: var(--color-text); margin-bottom: 2px; }
+  .home-action-sub { font-size: 11px; color: var(--color-muted); }
+  .home-action.primary { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+  .home-action.primary .home-action-icon { background: rgba(255,255,255,0.12); color: var(--color-bg); }
+  .home-action.primary .home-action-title { color: var(--color-bg); }
+  .home-action.primary .home-action-sub { color: rgba(255,255,255,0.65); }
+
+  .home-loading { padding: 30px; text-align: center; color: var(--color-muted); font-size: 12px; }
+
   /* ============ AIRTABLE TASKS ============ */
   .tasks-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
   .tasks-loader { color: var(--color-muted); font-size: 12px; display: flex; align-items: center; gap: 6px; }
@@ -534,8 +589,8 @@
   </a>
 
   <nav class="nav">
-    <a href="#" class="nav-tab" data-tab="home"><span class="material-symbols-outlined">home</span> Home</a>
-    <a href="#" class="nav-tab active" data-tab="queue"><span class="material-symbols-outlined">bolt</span> Task Queue <span class="badge alert">6</span></a>
+    <a href="#" class="nav-tab active" data-tab="home"><span class="material-symbols-outlined">home</span> Home</a>
+    <a href="#" class="nav-tab" data-tab="queue"><span class="material-symbols-outlined">bolt</span> Task Queue <span class="badge alert">6</span></a>
     <a href="#" class="nav-tab" data-tab="tasks"><span class="material-symbols-outlined">check_circle</span> Airtable Tasks <span class="badge" id="tasksNavBadge">—</span></a>
     <a href="#" class="nav-tab" data-tab="bot"><span class="material-symbols-outlined">smart_toy</span> HV Bot</a>
     <a href="#" class="nav-tab" data-tab="tools"><span class="material-symbols-outlined">build</span> Tools</a>
@@ -1174,10 +1229,75 @@
   </section>
 
   <!-- ==================== STUB PANELS ==================== -->
-  <section class="tab-panel" data-panel="home">
-    <div class="page-head"><div><h1 class="page-title">Home</h1><p class="page-meta">Joan's home view — already built in previous iteration</p></div></div>
+  <section class="tab-panel active" data-panel="home">
+    <div class="home-greeting">
+      <h1 id="homeGreeting">Welcome</h1>
+      <p id="homeSubgreeting">Loading your day…</p>
+    </div>
+
+    <!-- 4 stat cards -->
+    <div class="home-stats" id="homeStats">
+      <div class="home-stat" data-stat="open" data-jump="tasks">
+        <div class="home-stat-label"><span class="material-symbols-outlined">inbox</span>Open tasks</div>
+        <div class="home-stat-value" id="statOpen">—</div>
+        <div class="home-stat-sub">Across all departments</div>
+      </div>
+      <div class="home-stat urgent" data-stat="overdue" data-jump="tasks">
+        <div class="home-stat-label"><span class="material-symbols-outlined">priority_high</span>Overdue</div>
+        <div class="home-stat-value" id="statOverdue">—</div>
+        <div class="home-stat-sub">Past due date</div>
+      </div>
+      <div class="home-stat warn" data-stat="today" data-jump="tasks">
+        <div class="home-stat-label"><span class="material-symbols-outlined">today</span>Due today</div>
+        <div class="home-stat-value" id="statToday">—</div>
+        <div class="home-stat-sub">Lock these in</div>
+      </div>
+      <div class="home-stat good" data-stat="week">
+        <div class="home-stat-label"><span class="material-symbols-outlined">check_circle</span>Done this week</div>
+        <div class="home-stat-value" id="statDone">—</div>
+        <div class="home-stat-sub">Last 7 days</div>
+      </div>
+    </div>
+
+    <!-- Tasks to tackle -->
+    <div class="home-section">
+      <div class="home-section-head">
+        <h3><span class="material-symbols-outlined">flag</span>Tasks to tackle</h3>
+        <button class="home-section-link" data-jump="tasks">See all <span class="material-symbols-outlined">arrow_forward</span></button>
+      </div>
+      <div id="homeUrgentTasks">
+        <div class="home-loading">Loading…</div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="home-section-head" style="border: none; padding: 14px 0 8px 0;">
+      <h3><span class="material-symbols-outlined">bolt</span>Quick actions</h3>
+    </div>
+    <div class="home-quick-actions">
+      <button class="home-action primary" data-jump="bot">
+        <div class="home-action-icon"><span class="material-symbols-outlined">forum</span></div>
+        <div class="home-action-title">Ask HV Bot</div>
+        <div class="home-action-sub">Anything company-related</div>
+      </button>
+      <button class="home-action" data-jump="tasks">
+        <div class="home-action-icon"><span class="material-symbols-outlined">checklist</span></div>
+        <div class="home-action-title">My tasks</div>
+        <div class="home-action-sub">Snooze · update · resolve</div>
+      </button>
+      <button class="home-action" data-jump="queue">
+        <div class="home-action-icon"><span class="material-symbols-outlined">inbox_customize</span></div>
+        <div class="home-action-title">Bot queue</div>
+        <div class="home-action-sub">Approve drafts</div>
+      </button>
+      <a class="home-action" href="https://airtable.com/appGDkdfPiiZ2lwO2/tblI12xpnUKg9T8Cm" target="_blank" rel="noopener" style="text-decoration: none;">
+        <div class="home-action-icon"><span class="material-symbols-outlined">open_in_new</span></div>
+        <div class="home-action-title">Airtable</div>
+        <div class="home-action-sub">Open task table</div>
+      </a>
+    </div>
   </section>
-  <section class="tab-panel active" data-panel="queue">
+  <section class="tab-panel" data-panel="queue">
     <div class="page-head">
       <div>
         <h1 class="page-title">Task Queue <span class="tag-mod">Universal · Human-in-loop</span></h1>
@@ -1840,6 +1960,10 @@ R3 Operations · Happen Ventures</div>
         return;
       }
       renderTasks(data);
+      // Also update the Home page (uses same data)
+      if (typeof updateHomeFromTasksData === 'function') {
+        updateHomeFromTasksData(data);
+      }
     } catch (err) {
       tasksError.style.display = 'block';
       tasksError.innerHTML = `<strong>Network error</strong> ${esc(err.message)}`;
@@ -1850,8 +1974,8 @@ R3 Operations · Happen Ventures</div>
 
   document.getElementById('tasksRefreshBtn').addEventListener('click', loadTasks);
   userSelect.addEventListener('change', () => {
-    const activeTab = document.querySelector('.nav-tab.active')?.dataset.tab;
-    if (activeTab === 'tasks') loadTasks();
+    // Always reload tasks so home page + tasks tab + badge stay in sync
+    loadTasks();
     showToast(`Switched to ${userSelect.options[userSelect.selectedIndex].text}`);
   });
 
@@ -1960,13 +2084,113 @@ R3 Operations · Happen Ventures</div>
     });
   });
 
-  // Initial load if Tasks tab is active on page load
-  if (document.querySelector('.nav-tab.active')?.dataset.tab === 'tasks') {
-    loadTasks();
-  } else {
-    // Pre-fetch the count for the badge
-    loadTasks();
+  // ============ HOME PAGE ============
+  function timeOfDayGreeting() {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
   }
+
+  function firstName(fullName) {
+    return (fullName || '').split(' ')[0] || 'there';
+  }
+
+  function updateHomeFromTasksData(data) {
+    const userInfo = data.user || {};
+    const stats = data.stats || {};
+    const tasks = data.tasks || [];
+
+    // Greeting
+    document.getElementById('homeGreeting').textContent = `${timeOfDayGreeting()}, ${firstName(userInfo.name)}`;
+    const subParts = [];
+    if (stats.overdue) subParts.push(`${stats.overdue} overdue`);
+    if (stats.dueToday) subParts.push(`${stats.dueToday} due today`);
+    if (!subParts.length && stats.total) subParts.push(`${stats.total} open ${stats.total === 1 ? 'task' : 'tasks'} on your plate`);
+    if (!stats.total) subParts.push("You're all clear");
+    document.getElementById('homeSubgreeting').textContent = subParts.join(' · ');
+
+    // Stat cards
+    document.getElementById('statOpen').textContent = stats.total ?? '—';
+    document.getElementById('statOverdue').textContent = stats.overdue ?? '—';
+    document.getElementById('statToday').textContent = stats.dueToday ?? '—';
+    document.getElementById('statDone').textContent = stats.doneThisWeek ?? '—';
+
+    // Top urgent tasks: overdue first, then due today, then upcoming, take 5
+    const today = new Date(); today.setHours(0,0,0,0);
+    const sorted = [...tasks].sort((a, b) => {
+      // Overdue first
+      if (a.overdue && !b.overdue) return -1;
+      if (!a.overdue && b.overdue) return 1;
+      // Then by due date asc
+      const ad = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+      const bd = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+      return ad - bd;
+    });
+    const top = sorted.slice(0, 5);
+
+    const container = document.getElementById('homeUrgentTasks');
+    if (!top.length) {
+      container.innerHTML = `<div class="home-empty-row">Nothing urgent — enjoy the breathing room ✨</div>`;
+      return;
+    }
+    container.innerHTML = top.map(t => {
+      let dueLabel = '';
+      let dueClass = '';
+      if (t.overdue) {
+        const daysLate = Math.round((today - new Date(t.dueDate + 'T00:00:00')) / 86400000);
+        dueLabel = `Overdue ${daysLate}d`;
+        dueClass = 'urgent';
+      } else if (t.dueDate) {
+        const d = new Date(t.dueDate + 'T00:00:00');
+        const diff = Math.round((d - today) / 86400000);
+        if (diff === 0) { dueLabel = 'Due today'; dueClass = 'warn'; }
+        else if (diff === 1) { dueLabel = 'Due tomorrow'; dueClass = 'warn'; }
+        else { dueLabel = `Due in ${diff}d`; }
+      }
+      const priClass = t.overdue ? 'urgent' : (dueClass === 'warn' ? 'warn' : 'normal');
+
+      return `
+        <div class="home-task-row" data-id="${t.id}">
+          <div class="home-task-pri ${priClass}"></div>
+          <div class="home-task-content">
+            <div class="home-task-name">${esc(t.name)}</div>
+            <div class="home-task-meta">
+              ${dueLabel ? `<span class="${dueClass}">${esc(dueLabel)}</span>` : ''}
+              ${t.department ? `<span>· ${esc(t.department)}</span>` : ''}
+              ${t.status ? `<span>· ${esc(t.status)}</span>` : ''}
+            </div>
+          </div>
+          <div class="home-task-action">Open</div>
+        </div>
+      `;
+    }).join('');
+
+    // Wire row clicks → jump to Tasks tab
+    container.querySelectorAll('.home-task-row').forEach(row => {
+      row.addEventListener('click', () => switchTab('tasks'));
+    });
+  }
+
+  // Helper to programmatically switch tab (used by quick actions & stat cards)
+  function switchTab(targetTab) {
+    const tab = document.querySelector(`.nav-tab[data-tab="${targetTab}"]`);
+    if (tab) tab.click();
+  }
+
+  // Wire stat cards + quick actions
+  document.querySelectorAll('[data-jump]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      const dest = el.dataset.jump;
+      if (dest && el.tagName !== 'A') {
+        e.preventDefault();
+        switchTab(dest);
+      }
+    });
+  });
+
+  // Initial load — fires loadTasks which will populate BOTH the badge and the home page
+  loadTasks();
 
   // ============ HV BOT (CHAT) ============
   const botMessages = document.getElementById('botMessages');
