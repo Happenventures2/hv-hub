@@ -1475,28 +1475,15 @@
         <!-- HEAD -->
         <div class="qd-head">
           <div class="qd-eyebrow">
-            <span class="qd-workflow-badge">
-              <span class="material-symbols-outlined" style="font-size:14px">support_agent</span>
-              Complaint Acknowledge &amp; Route
-              <span class="code">CMP-01</span>
-            </span>
             <span class="qd-status draft">Approval required</span>
-            <span class="qd-priority">High · Type A</span>
+            <span class="qd-priority">High · Quality complaint</span>
           </div>
           <h2 class="qd-title">Draft reply — Sarah Chen at Target Cincinnati</h2>
-          <div class="qd-subtitle">Complaint: laundry quality · logged 2h 14m ago · Robin classified &amp; drafted in 47 sec</div>
+          <div class="qd-subtitle">Logged 2h 14m ago · drafted by Robin</div>
         </div>
 
-        <!-- CONTEXT STRIP -->
+        <!-- CONTEXT STRIP — only the 2 things that matter -->
         <div class="qd-context">
-          <div class="qd-ctx-item">
-            <div class="qd-ctx-label">Site</div>
-            <div class="qd-ctx-value">TGT-CIN-12</div>
-          </div>
-          <div class="qd-ctx-item">
-            <div class="qd-ctx-label">Company</div>
-            <div class="qd-ctx-value">Target</div>
-          </div>
           <div class="qd-ctx-item">
             <div class="qd-ctx-label">Order</div>
             <div class="qd-ctx-value">TGT-CIN-0082</div>
@@ -1504,44 +1491,6 @@
           <div class="qd-ctx-item">
             <div class="qd-ctx-label">SLA</div>
             <div class="qd-ctx-value">Reply within 4h</div>
-          </div>
-        </div>
-
-        <!-- STEPPER -->
-        <div class="qd-section">
-          <div class="qd-section-label">
-            <span class="material-symbols-outlined">route</span>
-            Workflow progress
-          </div>
-          <div class="qd-stepper">
-            <div class="qd-step done">
-              <div class="qd-step-circle"><span class="material-symbols-outlined" style="font-size:12px">check</span></div>
-              <div class="qd-step-label">Site reported</div>
-            </div>
-            <div class="qd-step done">
-              <div class="qd-step-circle"><span class="material-symbols-outlined" style="font-size:12px">check</span></div>
-              <div class="qd-step-label">Robin acked in 2m</div>
-            </div>
-            <div class="qd-step done">
-              <div class="qd-step-circle"><span class="material-symbols-outlined" style="font-size:12px">check</span></div>
-              <div class="qd-step-label">Classified Type A</div>
-            </div>
-            <div class="qd-step current">
-              <div class="qd-step-circle">4</div>
-              <div class="qd-step-label">You review draft</div>
-            </div>
-            <div class="qd-step">
-              <div class="qd-step-circle">5</div>
-              <div class="qd-step-label">Send to site</div>
-            </div>
-            <div class="qd-step">
-              <div class="qd-step-circle">6</div>
-              <div class="qd-step-label">Follow up day 3</div>
-            </div>
-            <div class="qd-step">
-              <div class="qd-step-circle">7</div>
-              <div class="qd-step-label">Close day 7</div>
-            </div>
           </div>
         </div>
 
@@ -1557,12 +1506,12 @@
           </div>
         </div>
 
-        <!-- ROBIN REASONING -->
+        <!-- ROBIN NOTE — single line, not a paragraph -->
         <div class="qd-section">
           <div class="robin-note">
             <div class="robin-note-icon"><span class="material-symbols-outlined">smart_toy</span></div>
             <div class="robin-note-body">
-              <strong>Why this is in your queue:</strong> Complaint classified as Type A (Quality) → High priority per CMP-01. Route linked to <strong>Drop and Dash</strong>, driver <strong>Emanuel Perez</strong>, order <strong>TGT-CIN-0082</strong>. Credit/refund requests escalate to Jess, so draft stays conservative on remedy. <strong>Jess owns the refund call, not you.</strong>
+              Type A complaint. Routed to <strong>Drop and Dash</strong>, driver <strong>Emanuel Perez</strong>. <strong>No refund/credit offered</strong> — that escalates to Jess.
             </div>
           </div>
         </div>
@@ -1584,8 +1533,8 @@ If any uniforms need immediate replacement or rewash, let me know and we'll prio
 — Joan
 R3 Operations · Happen Ventures</div>
           <div class="qd-draft-label">
-            <span class="material-symbols-outlined">info</span>
-            Click to edit directly · No refund or credit offered per escalation rules
+            <span class="material-symbols-outlined">edit</span>
+            Click anywhere to edit
           </div>
         </div>
 
@@ -1594,17 +1543,12 @@ R3 Operations · Happen Ventures</div>
           <div class="qd-action-group">
             <button class="qd-btn primary">
               <span class="material-symbols-outlined">send</span>
-              Send as-is
+              Send
               <span class="shortcut-key">A</span>
             </button>
             <button class="qd-btn">
-              <span class="material-symbols-outlined">edit</span>
-              Edit &amp; send
-              <span class="shortcut-key">E</span>
-            </button>
-            <button class="qd-btn">
               <span class="material-symbols-outlined">auto_awesome</span>
-              Rewrite with Claude
+              Rewrite
             </button>
             <button class="qd-btn">
               <span class="material-symbols-outlined">arrow_upward</span>
@@ -2084,11 +2028,15 @@ R3 Operations · Happen Ventures</div>
 
   function renderTickets(data) {
     const tickets = data.tickets || [];
+    const isAllView = data.user && data.user.viewAll;
     ticketsCountEl.textContent = tickets.length;
     if (currentSource === 'tickets') {
-      tasksMeta.textContent = tickets.length
-        ? `${tickets.length} ticket${tickets.length === 1 ? '' : 's'} assigned to you`
-        : 'No tickets assigned to you';
+      const noun = tickets.length === 1 ? 'ticket' : 'tickets';
+      tasksMeta.textContent = isAllView
+        ? `${tickets.length} open ${noun} across the team (CEO view)`
+        : tickets.length
+          ? `${tickets.length} ${noun} assigned to you`
+          : 'No tickets assigned to you';
     }
     if (!tickets.length) {
       ticketsList.style.display = 'none';
@@ -2106,6 +2054,7 @@ R3 Operations · Happen Ventures</div>
             <div class="task-meta-row">
               <span class="task-status-pill ${statusClass(t.status)}">${esc(t.status)}</span>
               ${t.priority ? `<span class="task-type-tag ${priorityClass}">${esc(t.priority)}</span>` : ''}
+              ${isAllView && t.assignee ? `<span class="task-type-tag">${esc(t.assignee)}</span>` : ''}
               ${t.phase ? `<span class="task-type-tag">${esc(t.phase)}</span>` : ''}
               ${t.department ? `<span class="task-type-tag">${esc(t.department)}</span>` : ''}
             </div>

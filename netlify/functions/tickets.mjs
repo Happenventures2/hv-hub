@@ -3,10 +3,14 @@
 // Pulls tickets from the Notion Tech Build Queue data source, filtered by the current user's Notion-assignee mapping.
 // Returns empty list when the user has no assignee mapping (e.g. non-dev roles).
 
+// USER → Notion ticket view mapping:
+//   notionAssignee = "Alexis"  → only tickets assigned to Alexis (developer view)
+//   viewAll = true             → all open tickets across all assignees (CEO oversight)
+//   neither                    → empty list (most users don't need to see dev tickets)
 const USERS = {
-  "joan@happenventures.com":    { name: "Joan Moya",        role: "Operations",   notionAssignee: null },
-  "jessica@happenventures.com": { name: "Jessica Gonzalez", role: "CEO",          notionAssignee: null },
-  "ivan@happenventures.com":    { name: "Ivan Rangel",      role: "Sales",        notionAssignee: null },
+  "joan@happenventures.com":    { name: "Joan Moya",        role: "Operations" },
+  "jessica@happenventures.com": { name: "Jessica Gonzalez", role: "CEO",          viewAll: true },
+  "ivan@happenventures.com":    { name: "Ivan Rangel",      role: "Sales" },
   "alexis@happenventures.com":  { name: "Alexis",           role: "Tech Manager", notionAssignee: "Alexis" },
 };
 
@@ -26,13 +30,13 @@ export default async (req) => {
     const user = USERS[email];
     if (!user) return json({ error: `Unknown user: ${email}` }, 404);
 
-    // Users without a notionAssignee get an empty ticket list with a helpful pointer.
-    if (!user.notionAssignee) {
+    // Users with no notionAssignee AND no viewAll get an empty ticket list.
+    if (!user.notionAssignee && !user.viewAll) {
       return json({
-        user: { email, name: user.name, role: user.role, notionAssignee: null },
+        user: { email, name: user.name, role: user.role },
         tickets: [],
         count: 0,
-        note: "This user has no Notion Tech Build Queue assignee mapping.",
+        note: "This user has no ticket access. Tickets are for developers and the CEO.",
       });
     }
 
@@ -43,23 +47,25 @@ export default async (req) => {
       }, 503);
     }
 
-    // Filter: only this user's tickets that are actually actionable.
-    // Excludes Done/Canceled/Idea Dump statuses and Archived phase.
+    // Build filter conditions. Always exclude Done/Canceled/Idea Dump statuses + Archived phase.
+    // Filter by assignee only when the user is a developer (not CEO).
+    const filterConditions = [
+      { property: "Status",   select: { does_not_equal: "Done" } },
+      { property: "Status",   select: { does_not_equal: "Canceled" } },
+      { property: "Status",   select: { does_not_equal: "💡 Idea Dump" } },
+      { property: "Phase",    select: { does_not_equal: "🗄️ Archived" } },
+    ];
+    if (user.notionAssignee) {
+      filterConditions.unshift({ property: "Assignee", select: { equals: user.notionAssignee } });
+    }
+
     const queryUrl = `https://api.notion.com/v1/data_sources/${NOTION_DATA_SOURCE_ID}/query`;
     const body = {
-      filter: {
-        and: [
-          { property: "Assignee", select: { equals: user.notionAssignee } },
-          { property: "Status",   select: { does_not_equal: "Done" } },
-          { property: "Status",   select: { does_not_equal: "Canceled" } },
-          { property: "Status",   select: { does_not_equal: "💡 Idea Dump" } },
-          { property: "Phase",    select: { does_not_equal: "🗄️ Archived" } },
-        ],
-      },
+      filter: { and: filterConditions },
       sorts: [
         { property: "Priority", direction: "ascending" },
       ],
-      page_size: 50,
+      page_size: 100,
     };
 
     const res = await fetch(queryUrl, {
@@ -123,6 +129,7 @@ function shapeResponse(email, user, data) {
     return {
       id: page.id,
       title: title || "(untitled)",
+      assignee: extractSelect(props.Assignee),
       priority: extractSelect(props.Priority),
       status: extractSelect(props.Status) || "Not Started",
       phase: extractSelect(props.Phase),
@@ -138,7 +145,7 @@ function shapeResponse(email, user, data) {
   });
 
   return {
-    user: { email, name: user.name, role: user.role, notionAssignee: user.notionAssignee },
+    user: { email, name: user.name, role: user.role, viewAll: !!user.viewAll },
     tickets,
     count: tickets.length,
   };
