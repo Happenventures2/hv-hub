@@ -377,6 +377,19 @@
   .task-btn .material-symbols-outlined { font-size: 13px; }
   .task-btn.primary { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
   .task-btn.primary:hover { background: #000; border-color: #000; }
+  .task-btn.success { background: var(--color-green); color: #fff; border-color: var(--color-green); }
+  .task-btn.success:hover { background: #047857; border-color: #047857; }
+  .task-btn.danger { background: #fff; color: var(--color-red); border-color: rgba(220,38,38,0.3); }
+  .task-btn.danger:hover { background: var(--color-red); color: #fff; border-color: var(--color-red); }
+  .task-rec { margin-top: 8px; padding: 8px 10px; background: rgba(50, 189, 174, 0.06); border-left: 3px solid #32BDAE; border-radius: 4px; font-size: 12.5px; color: var(--color-text); }
+  .task-rec strong { color: #0d8076; font-weight: 600; }
+  .task-meta-foot { display: flex; gap: 10px; margin-top: 8px; font-size: 11px; color: var(--color-text-secondary); flex-wrap: wrap; }
+  .task-meta-foot a { color: var(--color-text-secondary); text-decoration: none; border-bottom: 1px dotted var(--color-gray-100); }
+  .task-meta-foot a:hover { color: var(--color-text); border-bottom-color: var(--color-text); }
+  .task-status-pill.urgent { background: rgba(220,38,38,0.08); color: var(--color-red); border-color: rgba(220,38,38,0.25); }
+  .task-status-pill.high { background: rgba(217,119,6,0.08); color: var(--color-amber); border-color: rgba(217,119,6,0.2); }
+  .task-status-pill.medium { background: rgba(50,189,174,0.08); color: #0d8076; border-color: rgba(50,189,174,0.25); }
+  .task-status-pill.low { background: var(--color-gray-50); color: var(--color-text-secondary); border-color: var(--color-gray-100); }
 
   /* USER SWITCHER */
   .user-switcher { display: flex; align-items: center; gap: 6px; padding: 4px 8px 4px 12px; border: 1px solid var(--color-gray-100); border-radius: var(--radius-sm); background: var(--color-bg); cursor: pointer; font-family: inherit; font-size: 12px; color: var(--color-text); transition: border-color 0.12s; }
@@ -1450,13 +1463,13 @@
       </div>
     </div>
 
-    <!-- AI Tasks view (Bot Master DB Task Queue) -->
+    <!-- AI Tasks view (Bot Master DB → Robin Tasks) -->
     <div id="aiTasksView" class="source-view" style="display:none;">
       <div id="aiTasksList" class="tasks-list" style="display:none;"></div>
       <div id="aiTasksEmpty" class="tasks-empty" style="display:none;">
         <span class="material-symbols-outlined">smart_toy</span>
         <h3>No AI tasks waiting on you</h3>
-        <p>Bot drafts pending your approval will show up here. Bots include the Sales Person Bot, CMO Bot, Lead Gen, and more.</p>
+        <p>Robin will surface operational tasks here when she needs human approval — partner chases, equipment installs, complaint replies, finance variances. Click Approve to fire the next step or Reject to dismiss.</p>
       </div>
     </div>
   </section>
@@ -2065,7 +2078,6 @@
 
   function renderAiTasks(data) {
     const items = data.aiTasks || [];
-    const isAllView = data.user && data.user.viewAll;
     aiTasksCountEl.textContent = items.length;
     if (currentSource === 'ai-tasks') {
       const noun = items.length === 1 ? 'AI task' : 'AI tasks';
@@ -2081,31 +2093,100 @@
     aiTasksEmpty.style.display = 'none';
     aiTasksList.style.display = 'block';
     aiTasksList.innerHTML = items.map(t => {
-      const priorityClass = t.priorityScore >= 8 ? 'urgent' : t.priorityScore >= 5 ? 'high' : '';
-      const titleText = t.draftSubject || t.taskName;
-      const targetLabel = t.targetName && t.companyName
-        ? `${t.targetName} · ${t.companyName}`
-        : (t.targetName || t.companyName || '');
+      const priorityClass = (t.priority || '').toLowerCase();
+      const created = t.createdAt ? new Date(t.createdAt) : null;
+      const createdLabel = created ? fmtRelative(created) : '';
       return `
         <div class="task-row" data-id="${escAttr(t.id)}">
           <div class="task-main">
             <div class="task-meta-row">
-              <span class="task-status-pill open">Pending review</span>
-              ${t.priorityScore != null ? `<span class="task-type-tag ${priorityClass}">P${t.priorityScore}</span>` : ''}
-              ${t.taskType ? `<span class="task-type-tag">${esc(t.taskType.replace(/_/g, ' '))}</span>` : ''}
-              ${t.botPersona ? `<span class="task-type-tag">${esc(t.botPersona)}</span>` : ''}
-              ${isAllView && t.targetEmail ? `<span class="task-type-tag">${esc(t.targetEmail.split('@')[0])}</span>` : ''}
+              <span class="task-status-pill ${priorityClass}">${esc(t.priority || 'Medium')}</span>
+              ${t.category ? `<span class="task-type-tag">${esc(t.category)}</span>` : ''}
+              ${t.assignedTo ? `<span class="task-type-tag">${esc(t.assignedTo)}</span>` : ''}
             </div>
-            <div class="task-title">${esc(titleText)}</div>
-            ${targetLabel ? `<div class="task-desc"><strong>${esc(targetLabel)}</strong></div>` : ''}
-            ${t.whyThisExists ? `<div class="task-desc">${esc(t.whyThisExists)}</div>` : ''}
+            <div class="task-title">${esc(t.title)}</div>
+            ${t.description ? `<div class="task-desc">${esc(t.description)}</div>` : ''}
+            ${t.recommendation ? `<div class="task-rec"><strong>Robin recommends:</strong> ${esc(t.recommendation)}</div>` : ''}
+            <div class="task-meta-foot">
+              ${t.sourceWorkflow ? `<span>${esc(t.sourceWorkflow)}</span>` : ''}
+              ${createdLabel ? `<span>· ${esc(createdLabel)}</span>` : ''}
+              ${t.relatedUrl ? `<a href="${escAttr(t.relatedUrl)}" target="_blank" rel="noopener">Related record</a>` : ''}
+            </div>
           </div>
           <div class="task-actions">
-            <a class="task-btn" href="${escAttr(t.airtableUrl)}" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Review</a>
+            <button class="task-btn success" data-robin-action="Approved" data-id="${escAttr(t.id)}" data-title="${escAttr(t.title)}"><span class="material-symbols-outlined">check</span> Approve</button>
+            <button class="task-btn danger" data-robin-action="Rejected" data-id="${escAttr(t.id)}" data-title="${escAttr(t.title)}"><span class="material-symbols-outlined">close</span> Reject</button>
+            <a class="task-btn" href="${escAttr(t.airtableUrl)}" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span></a>
           </div>
         </div>
       `;
     }).join('');
+
+    // Wire Approve / Reject buttons
+    aiTasksList.querySelectorAll('.task-btn[data-robin-action]').forEach(btn => {
+      btn.addEventListener('click', () => handleRobinAction(btn));
+    });
+  }
+
+  async function handleRobinAction(btn) {
+    const recordId = btn.dataset.id;
+    const action = btn.dataset.robinAction;
+    const title = btn.dataset.title || 'task';
+    const row = btn.closest('.task-row');
+    const allBtns = row ? row.querySelectorAll('.task-btn') : [btn];
+
+    allBtns.forEach(b => b.disabled = true);
+    btn.innerHTML = `<span class="material-symbols-outlined">hourglass_empty</span> ${action === 'Approved' ? 'Approving…' : 'Rejecting…'}`;
+
+    try {
+      const res = await fetch('/api/robin-task-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recordId,
+          status: action,
+          email: currentUserEmail(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Update failed');
+
+      showToast(`${action === 'Approved' ? 'Approved' : 'Rejected'}: ${title}`);
+      logActivity(`Robin task ${action.toLowerCase()}`, {
+        detail: `${action} "${title}"${data.callbackFired ? ' (n8n fired)' : ''}`,
+        targetRecordId: recordId,
+        targetName: title,
+        sourceEndpoint: '/api/robin-task-update',
+      });
+
+      // Fade row out, then reload list
+      if (row) {
+        row.style.transition = 'opacity 0.3s';
+        row.style.opacity = '0';
+        setTimeout(() => loadAiTasks(), 350);
+      } else {
+        loadAiTasks();
+      }
+    } catch (err) {
+      showToast(`Failed: ${err.message}`, true);
+      allBtns.forEach(b => b.disabled = false);
+      // Restore button text
+      btn.innerHTML = action === 'Approved'
+        ? `<span class="material-symbols-outlined">check</span> Approve`
+        : `<span class="material-symbols-outlined">close</span> Reject`;
+    }
+  }
+
+  function fmtRelative(date) {
+    const diffMs = Date.now() - date.getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d ago`;
+    return date.toLocaleDateString();
   }
 
   // ============ MODALS ============

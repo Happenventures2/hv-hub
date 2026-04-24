@@ -1,22 +1,46 @@
 // netlify/functions/ai-tasks.mjs
 // GET /api/ai-tasks?email=X
-// Returns AI-generated tasks awaiting human approval from the Bot Master DB Task Queue.
+// Returns Robin's pending operational tasks awaiting human approval.
 //
-// NOTE: target_email in Task Queue = the PROSPECT being contacted (e.g. someone@bcg.com),
-// not the HV employee approver. So per-rep filtering by target_email doesn't work.
-// For now, all users see all pending_review drafts. Per-rep filtering can be added later
-// using `employee_name` (multipleRecordLinks) or a bot-persona-to-rep mapping.
+// Source: Bot Master DB → Robin Tasks (tbl4YywNGbJynrrdk)
+// Filter: Status = "Pending Review"
+//   - Jess: sees ALL pending tasks (viewAll)
+//   - Everyone else: sees tasks Assigned To them OR Unassigned
+//
+// Note: Jazz currently maps to Joan (per Phase 1 handoff). Add jazz@... here
+// when she gets her own login.
 
 const USERS = {
-  "joan@happenventures.com":    { name: "Joan Moya",        role: "Operations" },
-  "jessica@happenventures.com": { name: "Jessica Gonzalez", role: "CEO",          viewAll: true },
-  "ivan@happenventures.com":    { name: "Ivan Rangel",      role: "Sales" },
-  "alexis@happenventures.com":  { name: "Alexis",           role: "Tech Manager" },
+  "joan@happenventures.com":    { name: "Joan Moya",        role: "Operations",   assigneeName: "Joan" },
+  "jessica@happenventures.com": { name: "Jessica Gonzalez", role: "CEO",          assigneeName: "Jess",   viewAll: true },
+  "ivan@happenventures.com":    { name: "Ivan Rangel",      role: "Sales",        assigneeName: "Ivan" },
+  "alexis@happenventures.com":  { name: "Alexis",           role: "Tech Manager", assigneeName: "Alexis" },
 };
 
 const BASE_ID  = "appUDQ65M1lSnSM5p";   // Bot Master DB
-const TABLE_ID = "tblPXhWpS79NvLmh9";   // Task Queue
-const MAX_RECORDS = 200;                // cap to keep payload sane
+const TABLE_ID = "tbl4YywNGbJynrrdk";   // Robin Tasks
+const MAX_RECORDS = 200;
+
+// Field IDs (hardcoded — no schema lookups at runtime)
+const F = {
+  title:          "fldJOowgHzkR0V0NN",
+  description:    "fldxrIcz6mWPVgAHo",
+  recommendation: "fldNgeGXZN0Thgc1W",
+  status:         "fldmmPAthBr4WioZY",
+  priority:       "flde6RSqxXzi27kYK",
+  category:       "flddeV5IiS1r8ZfzF",
+  assignedTo:     "fldKrRHjqdnyCQdJn",
+  relatedUrl:     "fldhRBTtJ1tFYvEMG",
+  relatedRecId:   "fldd0cRyZymtqPwYt",
+  sourceWorkflow: "fldhheu7yFXIE3msN",
+  createdAt:      "fldsSSyJfdiMBVXnB",
+  resolvedAt:     "fldAXDXrRa9LL78AQ",
+  resolvedBy:     "fldUfs2azT2HiHdM1",
+  resolutionNotes:"fldLIxyggGQFhdbvh",
+  callbackUrl:    "fld5qFd5BdDCslVGK",
+};
+
+const PRIORITY_RANK = { "Urgent": 4, "High": 3, "Medium": 2, "Low": 1 };
 
 export default async (req) => {
   try {
@@ -30,8 +54,12 @@ export default async (req) => {
     const apiKey = Netlify.env.get("AIRTABLE_API_KEY");
     if (!apiKey) return json({ error: "AIRTABLE_API_KEY not configured" }, 500);
 
-    // All users see all pending_review drafts (see comment at top of file).
-    const formula = `{status} = "pending_review"`;
+    // Filter formula: Status = "Pending Review", and (viewAll OR assigned-to-me OR Unassigned)
+    let formula = `{Status} = "Pending Review"`;
+    if (!user.viewAll) {
+      const me = user.assigneeName.replace(/"/g, '\\"');
+      formula = `AND(${formula}, OR({Assigned To} = "${me}", {Assigned To} = "Unassigned", {Assigned To} = ""))`;
+    }
 
     let all = [];
     let offset = null;
@@ -40,10 +68,8 @@ export default async (req) => {
       const params = new URLSearchParams({
         filterByFormula: formula,
         pageSize: "100",
-        "sort[0][field]": "priority_score",
-        "sort[0][direction]": "desc",
-        "sort[1][field]": "created_at",
-        "sort[1][direction]": "asc",
+        "sort[0][field]": "Created At",
+        "sort[0][direction]": "asc",
       });
       if (offset) params.set("offset", offset);
 
@@ -63,30 +89,36 @@ export default async (req) => {
       pages++;
     } while (offset && all.length < MAX_RECORDS && pages < 5);
 
-    const aiTasks = all.slice(0, MAX_RECORDS).map((rec) => {
+    // Map records → API shape
+    let aiTasks = all.slice(0, MAX_RECORDS).map((rec) => {
       const f = rec.fields || {};
       return {
         id: rec.id,
-        taskName: f["Task Name"] || "(untitled task)",
-        taskType: extractSelect(f.task_type),
-        targetName: f.target_name || "",
-        targetEmail: f.target_email || "",
-        draftSubject: f.draft_subject || "",
-        whyThisExists: f.why_this_exists || "",
-        priorityScore: typeof f.priority_score === "number" ? f.priority_score : null,
-        botPersona: extractSelect(f.bot_persona),
-        sourceAgent: extractSelect(f.source_agent),
-        sendMethod: extractSelect(f.send_method),
-        companyName: f.company_name || "",
-        campaignName: f.campaign_name || "",
-        snoozedUntil: f.snoozed_until || null,
-        airtableUrl: `https://airtable.com/${BASE_ID}/${TABLE_ID}/${rec.id}`,
-        createdAt: rec.createdTime,
+        title:          f["Task Title"] || "(untitled task)",
+        description:    f["Description"] || "",
+        recommendation: f["Recommendation"] || "",
+        status:         extractSelect(f["Status"]),
+        priority:       extractSelect(f["Priority"]),
+        category:       extractSelect(f["Category"]),
+        assignedTo:     extractSelect(f["Assigned To"]),
+        relatedUrl:     f["Related URL"] || "",
+        relatedRecordId:f["Related Record ID"] || "",
+        sourceWorkflow: f["Source Workflow"] || "",
+        createdAt:      f["Created At"] || rec.createdTime,
+        airtableUrl:    `https://airtable.com/${BASE_ID}/${TABLE_ID}/${rec.id}`,
       };
     });
 
+    // Sort: Urgent → High → Medium → Low, then oldest first
+    aiTasks.sort((a, b) => {
+      const pa = PRIORITY_RANK[a.priority] || 0;
+      const pb = PRIORITY_RANK[b.priority] || 0;
+      if (pa !== pb) return pb - pa;
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    });
+
     return json({
-      user: { email, name: user.name, role: user.role, viewAll: !!user.viewAll },
+      user: { email, name: user.name, role: user.role, viewAll: !!user.viewAll, assigneeName: user.assigneeName },
       aiTasks,
       count: aiTasks.length,
       truncated: all.length >= MAX_RECORDS && offset != null,
