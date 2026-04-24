@@ -292,6 +292,77 @@
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
   .toast.error { background: var(--color-red); }
 
+  /* ============ HV BOT (CHAT) ============ */
+  .bot-shell { display: flex; flex-direction: column; height: calc(100vh - 180px); min-height: 500px; background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); overflow: hidden; }
+  .bot-meta-bar { padding: 10px 18px; border-bottom: 1px solid var(--color-gray-100); display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 11px; color: var(--color-muted); flex-shrink: 0; }
+  .bot-meta-bar .left { display: flex; align-items: center; gap: 8px; }
+  .bot-meta-bar .doc-count { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: var(--color-gray-50); border-radius: 10px; font-weight: 500; }
+  .bot-meta-bar .doc-count .material-symbols-outlined { font-size: 12px; }
+  .bot-meta-bar button { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--color-gray-100); background: var(--color-bg); font-family: inherit; font-size: 11px; color: var(--color-text-secondary); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+  .bot-meta-bar button:hover { border-color: var(--color-text); color: var(--color-text); }
+  .bot-meta-bar button .material-symbols-outlined { font-size: 13px; }
+
+  .bot-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 18px; scroll-behavior: smooth; }
+  .bot-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; color: var(--color-text-secondary); }
+  .bot-empty-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--color-text); color: var(--color-bg); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+  .bot-empty-icon .material-symbols-outlined { font-size: 28px; }
+  .bot-empty h2 { font-size: 18px; font-weight: 700; color: var(--color-text); margin-bottom: 6px; }
+  .bot-empty p { font-size: 13px; max-width: 460px; line-height: 1.5; margin-bottom: 22px; }
+  .bot-quick-prompts { display: grid; grid-template-columns: repeat(2, minmax(220px, 280px)); gap: 8px; max-width: 600px; }
+  .bot-quick-prompt { padding: 12px 14px; border: 1px solid var(--color-gray-100); border-radius: var(--radius-sm); background: var(--color-bg); font-family: inherit; font-size: 13px; text-align: left; color: var(--color-text); cursor: pointer; transition: all 0.12s; line-height: 1.4; }
+  .bot-quick-prompt:hover { border-color: var(--color-text); transform: translateY(-1px); }
+  .bot-quick-prompt .material-symbols-outlined { font-size: 13px; color: var(--color-muted); margin-right: 4px; vertical-align: -2px; }
+
+  .bot-msg { display: flex; gap: 12px; max-width: 100%; }
+  .bot-msg.user { flex-direction: row-reverse; }
+  .bot-msg-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--color-gray-100); color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+  .bot-msg.assistant .bot-msg-avatar { background: var(--color-text); color: var(--color-bg); }
+  .bot-msg-bubble { max-width: 78%; min-width: 0; }
+  .bot-msg.user .bot-msg-bubble { background: var(--color-text); color: var(--color-bg); padding: 10px 14px; border-radius: 14px 14px 4px 14px; }
+  .bot-msg.user .bot-msg-bubble p { margin: 0; font-size: 13.5px; line-height: 1.5; }
+  .bot-msg.assistant .bot-msg-bubble { background: transparent; color: var(--color-text); padding: 4px 0; }
+  .bot-msg.assistant .bot-msg-text { font-size: 13.5px; line-height: 1.65; }
+  .bot-msg.assistant .bot-msg-text p { margin: 0 0 10px 0; }
+  .bot-msg.assistant .bot-msg-text p:last-child { margin-bottom: 0; }
+  .bot-msg.assistant .bot-msg-text ul, .bot-msg.assistant .bot-msg-text ol { margin: 8px 0 12px 0; padding-left: 22px; }
+  .bot-msg.assistant .bot-msg-text li { margin-bottom: 4px; line-height: 1.55; }
+  .bot-msg.assistant .bot-msg-text strong { font-weight: 700; }
+  .bot-msg.assistant .bot-msg-text code { background: var(--color-gray-50); padding: 1px 5px; border-radius: 3px; font-family: ui-monospace, monospace; font-size: 12px; }
+  .bot-msg.assistant .bot-msg-text a { color: var(--color-text); text-decoration: underline; text-decoration-color: var(--color-gray-200); text-underline-offset: 2px; }
+  .bot-msg.assistant .bot-msg-text a:hover { text-decoration-color: var(--color-text); }
+
+  .bot-msg-cursor { display: inline-block; width: 7px; height: 14px; background: var(--color-text); vertical-align: -2px; animation: blink 0.9s infinite; margin-left: 1px; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .bot-sources { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--color-gray-100); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .bot-sources-label { font-size: 10px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--color-muted); margin-right: 4px; }
+  .bot-source-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); border-radius: 10px; font-size: 11px; color: var(--color-text); text-decoration: none; transition: all 0.12s; }
+  .bot-source-chip:hover { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+  .bot-source-chip .material-symbols-outlined { font-size: 11px; }
+
+  .bot-followups { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .bot-followups-label { font-size: 10px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--color-muted); }
+  .bot-followup-chip { padding: 8px 12px; background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: 8px; font-family: inherit; font-size: 12px; color: var(--color-text); text-align: left; cursor: pointer; transition: all 0.12s; align-self: flex-start; max-width: 100%; }
+  .bot-followup-chip:hover { border-color: var(--color-text); }
+  .bot-followup-chip .material-symbols-outlined { font-size: 11px; color: var(--color-muted); margin-right: 3px; vertical-align: -1px; }
+
+  .bot-feedback { display: flex; gap: 4px; margin-top: 8px; opacity: 0.6; transition: opacity 0.15s; }
+  .bot-msg.assistant:hover .bot-feedback { opacity: 1; }
+  .bot-feedback button { width: 24px; height: 24px; border: 1px solid var(--color-gray-100); border-radius: 5px; background: var(--color-bg); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: var(--color-muted); transition: all 0.1s; }
+  .bot-feedback button:hover { color: var(--color-text); border-color: var(--color-text); }
+  .bot-feedback button.active { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+  .bot-feedback button .material-symbols-outlined { font-size: 13px; }
+
+  .bot-input-wrap { border-top: 1px solid var(--color-gray-100); padding: 14px 18px 16px; flex-shrink: 0; background: var(--color-bg); }
+  .bot-input-row { display: flex; gap: 10px; align-items: flex-end; }
+  .bot-input { flex: 1; padding: 11px 14px; border: 1px solid var(--color-gray-100); border-radius: var(--radius-sm); font-family: inherit; font-size: 13px; color: var(--color-text); background: var(--color-bg); resize: none; line-height: 1.5; min-height: 42px; max-height: 140px; transition: border-color 0.12s; }
+  .bot-input:focus { outline: none; border-color: var(--color-text); }
+  .bot-send-btn { width: 42px; height: 42px; border-radius: var(--radius-sm); background: var(--color-text); color: var(--color-bg); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.12s; flex-shrink: 0; }
+  .bot-send-btn:hover { background: #000; }
+  .bot-send-btn:disabled { background: var(--color-gray-200); cursor: not-allowed; }
+  .bot-send-btn .material-symbols-outlined { font-size: 18px; }
+  .bot-input-hint { font-size: 10px; color: var(--color-muted); margin-top: 6px; padding-left: 4px; }
+
   /* ============ TAB PANELS ============ */
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
@@ -1484,7 +1555,53 @@ R3 Operations · Happen Ventures</div>
     </div>
   </section>
   <section class="tab-panel" data-panel="bot">
-    <div class="page-head"><div><h1 class="page-title">HV Bot</h1><p class="page-meta">Company wiki + chat — next to build</p></div></div>
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">HV Bot <span class="tag-mod">Universal · Company knowledge</span></h1>
+        <p class="page-meta">Ask anything about HV — SOPs, policies, programs, processes. Pulls live from Resource Repository.</p>
+      </div>
+    </div>
+
+    <div class="bot-shell">
+      <div class="bot-meta-bar">
+        <div class="left">
+          <span class="doc-count">
+            <span class="material-symbols-outlined">database</span>
+            <span id="botDocCount">Loading docs…</span>
+          </span>
+          <span id="botModelLabel">Claude Sonnet 4.5</span>
+        </div>
+        <div>
+          <button id="botNewChatBtn"><span class="material-symbols-outlined">add</span> New chat</button>
+        </div>
+      </div>
+
+      <div class="bot-messages" id="botMessages">
+        <div class="bot-empty" id="botEmpty">
+          <div class="bot-empty-icon"><span class="material-symbols-outlined">forum</span></div>
+          <h2>Ask HV Bot anything</h2>
+          <p>I know about every active doc in the Resource Repository — SOPs, workflows, decks, training, legal, strategy. If it's in there, I can answer.</p>
+          <div class="bot-quick-prompts" id="botQuickPrompts">
+            <!-- populated by JS based on actual docs -->
+          </div>
+        </div>
+      </div>
+
+      <div class="bot-input-wrap">
+        <div class="bot-input-row">
+          <textarea
+            class="bot-input"
+            id="botInput"
+            placeholder="Ask anything about HV processes, policies, programs..."
+            rows="1"
+          ></textarea>
+          <button class="bot-send-btn" id="botSendBtn" title="Send (Enter)">
+            <span class="material-symbols-outlined">arrow_upward</span>
+          </button>
+        </div>
+        <div class="bot-input-hint">Enter to send · Shift+Enter for newline · Bot only knows what's in active docs</div>
+      </div>
+    </div>
   </section>
   <section class="tab-panel" data-panel="tools">
     <div class="page-head"><div><h1 class="page-title">Tools</h1><p class="page-meta">Claude projects + utilities — next to build</p></div></div>
@@ -1847,6 +1964,354 @@ R3 Operations · Happen Ventures</div>
   } else {
     // Pre-fetch the count for the badge
     loadTasks();
+  }
+
+  // ============ HV BOT (CHAT) ============
+  const botMessages = document.getElementById('botMessages');
+  const botInput = document.getElementById('botInput');
+  const botSendBtn = document.getElementById('botSendBtn');
+  const botEmpty = document.getElementById('botEmpty');
+  const botDocCount = document.getElementById('botDocCount');
+  const botQuickPrompts = document.getElementById('botQuickPrompts');
+  const botNewChatBtn = document.getElementById('botNewChatBtn');
+
+  let botConversation = []; // {role: 'user'|'assistant', content: '...'}
+  let botStreaming = false;
+  let botDocsLoaded = false;
+
+  // Wire up tab activation to lazy-load docs
+  document.querySelector('.nav-tab[data-tab="bot"]').addEventListener('click', () => {
+    if (!botDocsLoaded) {
+      loadBotDocs();
+      botDocsLoaded = true;
+    }
+  });
+
+  async function loadBotDocs() {
+    try {
+      const res = await fetch('/api/wiki-docs');
+      const data = await res.json();
+      if (!res.ok) {
+        botDocCount.textContent = 'Doc load failed';
+        return;
+      }
+      botDocCount.textContent = `${data.withAnyContent}/${data.count} docs ready`;
+
+      // Render quick prompts based on actual categories
+      const prompts = generateQuickPrompts(data.byCategory);
+      botQuickPrompts.innerHTML = prompts.map(p => `
+        <button class="bot-quick-prompt" data-prompt="${escAttr(p)}">
+          <span class="material-symbols-outlined">north_east</span>${esc(p)}
+        </button>
+      `).join('');
+      botQuickPrompts.querySelectorAll('.bot-quick-prompt').forEach(btn => {
+        btn.addEventListener('click', () => {
+          submitBotMessage(btn.dataset.prompt);
+        });
+      });
+    } catch (err) {
+      botDocCount.textContent = 'Doc load error';
+    }
+  }
+
+  function generateQuickPrompts(byCategory) {
+    // Smart, opinionated prompts based on what's actually in the repo
+    const categories = Object.keys(byCategory);
+    const prompts = [];
+
+    if (categories.includes('SOP')) prompts.push('What SOPs do we have for R3?');
+    if (categories.includes('Training')) prompts.push('What training materials exist for new hires?');
+    if (categories.includes('Workflow')) prompts.push('How does the customer interactions workflow work?');
+    if (categories.includes('One Pager')) prompts.push('Explain the PPE Reuse Program in 30 seconds');
+    if (categories.includes('Case Study')) prompts.push('What case studies do we have to share?');
+    if (categories.includes('Legal Doc')) prompts.push('Where are our service agreements?');
+
+    // Fill to 6 with safe fallbacks
+    const fallbacks = [
+      'How do I claim a donation?',
+      'What\'s the laundry partner onboarding process?',
+      'Where\'s the brand guide?',
+      'What programs does HV run?',
+    ];
+    for (const f of fallbacks) {
+      if (prompts.length >= 6) break;
+      if (!prompts.includes(f)) prompts.push(f);
+    }
+    return prompts.slice(0, 6);
+  }
+
+  // Auto-resize textarea
+  botInput.addEventListener('input', () => {
+    botInput.style.height = 'auto';
+    botInput.style.height = Math.min(botInput.scrollHeight, 140) + 'px';
+  });
+
+  // Enter to send, Shift+Enter for newline
+  botInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const val = botInput.value.trim();
+      if (val) submitBotMessage(val);
+    }
+  });
+
+  botSendBtn.addEventListener('click', () => {
+    const val = botInput.value.trim();
+    if (val) submitBotMessage(val);
+  });
+
+  botNewChatBtn.addEventListener('click', () => {
+    if (botStreaming) return;
+    botConversation = [];
+    botMessages.innerHTML = '';
+    botMessages.appendChild(botEmpty);
+    botEmpty.style.display = 'flex';
+    botInput.value = '';
+    botInput.style.height = 'auto';
+  });
+
+  async function submitBotMessage(text) {
+    if (botStreaming) return;
+
+    // Hide empty state
+    botEmpty.style.display = 'none';
+
+    // Add user message to UI + conversation
+    botConversation.push({ role: 'user', content: text });
+    appendBotMessage('user', text);
+
+    // Clear input
+    botInput.value = '';
+    botInput.style.height = 'auto';
+
+    // Add empty assistant bubble that we'll stream into
+    const assistantBubble = appendBotMessage('assistant', '');
+    const textEl = assistantBubble.querySelector('.bot-msg-text');
+    const cursor = document.createElement('span');
+    cursor.className = 'bot-msg-cursor';
+    textEl.appendChild(cursor);
+
+    botStreaming = true;
+    botSendBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/wiki-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: botConversation,
+          userEmail: currentUserEmail(),
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Unknown error' }));
+        textEl.innerHTML = `<p style="color: var(--color-red);">⚠️ ${esc(err.error || 'Request failed')}</p>`;
+        cursor.remove();
+        return;
+      }
+
+      // SSE stream from Claude
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullText = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const dataStr = line.slice(6).trim();
+          if (!dataStr || dataStr === '[DONE]') continue;
+          try {
+            const data = JSON.parse(dataStr);
+            if (data.type === 'content_block_delta' && data.delta?.text) {
+              fullText += data.delta.text;
+              renderStreamingText(textEl, fullText, cursor);
+              botMessages.scrollTop = botMessages.scrollHeight;
+            }
+          } catch (e) {
+            // skip malformed
+          }
+        }
+      }
+
+      cursor.remove();
+      finalizeBotMessage(assistantBubble, fullText);
+      botConversation.push({ role: 'assistant', content: fullText });
+    } catch (err) {
+      textEl.innerHTML = `<p style="color: var(--color-red);">⚠️ ${esc(err.message)}</p>`;
+      cursor.remove();
+    } finally {
+      botStreaming = false;
+      botSendBtn.disabled = false;
+      botInput.focus();
+    }
+  }
+
+  function appendBotMessage(role, text) {
+    const el = document.createElement('div');
+    el.className = `bot-msg ${role}`;
+    const initials = role === 'user'
+      ? (USERS_DISPLAY[currentUserEmail()]?.initials || 'U')
+      : 'HV';
+    el.innerHTML = `
+      <div class="bot-msg-avatar">${esc(initials)}</div>
+      <div class="bot-msg-bubble">
+        ${role === 'user'
+          ? `<p>${esc(text)}</p>`
+          : `<div class="bot-msg-text"></div>`}
+      </div>
+    `;
+    botMessages.appendChild(el);
+    botMessages.scrollTop = botMessages.scrollHeight;
+    return el;
+  }
+
+  // User initials map (for chat avatars)
+  const USERS_DISPLAY = {
+    'joan@happenventures.com': { initials: 'JM' },
+    'jessica@happenventures.com': { initials: 'JG' },
+    'ivan@happenventures.com': { initials: 'IR' },
+  };
+
+  // Render streaming text — strips out the source/followup markers from the live text
+  function renderStreamingText(el, fullText, cursor) {
+    // Find where sources/followups start (📚 or 💡 line) and only render text before that
+    const sourceIdx = fullText.indexOf('\n📚');
+    const visibleText = sourceIdx >= 0 ? fullText.substring(0, sourceIdx) : fullText;
+
+    el.innerHTML = renderMarkdown(visibleText);
+    el.appendChild(cursor);
+  }
+
+  // Once stream completes, parse out sources + follow-ups + render feedback
+  function finalizeBotMessage(bubbleEl, fullText) {
+    const textEl = bubbleEl.querySelector('.bot-msg-text');
+    const sourceIdx = fullText.indexOf('\n📚');
+    const followIdx = fullText.indexOf('\n💡');
+
+    let mainText = fullText;
+    let sourcesLine = '';
+    let followupsLine = '';
+
+    if (sourceIdx >= 0) {
+      mainText = fullText.substring(0, sourceIdx);
+      const after = fullText.substring(sourceIdx + 1);
+      const lines = after.split('\n');
+      sourcesLine = (lines.find(l => l.startsWith('📚')) || '').replace(/^📚\s*/, '');
+      followupsLine = (lines.find(l => l.startsWith('💡')) || '').replace(/^💡\s*/, '');
+    } else if (followIdx >= 0) {
+      mainText = fullText.substring(0, followIdx);
+      followupsLine = fullText.substring(followIdx + 1).split('\n').find(l => l.startsWith('💡')) || '';
+      followupsLine = followupsLine.replace(/^💡\s*/, '');
+    }
+
+    textEl.innerHTML = renderMarkdown(mainText.trim());
+
+    // Render source chips
+    if (sourcesLine) {
+      const sourceNames = sourcesLine.split('·').map(s => s.trim()).filter(Boolean);
+      if (sourceNames.length) {
+        const sourcesEl = document.createElement('div');
+        sourcesEl.className = 'bot-sources';
+        sourcesEl.innerHTML = `
+          <span class="bot-sources-label">📚 Sources</span>
+          ${sourceNames.map(n => `
+            <span class="bot-source-chip" title="From Resource Repository">
+              <span class="material-symbols-outlined">description</span>${esc(n)}
+            </span>
+          `).join('')}
+        `;
+        textEl.parentElement.appendChild(sourcesEl);
+      }
+    }
+
+    // Render follow-up chips
+    if (followupsLine) {
+      const fups = followupsLine.split('|').map(f => f.trim()).filter(Boolean);
+      if (fups.length) {
+        const fupsEl = document.createElement('div');
+        fupsEl.className = 'bot-followups';
+        fupsEl.innerHTML = `
+          <span class="bot-followups-label">💡 Try asking</span>
+          ${fups.map(q => `
+            <button class="bot-followup-chip" data-q="${escAttr(q)}">
+              <span class="material-symbols-outlined">north_east</span>${esc(q)}
+            </button>
+          `).join('')}
+        `;
+        textEl.parentElement.appendChild(fupsEl);
+        fupsEl.querySelectorAll('.bot-followup-chip').forEach(b => {
+          b.addEventListener('click', () => submitBotMessage(b.dataset.q));
+        });
+      }
+    }
+
+    // Feedback row
+    const fb = document.createElement('div');
+    fb.className = 'bot-feedback';
+    fb.innerHTML = `
+      <button data-fb="up" title="Helpful"><span class="material-symbols-outlined">thumb_up</span></button>
+      <button data-fb="down" title="Not helpful"><span class="material-symbols-outlined">thumb_down</span></button>
+      <button data-fb="copy" title="Copy"><span class="material-symbols-outlined">content_copy</span></button>
+    `;
+    textEl.parentElement.appendChild(fb);
+    fb.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.fb;
+        if (action === 'copy') {
+          navigator.clipboard.writeText(mainText.trim());
+          showToast('Copied to clipboard');
+        } else {
+          fb.querySelectorAll('button[data-fb="up"], button[data-fb="down"]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          showToast(action === 'up' ? 'Glad that helped' : 'Thanks — feedback noted');
+          // TODO: log to Airtable feedback table later
+        }
+      });
+    });
+  }
+
+  // Tiny markdown renderer — handles paragraphs, lists, bold, code, links
+  function renderMarkdown(text) {
+    if (!text) return '';
+    // Escape HTML first
+    let html = esc(text);
+
+    // Code spans (must come before bold to avoid conflicts)
+    html = html.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+
+    // Bold
+    html = html.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+
+    // Markdown links [text](url)
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, txt, url) => {
+      return `<a href="${escAttr(url)}" target="_blank" rel="noopener">${txt}</a>`;
+    });
+
+    // Split into blocks (paragraphs / lists)
+    const blocks = html.split(/\n\n+/);
+    return blocks.map(block => {
+      const lines = block.split('\n');
+      // Detect bullet list
+      if (lines.every(l => /^[-*]\s/.test(l) || l.trim() === '')) {
+        const items = lines.filter(l => /^[-*]\s/.test(l)).map(l => l.replace(/^[-*]\s/, ''));
+        return `<ul>${items.map(i => `<li>${i}</li>`).join('')}</ul>`;
+      }
+      // Detect numbered list
+      if (lines.every(l => /^\d+\.\s/.test(l) || l.trim() === '')) {
+        const items = lines.filter(l => /^\d+\.\s/.test(l)).map(l => l.replace(/^\d+\.\s/, ''));
+        return `<ol>${items.map(i => `<li>${i}</li>`).join('')}</ol>`;
+      }
+      // Plain paragraph (preserve single newlines as <br>)
+      return `<p>${block.replace(/\n/g, '<br>')}</p>`;
+    }).join('');
   }
 </script>
 
