@@ -308,6 +308,28 @@
 
   /* Source toggle (Tasks / Tickets) */
   .source-toggle { display: inline-flex; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 3px; gap: 2px; margin-bottom: 14px; }
+
+  /* Tools tab */
+  .tools-search-wrap { display: inline-flex; align-items: center; gap: 6px; background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 6px 10px; min-width: 240px; }
+  .tools-search-wrap:focus-within { border-color: var(--color-text); }
+  .tools-search-wrap .material-symbols-outlined { font-size: 16px; color: var(--color-muted); }
+  .tools-search-wrap input { border: 0; outline: 0; background: transparent; font-size: 13px; color: var(--color-text); width: 100%; font-family: inherit; }
+  .tools-category { margin-bottom: 28px; }
+  .tools-category-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--color-gray-100); }
+  .tools-category-head h3 { font-size: 11px; font-weight: 600; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.6px; margin: 0; }
+  .tools-category-head .tools-count { font-size: 11px; color: var(--color-gray-200); font-weight: 500; }
+  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .tool-card { display: flex; align-items: flex-start; gap: 10px; padding: 14px; background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); cursor: pointer; text-decoration: none; color: inherit; transition: all 0.12s; position: relative; }
+  .tool-card:hover { border-color: var(--color-text); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .tool-card-icon { width: 32px; height: 32px; border-radius: var(--radius-sm); background: var(--color-gray-50); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .tool-card-icon .material-symbols-outlined { font-size: 18px; color: var(--color-text); }
+  .tool-card-body { flex: 1; min-width: 0; }
+  .tool-card-name { font-size: 13px; font-weight: 600; color: var(--color-text); margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
+  .tool-card-name .material-symbols-outlined.tool-arrow { font-size: 13px; color: var(--color-muted); margin-left: auto; transition: transform 0.12s; }
+  .tool-card:hover .tool-arrow { transform: translate(2px, -2px); color: var(--color-text); }
+  .tool-card-desc { font-size: 11px; color: var(--color-muted); line-height: 1.4; }
+  .tool-card-pending { display: inline-block; font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 3px; background: rgba(212, 142, 0, 0.1); color: #B8860B; text-transform: uppercase; letter-spacing: 0.4px; margin-left: 4px; vertical-align: middle; }
+  .tools-empty { text-align: center; padding: 40px 20px; color: var(--color-muted); font-size: 13px; }
   .source-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; background: transparent; color: var(--color-text-secondary); cursor: pointer; border: 1px solid transparent; transition: all 0.12s; }
   .source-btn:hover { color: var(--color-text); }
   .source-btn.active { background: var(--color-bg); color: var(--color-text); font-weight: 600; border-color: var(--color-gray-100); box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
@@ -1676,7 +1698,22 @@ R3 Operations · Happen Ventures</div>
     </div>
   </section>
   <section class="tab-panel" data-panel="tools">
-    <div class="page-head"><div><h1 class="page-title">Tools</h1><p class="page-meta">Claude projects + utilities — next to build</p></div></div>
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Tools <span class="tag-mod">Universal · Quick launchers</span></h1>
+        <p class="page-meta" id="toolsMeta">Loading…</p>
+      </div>
+      <div class="page-actions">
+        <div class="tools-search-wrap">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" id="toolsSearch" placeholder="Search tools…" />
+        </div>
+      </div>
+    </div>
+
+    <div id="toolsContainer">
+      <div class="home-loading">Loading tools…</div>
+    </div>
   </section>
 
 </main>
@@ -1803,6 +1840,106 @@ R3 Operations · Happen Ventures</div>
   function currentUserEmail() {
     return userSelect.value;
   }
+
+  // ============ TOOLS REGISTRY ============
+  // To add a tool: add a row here. To restrict who sees it: add a `visibleTo` array of emails.
+  // Categories render in this order: 'Claude Project', 'Internal Tool', 'External'.
+  // `pending: true` → shows the URL is a placeholder (use until real URL is wired in).
+  const TOOLS = [
+    // ----- Claude Projects -----
+    { id: 'vendor-uploader',         name: 'Vendor Uploader',          desc: 'Upload + structure new vendor data', icon: 'cloud_upload',  category: 'Claude Project', url: 'https://claude.ai/projects', pending: true },
+    { id: 'paperwork-filler',        name: 'Paperwork Filler',         desc: 'Auto-fill recurring forms + paperwork', icon: 'description', category: 'Claude Project', url: 'https://claude.ai/projects', pending: true },
+    { id: 'hv-solutions-researcher', name: 'HV Solutions Researcher',  desc: 'Match client problems to HV services', icon: 'search', category: 'Claude Project', url: 'https://claude.ai/projects', pending: true },
+
+    // ----- Internal HV Tools -----
+    { id: 'taskmaster',     name: 'TaskMaster',          desc: 'Personal + company task hub',          icon: 'task_alt',           category: 'Internal Tool', url: 'https://hv-taskmaster.netlify.app' },
+    { id: 'ceo-dashboard',  name: 'CEO Dashboard',       desc: 'Live KPIs and revenue metrics',        icon: 'monitor_heart',      category: 'Internal Tool', url: 'https://hv-ceo-dashboard.netlify.app',           visibleTo: ['jessica@happenventures.com'] },
+    { id: 'cmo-cc',         name: 'CMO Command Center',  desc: 'Outreach + cold call campaign control', icon: 'campaign',           category: 'Internal Tool', url: 'https://hv-cmo-command-center.netlify.app' },
+    { id: 'rev-cc',         name: 'Revenue Command',     desc: 'GP actuals vs targets by service',     icon: 'trending_up',        category: 'Internal Tool', url: 'https://happenventures.com',                     visibleTo: ['jessica@happenventures.com'] },
+
+    // ----- External -----
+    { id: 'airtable',     name: 'Airtable',         desc: 'All HV bases',                          icon: 'view_list',          category: 'External', url: 'https://airtable.com/' },
+    { id: 'hubspot',      name: 'HubSpot',          desc: 'CRM + pipelines',                       icon: 'contact_mail',       category: 'External', url: 'https://app.hubspot.com/' },
+    { id: 'slack',        name: 'Slack',            desc: 'HV workspace',                          icon: 'forum',              category: 'External', url: 'https://happenventures.slack.com/' },
+    { id: 'notion-build', name: 'Notion Build List',desc: 'Tech Build Queue + project specs',      icon: 'integration_instructions', category: 'External', url: 'https://www.notion.so/3369bfa5a7e381b4a20acd31e11ee2a6' },
+    { id: 'n8n',          name: 'n8n',              desc: 'Automation workflows',                  icon: 'account_tree',       category: 'External', url: 'https://happenventures.app.n8n.cloud/',          visibleTo: ['jessica@happenventures.com', 'alexis@happenventures.com'] },
+    { id: 'linear',       name: 'Linear',           desc: 'TECH team tickets',                     icon: 'flag',               category: 'External', url: 'https://linear.app/',                            visibleTo: ['jessica@happenventures.com', 'alexis@happenventures.com'] },
+    { id: 'anthropic',    name: 'Claude',           desc: 'Claude.ai + console',                   icon: 'auto_awesome',       category: 'External', url: 'https://claude.ai/' },
+  ];
+  const TOOL_CATEGORY_ORDER = ['Claude Project', 'Internal Tool', 'External'];
+
+  function visibleToolsForUser(email) {
+    return TOOLS.filter(t => !t.visibleTo || t.visibleTo.includes(email));
+  }
+
+  function renderTools(filterText = '') {
+    const container = document.getElementById('toolsContainer');
+    const meta = document.getElementById('toolsMeta');
+    if (!container) return;
+    const email = currentUserEmail();
+    const all = visibleToolsForUser(email);
+    const q = filterText.trim().toLowerCase();
+    const filtered = q
+      ? all.filter(t => (t.name + ' ' + t.desc + ' ' + t.category).toLowerCase().includes(q))
+      : all;
+
+    meta.textContent = q
+      ? `${filtered.length} of ${all.length} tools matching "${filterText}"`
+      : `${all.length} tools available`;
+
+    if (!filtered.length) {
+      container.innerHTML = `<div class="tools-empty">No tools match that search. Try clearing the filter.</div>`;
+      return;
+    }
+
+    // Group by category, preserving TOOL_CATEGORY_ORDER
+    const byCat = {};
+    for (const cat of TOOL_CATEGORY_ORDER) byCat[cat] = [];
+    for (const t of filtered) {
+      if (!byCat[t.category]) byCat[t.category] = [];
+      byCat[t.category].push(t);
+    }
+
+    container.innerHTML = TOOL_CATEGORY_ORDER
+      .filter(cat => byCat[cat] && byCat[cat].length)
+      .map(cat => {
+        const tools = byCat[cat];
+        return `
+          <div class="tools-category">
+            <div class="tools-category-head">
+              <h3>${esc(cat === 'Claude Project' ? 'Claude Projects' : cat + 's')}</h3>
+              <span class="tools-count">${tools.length}</span>
+            </div>
+            <div class="tools-grid">
+              ${tools.map(renderToolCard).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+  }
+
+  function renderToolCard(t) {
+    return `
+      <a class="tool-card" href="${escAttr(t.url)}" target="_blank" rel="noopener" data-tool-id="${escAttr(t.id)}">
+        <div class="tool-card-icon"><span class="material-symbols-outlined">${esc(t.icon || 'open_in_new')}</span></div>
+        <div class="tool-card-body">
+          <div class="tool-card-name">
+            ${esc(t.name)}${t.pending ? '<span class="tool-card-pending">URL pending</span>' : ''}
+            <span class="material-symbols-outlined tool-arrow">north_east</span>
+          </div>
+          <div class="tool-card-desc">${esc(t.desc)}</div>
+        </div>
+      </a>
+    `;
+  }
+
+  // Wire up search + initial render
+  document.getElementById('toolsSearch').addEventListener('input', (e) => {
+    renderTools(e.target.value);
+  });
+
+  // Render once on load + re-render when user switches
+  renderTools();
 
   function showToast(msg, isError = false) {
     const t = document.getElementById('toast');
@@ -1953,6 +2090,8 @@ R3 Operations · Happen Ventures</div>
     loadTasks();
     loadMeetings();
     loadActivity();
+    // Re-render tools (different users have different visibility)
+    renderTools(document.getElementById('toolsSearch').value || '');
     // Invalidate tickets cache so next toggle reloads
     ticketsLoaded = false;
     if (currentSource === 'tickets') loadTickets();
