@@ -662,7 +662,6 @@
 
   <nav class="nav">
     <a href="#" class="nav-tab active" data-tab="home"><span class="material-symbols-outlined">home</span> Home</a>
-    <a href="#" class="nav-tab" data-tab="queue"><span class="material-symbols-outlined">bolt</span> Task Queue <span class="badge alert">6</span></a>
     <a href="#" class="nav-tab" data-tab="tasks"><span class="material-symbols-outlined">check_circle</span> Tasks <span class="badge" id="tasksNavBadge">—</span></a>
     <a href="#" class="nav-tab" data-tab="bot"><span class="material-symbols-outlined">smart_toy</span> HV Bot</a>
     <a href="#" class="nav-tab" data-tab="tools"><span class="material-symbols-outlined">build</span> Tools</a>
@@ -1379,218 +1378,16 @@
         <div class="home-action-title">My tasks</div>
         <div class="home-action-sub">Snooze · update · resolve</div>
       </button>
-      <button class="home-action" data-jump="queue">
-        <div class="home-action-icon"><span class="material-symbols-outlined">inbox_customize</span></div>
-        <div class="home-action-title">Bot queue</div>
-        <div class="home-action-sub">Approve drafts</div>
+      <button class="home-action" data-jump="tasks" data-source-jump="ai-tasks">
+        <div class="home-action-icon"><span class="material-symbols-outlined">smart_toy</span></div>
+        <div class="home-action-title">AI tasks</div>
+        <div class="home-action-sub">Approve bot drafts</div>
       </button>
       <a class="home-action" href="https://airtable.com/appGDkdfPiiZ2lwO2/tblI12xpnUKg9T8Cm" target="_blank" rel="noopener" style="text-decoration: none;">
         <div class="home-action-icon"><span class="material-symbols-outlined">open_in_new</span></div>
         <div class="home-action-title">Airtable</div>
         <div class="home-action-sub">Open task table</div>
       </a>
-    </div>
-  </section>
-  <section class="tab-panel" data-panel="queue">
-    <div class="page-head">
-      <div>
-        <h1 class="page-title">Task Queue <span class="tag-mod">Universal · Human-in-loop</span></h1>
-        <div class="queue-stats">
-          <span><span class="num">6</span> waiting</span>
-          <span class="sep"></span>
-          <span><span class="num">12</span> completed today</span>
-          <span class="sep"></span>
-          <span>Last synced <span class="num">just now</span></span>
-        </div>
-      </div>
-      <div class="page-actions">
-      </div>
-    </div>
-
-
-
-    <!-- SPLIT LAYOUT -->
-    <div class="queue-split">
-
-      <!-- LEFT: QUEUE LIST — RESET TO REAL WORKFLOWS -->
-      <aside class="queue-list">
-        <div class="queue-list-head">
-          <span>6 Items</span>
-          <button class="queue-collapse-btn" id="queueCollapseBtn" title="Collapse list" aria-label="Collapse queue list">
-            <span class="material-symbols-outlined">chevron_left</span>
-          </button>
-        </div>
-
-        <!-- Item 1: SELECTED — Complaint (CMP-01) -->
-        <div class="queue-item selected">
-          <div class="q-item-head">
-            <span class="q-wf-tag"><span class="wf-dot draft"></span>Draft</span>
-            <span class="q-time">12m</span>
-          </div>
-          <div class="q-title">Complaint reply — Target Cincinnati</div>
-          <div class="q-sub">Type A · Quality · needs your send</div>
-          <div class="q-tags">
-            <span class="q-tag high">High</span>
-          </div>
-        </div>
-
-        <!-- Item 2: Equipment Discrepancy -->
-        <div class="queue-item">
-          <div class="q-item-head">
-            <span class="q-wf-tag"><span class="wf-dot escalate"></span>Escalate</span>
-            <span class="q-time">34m</span>
-          </div>
-          <div class="q-title">Install slip mismatch · UIN4</div>
-          <div class="q-sub">Tacoma, WA · 2 fields off (bins, signs)</div>
-          <div class="q-tags">
-            <span class="q-tag high">High</span>
-          </div>
-        </div>
-
-        <!-- Item 3: FIN-03 Price Change -->
-        <div class="queue-item">
-          <div class="q-item-head">
-            <span class="q-wf-tag"><span class="wf-dot draft"></span>Approval</span>
-            <span class="q-time">1h</span>
-          </div>
-          <div class="q-title">Price change — Pink Champaigne</div>
-          <div class="q-sub">$4.25 → $4.75 per piece</div>
-        </div>
-
-        <!-- Item 4: Second Complaint -->
-        <div class="queue-item">
-          <div class="q-item-head">
-            <span class="q-wf-tag"><span class="wf-dot draft"></span>Draft</span>
-            <span class="q-time">1h 28m</span>
-          </div>
-          <div class="q-title">Complaint reply — Amazon PDX</div>
-          <div class="q-sub">Type B · Missing items</div>
-          <div class="q-tags">
-            <span class="q-tag high">High</span>
-          </div>
-        </div>
-
-        <!-- Item 5: FIN-02 AR -->
-        <div class="queue-item">
-          <div class="q-item-head">
-            <span class="q-wf-tag"><span class="wf-dot draft"></span>Approval</span>
-            <span class="q-time">2h</span>
-          </div>
-          <div class="q-title">AR invoice — Walmart Charlotte</div>
-          <div class="q-sub">$14,320 · delivered, ready to send</div>
-        </div>
-
-        <!-- Item 6: AOE (Gmail agent) -->
-        <div class="queue-item">
-          <div class="q-item-head">
-            <span class="q-wf-tag"><span class="wf-dot draft"></span>Draft</span>
-            <span class="q-time">3h</span>
-          </div>
-          <div class="q-title">Email reply — Joey Gilb (Drop and Dash)</div>
-          <div class="q-sub">Auto-drafted · partner question re: counts</div>
-        </div>
-      </aside>
-
-      <!-- RIGHT: DETAIL CARD — still showing CMP-01 complaint example -->
-      <div class="queue-detail">
-
-        <!-- HEAD -->
-        <div class="qd-head">
-          <div class="qd-eyebrow">
-            <span class="qd-status draft">Approval required</span>
-            <span class="qd-priority">High · Quality complaint</span>
-          </div>
-          <h2 class="qd-title">Draft reply — Sarah Chen at Target Cincinnati</h2>
-          <div class="qd-subtitle">Logged 2h 14m ago · drafted by Robin</div>
-        </div>
-
-        <!-- CONTEXT STRIP — only the 2 things that matter -->
-        <div class="qd-context">
-          <div class="qd-ctx-item">
-            <div class="qd-ctx-label">Order</div>
-            <div class="qd-ctx-value">TGT-CIN-0082</div>
-          </div>
-          <div class="qd-ctx-item">
-            <div class="qd-ctx-label">SLA</div>
-            <div class="qd-ctx-value">Reply within 4h</div>
-          </div>
-        </div>
-
-        <!-- ORIGINAL COMPLAINT -->
-        <div class="qd-section">
-          <div class="qd-section-label">
-            <span class="material-symbols-outlined">format_quote</span>
-            Original complaint
-          </div>
-          <div class="qd-quote">
-            "Our staff uniforms came back from the last pickup with a heavy soap residue and a strange chemical smell. Half the team complained. We can't have people wearing these on the floor. Please address this urgently."
-            <div class="qd-quote-meta">— Sarah Chen, Store Manager · via site Slack · 2h 14m ago</div>
-          </div>
-        </div>
-
-        <!-- ROBIN NOTE — single line, not a paragraph -->
-        <div class="qd-section">
-          <div class="robin-note">
-            <div class="robin-note-icon"><span class="material-symbols-outlined">smart_toy</span></div>
-            <div class="robin-note-body">
-              Type A complaint. Routed to <strong>Drop and Dash</strong>, driver <strong>Emanuel Perez</strong>. <strong>No refund/credit offered</strong> — that escalates to Jess.
-            </div>
-          </div>
-        </div>
-
-        <!-- DRAFT -->
-        <div class="qd-section">
-          <div class="qd-section-label">
-            <span class="material-symbols-outlined">draft</span>
-            Robin's draft reply
-          </div>
-          <div class="qd-draft-box" contenteditable="true" spellcheck="false">Hi Sarah,
-
-Thanks for flagging this — I'm sorry the last pickup didn't come back right. That's not the standard we want for your team.
-
-I'm looking into what happened on order TGT-CIN-0082 with the partner who handled that route. I'll follow up within 24 hours with what we found and how we're making it right.
-
-If any uniforms need immediate replacement or rewash, let me know and we'll prioritize.
-
-— Joan
-R3 Operations · Happen Ventures</div>
-          <div class="qd-draft-label">
-            <span class="material-symbols-outlined">edit</span>
-            Click anywhere to edit
-          </div>
-        </div>
-
-        <!-- ACTIONS -->
-        <div class="qd-actions">
-          <div class="qd-action-group">
-            <button class="qd-btn primary">
-              <span class="material-symbols-outlined">send</span>
-              Send
-              <span class="shortcut-key">A</span>
-            </button>
-            <button class="qd-btn">
-              <span class="material-symbols-outlined">auto_awesome</span>
-              Rewrite
-            </button>
-            <button class="qd-btn">
-              <span class="material-symbols-outlined">arrow_upward</span>
-              Escalate to Jess
-            </button>
-            <button class="qd-btn ghost">
-              Skip
-              <span class="shortcut-key">S</span>
-            </button>
-          </div>
-
-          <div class="qd-nav">
-            <button class="qd-btn ghost"><span class="material-symbols-outlined">chevron_left</span></button>
-            <span>1 of 6</span>
-            <button class="qd-btn ghost"><span class="material-symbols-outlined">chevron_right</span></button>
-          </div>
-        </div>
-
-      </div>
-
     </div>
   </section>
   <section class="tab-panel" data-panel="tasks">
@@ -1605,7 +1402,7 @@ R3 Operations · Happen Ventures</div>
       </div>
     </div>
 
-    <!-- Tasks / Tickets source toggle -->
+    <!-- Tasks / Tickets / AI Tasks source toggle -->
     <div class="source-toggle" role="tablist" aria-label="Task source">
       <button class="source-btn active" data-source="tasks" role="tab" aria-selected="true">
         <span class="material-symbols-outlined">checklist</span>
@@ -1616,6 +1413,11 @@ R3 Operations · Happen Ventures</div>
         <span class="material-symbols-outlined">confirmation_number</span>
         Tickets
         <span class="source-count" id="ticketsCount">—</span>
+      </button>
+      <button class="source-btn" data-source="ai-tasks" role="tab" aria-selected="false">
+        <span class="material-symbols-outlined">smart_toy</span>
+        AI Tasks
+        <span class="source-count" id="aiTasksCount">—</span>
       </button>
     </div>
 
@@ -1645,6 +1447,16 @@ R3 Operations · Happen Ventures</div>
         <span class="material-symbols-outlined">confirmation_number</span>
         <h3>No tickets assigned to you</h3>
         <p>Tickets in the Tech Build Queue are typically assigned to developers. <a href="https://www.notion.so/e96fef48cdf949f98b08c8d794894cb8" target="_blank" rel="noopener">Open Tech Build Queue</a></p>
+      </div>
+    </div>
+
+    <!-- AI Tasks view (Bot Master DB Task Queue) -->
+    <div id="aiTasksView" class="source-view" style="display:none;">
+      <div id="aiTasksList" class="tasks-list" style="display:none;"></div>
+      <div id="aiTasksEmpty" class="tasks-empty" style="display:none;">
+        <span class="material-symbols-outlined">smart_toy</span>
+        <h3>No AI tasks waiting on you</h3>
+        <p>Bot drafts pending your approval will show up here. Bots include the Sales Person Bot, CMO Bot, Lead Gen, and more.</p>
       </div>
     </div>
   </section>
@@ -2083,7 +1895,8 @@ R3 Operations · Happen Ventures</div>
 
   document.getElementById('tasksRefreshBtn').addEventListener('click', () => {
     if (currentSource === 'tasks') loadTasks();
-    else loadTickets();
+    else if (currentSource === 'tickets') loadTickets();
+    else if (currentSource === 'ai-tasks') loadAiTasks();
   });
   userSelect.addEventListener('change', () => {
     // Always reload tasks + meetings so home page + tasks tab + badge stay in sync
@@ -2092,26 +1905,34 @@ R3 Operations · Happen Ventures</div>
     loadActivity();
     // Re-render tools (different users have different visibility)
     renderTools(document.getElementById('toolsSearch').value || '');
-    // Invalidate tickets cache so next toggle reloads
+    // Invalidate tickets + ai-tasks caches so next toggle reloads
     ticketsLoaded = false;
+    aiTasksLoaded = false;
     if (currentSource === 'tickets') loadTickets();
+    if (currentSource === 'ai-tasks') loadAiTasks();
     showToast(`Switched to ${userSelect.options[userSelect.selectedIndex].text}`);
   });
 
-  // ============ TICKETS (NOTION TECH BUILD QUEUE) ============
+  // ============ TICKETS + AI TASKS ============
   const ticketsView = document.getElementById('ticketsView');
   const tasksView = document.getElementById('tasksView');
+  const aiTasksView = document.getElementById('aiTasksView');
   const ticketsList = document.getElementById('ticketsList');
   const ticketsEmpty = document.getElementById('ticketsEmpty');
+  const aiTasksList = document.getElementById('aiTasksList');
+  const aiTasksEmpty = document.getElementById('aiTasksEmpty');
   const ticketsCountEl = document.getElementById('ticketsCount');
+  const aiTasksCountEl = document.getElementById('aiTasksCount');
   const tasksCountEl = document.getElementById('tasksCount');
   const tasksOpenBtn = document.getElementById('tasksOpenBtn');
   const tasksLoaderText = document.getElementById('tasksLoaderText');
   let currentSource = 'tasks';
   let ticketsLoaded = false;
+  let aiTasksLoaded = false;
 
-  const AIRTABLE_TASKS_URL = 'https://airtable.com/appGDkdfPiiZ2lwO2/tblI12xpnUKg9T8Cm/viwZPFLEOADd0h7Ro?blocks=hide';
-  const NOTION_TICKETS_URL = 'https://www.notion.so/e96fef48cdf949f98b08c8d794894cb8';
+  const AIRTABLE_TASKS_URL    = 'https://airtable.com/appGDkdfPiiZ2lwO2/tblI12xpnUKg9T8Cm/viwZPFLEOADd0h7Ro?blocks=hide';
+  const NOTION_TICKETS_URL    = 'https://www.notion.so/e96fef48cdf949f98b08c8d794894cb8';
+  const AIRTABLE_AI_TASKS_URL = 'https://airtable.com/appUDQ65M1lSnSM5p/tblPXhWpS79NvLmh9';
 
   document.querySelectorAll('.source-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2123,17 +1944,23 @@ R3 Operations · Happen Ventures</div>
         b.classList.toggle('active', isActive);
         b.setAttribute('aria-selected', isActive ? 'true' : 'false');
       });
+
+      // Hide all, then show the active one
+      tasksView.style.display    = src === 'tasks'    ? '' : 'none';
+      ticketsView.style.display  = src === 'tickets'  ? '' : 'none';
+      aiTasksView.style.display  = src === 'ai-tasks' ? '' : 'none';
+
       if (src === 'tasks') {
-        tasksView.style.display = '';
-        ticketsView.style.display = 'none';
         tasksOpenBtn.href = AIRTABLE_TASKS_URL;
         tasksOpenBtn.innerHTML = '<span class="material-symbols-outlined">open_in_new</span> Open in Airtable';
-      } else {
-        tasksView.style.display = 'none';
-        ticketsView.style.display = '';
+      } else if (src === 'tickets') {
         tasksOpenBtn.href = NOTION_TICKETS_URL;
         tasksOpenBtn.innerHTML = '<span class="material-symbols-outlined">open_in_new</span> Open in Notion';
         if (!ticketsLoaded) loadTickets();
+      } else if (src === 'ai-tasks') {
+        tasksOpenBtn.href = AIRTABLE_AI_TASKS_URL;
+        tasksOpenBtn.innerHTML = '<span class="material-symbols-outlined">open_in_new</span> Open in Airtable';
+        if (!aiTasksLoaded) loadAiTasks();
       }
     });
   });
@@ -2203,6 +2030,80 @@ R3 Operations · Happen Ventures</div>
           <div class="task-actions">
             ${t.specUrl ? `<a class="task-btn" href="${escAttr(t.specUrl)}" target="_blank" rel="noopener"><span class="material-symbols-outlined">description</span> Spec</a>` : ''}
             <a class="task-btn" href="${escAttr(t.notionUrl)}" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Open</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ============ AI TASKS (Bot Master DB Task Queue) ============
+  async function loadAiTasks() {
+    tasksLoader.style.display = 'flex';
+    tasksLoaderText.textContent = 'Pulling from Airtable…';
+    tasksError.style.display = 'none';
+    try {
+      const email = currentUserEmail();
+      const res = await fetch(`/api/ai-tasks?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        tasksError.style.display = 'block';
+        tasksError.innerHTML = `<strong>Could not load AI tasks</strong> ${esc(data.error || 'Unknown error')}`;
+        aiTasksList.style.display = 'none';
+        aiTasksEmpty.style.display = 'none';
+        tasksMeta.textContent = 'Error loading AI tasks';
+        return;
+      }
+      renderAiTasks(data);
+      aiTasksLoaded = true;
+    } catch (err) {
+      tasksError.style.display = 'block';
+      tasksError.innerHTML = `<strong>Network error</strong> ${esc(err.message)}`;
+    } finally {
+      tasksLoader.style.display = 'none';
+    }
+  }
+
+  function renderAiTasks(data) {
+    const items = data.aiTasks || [];
+    const isAllView = data.user && data.user.viewAll;
+    aiTasksCountEl.textContent = items.length;
+    if (currentSource === 'ai-tasks') {
+      const noun = items.length === 1 ? 'AI task' : 'AI tasks';
+      tasksMeta.textContent = isAllView
+        ? `${items.length} ${noun} pending review across the team (CEO view)`
+        : items.length
+          ? `${items.length} ${noun} waiting on your approval`
+          : 'No AI tasks waiting on you';
+    }
+    if (!items.length) {
+      aiTasksList.style.display = 'none';
+      aiTasksEmpty.style.display = 'block';
+      return;
+    }
+    aiTasksEmpty.style.display = 'none';
+    aiTasksList.style.display = 'block';
+    aiTasksList.innerHTML = items.map(t => {
+      const priorityClass = t.priorityScore >= 8 ? 'urgent' : t.priorityScore >= 5 ? 'high' : '';
+      const titleText = t.draftSubject || t.taskName;
+      const targetLabel = t.targetName && t.companyName
+        ? `${t.targetName} · ${t.companyName}`
+        : (t.targetName || t.companyName || '');
+      return `
+        <div class="task-row" data-id="${escAttr(t.id)}">
+          <div class="task-main">
+            <div class="task-meta-row">
+              <span class="task-status-pill open">Pending review</span>
+              ${t.priorityScore != null ? `<span class="task-type-tag ${priorityClass}">P${t.priorityScore}</span>` : ''}
+              ${t.taskType ? `<span class="task-type-tag">${esc(t.taskType.replace(/_/g, ' '))}</span>` : ''}
+              ${t.botPersona ? `<span class="task-type-tag">${esc(t.botPersona)}</span>` : ''}
+              ${isAllView && t.targetEmail ? `<span class="task-type-tag">${esc(t.targetEmail.split('@')[0])}</span>` : ''}
+            </div>
+            <div class="task-title">${esc(titleText)}</div>
+            ${targetLabel ? `<div class="task-desc"><strong>${esc(targetLabel)}</strong></div>` : ''}
+            ${t.whyThisExists ? `<div class="task-desc">${esc(t.whyThisExists)}</div>` : ''}
+          </div>
+          <div class="task-actions">
+            <a class="task-btn" href="${escAttr(t.airtableUrl)}" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Review</a>
           </div>
         </div>
       `;
@@ -2430,9 +2331,15 @@ R3 Operations · Happen Ventures</div>
   document.querySelectorAll('[data-jump]').forEach(el => {
     el.addEventListener('click', (e) => {
       const dest = el.dataset.jump;
+      const sourceJump = el.dataset.sourceJump;
       if (dest && el.tagName !== 'A') {
         e.preventDefault();
         switchTab(dest);
+        // Optionally also flip the source toggle on the destination tab
+        if (sourceJump) {
+          const targetBtn = document.querySelector(`.source-btn[data-source="${sourceJump}"]`);
+          if (targetBtn) targetBtn.click();
+        }
       }
     });
   });
@@ -2573,6 +2480,7 @@ R3 Operations · Happen Ventures</div>
     loadMeetings();
     loadActivity();
     if (currentSource === 'tickets') loadTickets();
+    if (currentSource === 'ai-tasks') loadAiTasks();
     lastSyncedAt = Date.now();
     updateLastSyncedIndicator();
   }
