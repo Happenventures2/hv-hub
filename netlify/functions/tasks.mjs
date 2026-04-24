@@ -23,7 +23,9 @@ export default async (req) => {
     if (!apiKey) return json({ error: "AIRTABLE_API_KEY not configured" }, 500);
 
     const closedFilter = includeClosed ? "" : `, {Status} != "Closed"`;
-    const formula = `AND(FIND("${user.airtableUserId}", ARRAYJOIN({Assigned To})) > 0 ${closedFilter})`;
+    // ARRAYJOIN on a multi-collaborator field returns DISPLAY NAMES, not user IDs.
+    // So we filter by the user's display name from USERS config.
+    const formula = `AND(FIND("${user.name}", ARRAYJOIN({Assigned To})) > 0 ${closedFilter})`;
 
     const params = new URLSearchParams({
       filterByFormula: formula,
