@@ -1350,22 +1350,7 @@
       </div>
     </div>
 
-    <!-- WORKFLOW FILTER — tight single-row layout -->
-    <div class="wf-filter-card">
-      <div class="wf-filter-title">
-        <span class="material-symbols-outlined">filter_list</span>
-        Filter
-      </div>
-      <div class="wf-pills">
-        <button class="wf-pill active">All <span class="count">6</span></button>
-        <button class="wf-pill has-items"><span>Complaint Routing</span><span class="count">2</span></button>
-        <button class="wf-pill has-items"><span>Equipment Discrepancy</span><span class="count">1</span></button>
-        <button class="wf-pill has-items"><span>AR Generation</span><span class="count">1</span></button>
-        <button class="wf-pill has-items"><span>Price Change Gate</span><span class="count">1</span></button>
-        <button class="wf-pill has-items"><span>Inbox &amp; Calendar</span><span class="count">1</span></button>
-      </div>
-      <span class="wf-hidden-note">5 inactive hidden</span>
-    </div>
+
 
     <!-- MODE SUBFILTER -->
     <div class="mode-strip">
@@ -1801,13 +1786,6 @@ R3 Operations · Happen Ventures</div>
   });
 
   // Workflow pill filters
-  document.querySelectorAll('.wf-pill').forEach(p => {
-    p.addEventListener('click', () => {
-      document.querySelectorAll('.wf-pill').forEach(x => x.classList.remove('active'));
-      p.classList.add('active');
-    });
-  });
-
   // Queue list collapse toggle
   const queueCollapseBtn = document.getElementById('queueCollapseBtn');
   if (queueCollapseBtn) {
