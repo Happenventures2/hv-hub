@@ -46,7 +46,8 @@ export default async (req) => {
     // 2. Build system prompt with all docs as context
     const systemPrompt = buildSystemPrompt(docs, user);
 
-    // 3. Stream from Claude API
+    // 3. Stream from Claude API with prompt caching on the docs context
+    //    (caches for 5 min — follow-up questions in a session are ~10x cheaper)
     const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -57,7 +58,17 @@ export default async (req) => {
       body: JSON.stringify({
         model: "claude-sonnet-4-5-20250929",
         max_tokens: 1500,
-        system: systemPrompt,
+        system: [
+          {
+            type: "text",
+            text: systemPrompt.header,
+          },
+          {
+            type: "text",
+            text: systemPrompt.docs,
+            cache_control: { type: "ephemeral" },
+          },
+        ],
         messages: messages,
         stream: true,
       }),
@@ -120,13 +131,21 @@ async function fetchActiveDocs(apiKey) {
       const active = f["Status"] === "Active" || f["Status"] === "Completed";
       const botReading = f["Bot Reading Active"] === true;
 
-      // Use bot-ready content if available, else aiText fields, else summary
+      // aiText fields return { state, value, isStale } objects — extract .value
+      const aiTextValue = (field) => {
+        if (!field) return "";
+        if (typeof field === "string") return field;
+        if (typeof field === "object" && field.state === "generated") return field.value || "";
+        return "";
+      };
+
+      // Priority: hand-curated MD > full auto-converted MD > summary > metadata
       const content =
         f["Bot-Ready Content (MD)"] ||
-        f["md_file"] ||
-        f["MD File Conversion"] ||
-        f["Quick_Summary"] ||
+        aiTextValue(f["MD File Conversion"]) ||
+        aiTextValue(f["md_file"]) ||
         f["Quick Summary"] ||
+        aiTextValue(f["Quick_Summary"]) ||
         "";
 
       return {
@@ -142,7 +161,7 @@ async function fetchActiveDocs(apiKey) {
         content,
         active,
         botReading,
-        hasContent: content.length > 50,
+        hasContent: content.length > 80,
       };
     })
     .filter((d) => d.active);
@@ -152,7 +171,7 @@ function buildSystemPrompt(docs, user) {
   const docsWithContent = docs.filter((d) => d.hasContent);
   const docsWithoutContent = docs.filter((d) => !d.hasContent);
 
-  let prompt = `You are HV Bot, the company knowledge assistant for Happen Ventures (a sustainability company doing reuse-first waste solutions for national enterprises).
+  const header = `You are HV Bot, the company knowledge assistant for Happen Ventures (a sustainability company doing reuse-first waste solutions for national enterprises).
 
 VOICE — match this exactly:
 - Direct, casual, sharp. No corporate BS. No "I'd be happy to help!"
@@ -162,35 +181,33 @@ VOICE — match this exactly:
 - Light swearing is fine if natural
 
 RULES:
-1. ONLY answer from the docs below. If not in the docs, say "Not in the docs" and suggest who to ask (Jess for strategy, Joan for ops/R3, Ivan for sales).
+1. ONLY answer from the docs provided. If not in the docs, say "Not in the docs" and suggest who to ask (Jess for strategy, Joan for ops/R3, Ivan for sales).
 2. When you reference a doc, link to it inline using markdown: "see the [HR Offboarding Checklist](airtable-url-here) for details"
 3. End every answer with a line starting with "📚 " followed by the names of docs you actually used, separated by " · ". Example: "📚 HR Offboarding Checklist · Customer Interactions SOP"
 4. After sources, on a new line, suggest 2-3 follow-up questions starting with "💡 " separated by " | ". Example: "💡 What's the equipment return policy? | How long is the offboarding process?"
 5. If user asks something dangerous (legal advice, HR investigations, anything that needs Jess/Joan involvement), say so and stop.
 
-USER ASKING: ${user.name} (${user.role})
+USER ASKING: ${user.name} (${user.role})`;
 
-=== HV COMPANY DOCS (${docsWithContent.length} with full content, ${docsWithoutContent.length} indexed by name only) ===
-
-`;
+  let docsBlock = `=== HV COMPANY DOCS (${docsWithContent.length} with full content, ${docsWithoutContent.length} indexed by name only) ===\n\n`;
 
   for (const d of docsWithContent) {
-    prompt += `## ${d.name}\n`;
-    prompt += `- Category: ${d.category} | Program: ${d.program} | Department: ${d.department}\n`;
-    prompt += `- Airtable: ${d.airtableUrl}\n`;
-    if (d.url) prompt += `- Source: ${d.url}\n`;
-    if (d.loomUrl) prompt += `- Video: ${d.loomUrl}\n`;
-    prompt += `\n${d.content}\n\n---\n\n`;
+    docsBlock += `## ${d.name}\n`;
+    docsBlock += `- Category: ${d.category} | Program: ${d.program} | Department: ${d.department}\n`;
+    docsBlock += `- Airtable: ${d.airtableUrl}\n`;
+    if (d.url) docsBlock += `- Source: ${d.url}\n`;
+    if (d.loomUrl) docsBlock += `- Video: ${d.loomUrl}\n`;
+    docsBlock += `\n${d.content}\n\n---\n\n`;
   }
 
   if (docsWithoutContent.length > 0) {
-    prompt += `\n=== DOCS INDEXED BY NAME ONLY (no content yet — direct user to the link) ===\n\n`;
+    docsBlock += `\n=== DOCS INDEXED BY NAME ONLY (no content yet — direct user to the link) ===\n\n`;
     for (const d of docsWithoutContent) {
-      prompt += `- ${d.name} [${d.category}, ${d.program}] → ${d.airtableUrl}${d.url ? " · " + d.url : ""}\n`;
+      docsBlock += `- ${d.name} [${d.category}, ${d.program}] → ${d.airtableUrl}${d.url ? " · " + d.url : ""}\n`;
     }
   }
 
-  return prompt;
+  return { header, docs: docsBlock };
 }
 
 export const config = { path: "/api/wiki-chat" };

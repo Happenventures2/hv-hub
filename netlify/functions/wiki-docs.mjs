@@ -32,7 +32,15 @@ export default async () => {
     const docs = allRecords
       .map((r) => {
         const f = r.fields || {};
-        const content = f["Bot-Ready Content (MD)"] || f["md_file"] || f["Quick Summary"] || "";
+        const aiTextValue = (field) => {
+          if (!field) return "";
+          if (typeof field === "string") return field;
+          if (typeof field === "object" && field.state === "generated") return field.value || "";
+          return "";
+        };
+        const fullMd = aiTextValue(f["MD File Conversion"]);
+        const summaryMd = aiTextValue(f["md_file"]);
+        const content = f["Bot-Ready Content (MD)"] || fullMd || summaryMd || f["Quick Summary"] || "";
         return {
           id: r.id,
           name: f["Document Name"] || "(untitled)",
@@ -43,7 +51,8 @@ export default async () => {
           url: f["URL (Google Drive, Figma)"] || null,
           airtableUrl: `https://airtable.com/${RESOURCE_BASE_ID}/${RESOURCE_TABLE_ID}/${r.id}`,
           hasBotContent: (f["Bot-Ready Content (MD)"] || "").length > 50,
-          hasAnyContent: content.length > 50,
+          hasFullMd: fullMd.length > 80,
+          hasAnyContent: content.length > 80,
         };
       })
       .filter((d) => d.status === "Active" || d.status === "Completed");
@@ -59,6 +68,7 @@ export default async () => {
     return json({
       count: docs.length,
       withBotContent: docs.filter((d) => d.hasBotContent).length,
+      withFullMd: docs.filter((d) => d.hasFullMd).length,
       withAnyContent: docs.filter((d) => d.hasAnyContent).length,
       docs,
       byCategory,
