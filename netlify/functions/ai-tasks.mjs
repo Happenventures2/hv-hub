@@ -1,8 +1,11 @@
 // netlify/functions/ai-tasks.mjs
 // GET /api/ai-tasks?email=X
 // Returns AI-generated tasks awaiting human approval from the Bot Master DB Task Queue.
-// User sees tasks where target_email matches their email + status = pending_review.
-// CEO (viewAll) sees all pending_review tasks across the team.
+//
+// NOTE: target_email in Task Queue = the PROSPECT being contacted (e.g. someone@bcg.com),
+// not the HV employee approver. So per-rep filtering by target_email doesn't work.
+// For now, all users see all pending_review drafts. Per-rep filtering can be added later
+// using `employee_name` (multipleRecordLinks) or a bot-persona-to-rep mapping.
 
 const USERS = {
   "joan@happenventures.com":    { name: "Joan Moya",        role: "Operations" },
@@ -13,6 +16,7 @@ const USERS = {
 
 const BASE_ID  = "appUDQ65M1lSnSM5p";   // Bot Master DB
 const TABLE_ID = "tblPXhWpS79NvLmh9";   // Task Queue
+const MAX_RECORDS = 200;                // cap to keep payload sane
 
 export default async (req) => {
   try {
@@ -26,33 +30,40 @@ export default async (req) => {
     const apiKey = Netlify.env.get("AIRTABLE_API_KEY");
     if (!apiKey) return json({ error: "AIRTABLE_API_KEY not configured" }, 500);
 
-    // Filter: only pending_review (the "needs approval" status). CEO sees all reps' tasks.
-    const baseFilter = `{status} = "pending_review"`;
-    const formula = user.viewAll
-      ? baseFilter
-      : `AND(${baseFilter}, LOWER({target_email}) = "${email}")`;
+    // All users see all pending_review drafts (see comment at top of file).
+    const formula = `{status} = "pending_review"`;
 
-    const params = new URLSearchParams({
-      filterByFormula: formula,
-      pageSize: "100",
-      "sort[0][field]": "priority_score",
-      "sort[0][direction]": "desc",
-      "sort[1][field]": "created_at",
-      "sort[1][direction]": "asc",
-    });
+    let all = [];
+    let offset = null;
+    let pages = 0;
+    do {
+      const params = new URLSearchParams({
+        filterByFormula: formula,
+        pageSize: "100",
+        "sort[0][field]": "priority_score",
+        "sort[0][direction]": "desc",
+        "sort[1][field]": "created_at",
+        "sort[1][direction]": "asc",
+      });
+      if (offset) params.set("offset", offset);
 
-    const airtableUrl = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}?${params}`;
-    const res = await fetch(airtableUrl, {
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    });
+      const airtableUrl = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}?${params}`;
+      const res = await fetch(airtableUrl, {
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      });
 
-    if (!res.ok) {
-      const t = await res.text().catch(() => "");
-      return json({ error: `Airtable ${res.status}`, detail: t.slice(0, 500) }, 502);
-    }
+      if (!res.ok) {
+        const t = await res.text().catch(() => "");
+        return json({ error: `Airtable ${res.status}`, detail: t.slice(0, 500) }, 502);
+      }
 
-    const data = await res.json();
-    const aiTasks = (data.records || []).map((rec) => {
+      const data = await res.json();
+      all = all.concat(data.records || []);
+      offset = data.offset || null;
+      pages++;
+    } while (offset && all.length < MAX_RECORDS && pages < 5);
+
+    const aiTasks = all.slice(0, MAX_RECORDS).map((rec) => {
       const f = rec.fields || {};
       return {
         id: rec.id,
@@ -78,6 +89,7 @@ export default async (req) => {
       user: { email, name: user.name, role: user.role, viewAll: !!user.viewAll },
       aiTasks,
       count: aiTasks.length,
+      truncated: all.length >= MAX_RECORDS && offset != null,
     });
   } catch (err) {
     console.error("ai-tasks error:", err);

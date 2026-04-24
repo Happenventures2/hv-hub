@@ -2069,11 +2069,9 @@
     aiTasksCountEl.textContent = items.length;
     if (currentSource === 'ai-tasks') {
       const noun = items.length === 1 ? 'AI task' : 'AI tasks';
-      tasksMeta.textContent = isAllView
-        ? `${items.length} ${noun} pending review across the team (CEO view)`
-        : items.length
-          ? `${items.length} ${noun} waiting on your approval`
-          : 'No AI tasks waiting on you';
+      tasksMeta.textContent = items.length
+        ? `${items.length} ${noun} pending review${data.truncated ? ' (showing first 200)' : ''}`
+        : 'No AI tasks pending review';
     }
     if (!items.length) {
       aiTasksList.style.display = 'none';
