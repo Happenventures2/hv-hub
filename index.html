@@ -444,16 +444,17 @@
 
   .shortcut-key { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 4px; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); font-size: 10px; font-weight: 600; color: var(--color-text-secondary); font-family: 'Poppins', sans-serif; }
 
-  .wf-filter-card { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 18px 22px; margin-bottom: 14px; }
-  .wf-filter-title { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--color-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .wf-filter-card { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .wf-filter-title { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--color-muted); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
   .wf-filter-title .material-symbols-outlined { font-size: 14px; }
-  .wf-pills { display: flex; gap: 6px; flex-wrap: wrap; }
-  .wf-pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); color: var(--color-text-secondary); cursor: pointer; transition: all 0.12s; }
+  .wf-pills { display: inline-flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+  .wf-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 500; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); color: var(--color-text-secondary); cursor: pointer; transition: all 0.12s; }
+  .wf-pill .wf-code { font-size: 10px; font-weight: 700; color: var(--color-muted); letter-spacing: 0.3px; }
+  .wf-pill .count { background: var(--color-gray-100); padding: 0 5px; border-radius: 8px; font-size: 10px; font-weight: 700; min-width: 16px; text-align: center; color: var(--color-text-secondary); }
+  .wf-hidden-note { font-size: 10px; color: var(--color-muted); white-space: nowrap; margin-left: auto; }
   .wf-pill:hover { background: var(--color-bg); border-color: var(--color-gray-200); color: var(--color-text); }
   .wf-pill.active { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
-  .wf-pill .wf-code { font-size: 10px; font-weight: 700; color: var(--color-muted); letter-spacing: 0.3px; }
   .wf-pill.active .wf-code { color: rgba(255,255,255,0.5); }
-  .wf-pill .count { background: var(--color-gray-100); padding: 1px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; min-width: 18px; text-align: center; color: var(--color-text-secondary); }
   .wf-pill.active .count { background: rgba(255,255,255,0.2); color: var(--color-bg); }
   .wf-pill.has-items .count { background: var(--color-text); color: var(--color-bg); }
   .wf-pill.active.has-items .count { background: var(--color-accent); color: var(--color-text); }
@@ -1351,40 +1352,21 @@
       </div>
     </div>
 
-    <!-- WORKFLOW FILTER PILLS — simplified: name + count only, zeros hidden -->
+    <!-- WORKFLOW FILTER — tight single-row layout -->
     <div class="wf-filter-card">
       <div class="wf-filter-title">
         <span class="material-symbols-outlined">filter_list</span>
-        Filter by workflow
+        Filter
       </div>
       <div class="wf-pills">
-        <button class="wf-pill active">
-          All <span class="count">6</span>
-        </button>
-        <button class="wf-pill has-items">
-          <span>Complaint Routing</span>
-          <span class="count">2</span>
-        </button>
-        <button class="wf-pill has-items">
-          <span>Equipment Discrepancy</span>
-          <span class="count">1</span>
-        </button>
-        <button class="wf-pill has-items">
-          <span>AR Generation</span>
-          <span class="count">1</span>
-        </button>
-        <button class="wf-pill has-items">
-          <span>Price Change Gate</span>
-          <span class="count">1</span>
-        </button>
-        <button class="wf-pill has-items">
-          <span>Inbox &amp; Calendar</span>
-          <span class="count">1</span>
-        </button>
+        <button class="wf-pill active">All <span class="count">6</span></button>
+        <button class="wf-pill has-items"><span>Complaint Routing</span><span class="count">2</span></button>
+        <button class="wf-pill has-items"><span>Equipment Discrepancy</span><span class="count">1</span></button>
+        <button class="wf-pill has-items"><span>AR Generation</span><span class="count">1</span></button>
+        <button class="wf-pill has-items"><span>Price Change Gate</span><span class="count">1</span></button>
+        <button class="wf-pill has-items"><span>Inbox &amp; Calendar</span><span class="count">1</span></button>
       </div>
-      <div style="margin-top: 10px; font-size: 11px; color: var(--color-muted);">
-        5 workflows with 0 items hidden
-      </div>
+      <span class="wf-hidden-note">5 inactive hidden</span>
     </div>
 
     <!-- MODE SUBFILTER -->
