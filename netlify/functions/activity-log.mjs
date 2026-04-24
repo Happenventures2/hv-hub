@@ -1,9 +1,10 @@
 // netlify/functions/activity-log.mjs
-// GET  /api/activity-log?limit=20           - read recent activity
-// POST /api/activity-log                     - write one entry (fire-and-forget from other endpoints)
+// GET  /api/activity-log?limit=20  - read recent hub activity
+// POST /api/activity-log            - write one entry (fire-and-forget from other endpoints)
 //
-// Backed by the HV Hub Activity Log Notion database.
-// Reads are filtered to the most recent N entries (default 20, max 50).
+// Backed by the Airtable Audit_Log table (Bot Master DB, the SoT for system events).
+// All hub actions use action_type prefixed with "hub_" so they're filterable
+// from n8n workflow logs that share the table.
 
 const USERS = {
   "joan@happenventures.com":    { name: "Joan Moya" },
@@ -12,62 +13,75 @@ const USERS = {
   "alexis@happenventures.com":  { name: "Alexis" },
 };
 
-const NOTION_DATA_SOURCE_ID = "d6eb6e00-d987-4823-a865-5ec2be5934aa";
-const NOTION_DATABASE_ID    = "8d21e9b2-3a67-4a51-bada-8967374ae5e5";
-const NOTION_API_VERSION = "2022-06-28";
+const AUDIT_BASE_ID = "appUDQ65M1lSnSM5p";   // Bot Master DB
+const AUDIT_TABLE_ID = "tblZApA0UnoBhuMzZ";  // Audit_Log
 
-const ALLOWED_ACTIONS = new Set([
-  "Snooze", "Comment", "Update Status", "Bot Question",
-  "Bot Feedback Up", "Bot Feedback Down", "Task Opened",
-]);
+// All hub action types use this prefix so we can filter cleanly from n8n logs.
+const HUB_PREFIX = "hub_";
+
+// Map UI action names → Airtable action_type values (with prefix).
+const ACTION_MAP = {
+  "Snooze":              "hub_snooze",
+  "Comment":             "hub_comment",
+  "Update Status":       "hub_update_status",
+  "Bot Question":        "hub_bot_question",
+  "Bot Feedback Up":     "hub_bot_feedback_up",
+  "Bot Feedback Down":   "hub_bot_feedback_down",
+  "Task Opened":         "hub_task_opened",
+};
+const ALLOWED_ACTIONS = new Set(Object.keys(ACTION_MAP));
+
+// Reverse map for displaying back in the UI feed.
+const DISPLAY_MAP = Object.fromEntries(
+  Object.entries(ACTION_MAP).map(([display, raw]) => [raw, display])
+);
 
 export default async (req) => {
-  const notionKey = Netlify.env.get("NOTION_API_KEY");
+  const apiKey = Netlify.env.get("AIRTABLE_API_KEY");
 
   if (req.method === "POST") {
-    // Fire-and-forget write from other endpoints
     try {
       const body = await req.json().catch(() => ({}));
       const action = String(body.action || "").trim();
       if (!ALLOWED_ACTIONS.has(action)) {
         return json({ ok: false, error: `Invalid action: ${action}` }, 400);
       }
-      if (!notionKey) {
-        // Non-fatal: log and return ok
-        console.warn("activity-log: NOTION_API_KEY missing, skipping");
+      if (!apiKey) {
+        console.warn("activity-log: AIRTABLE_API_KEY missing, skipping");
         return json({ ok: true, persisted: false });
       }
 
-      const user = USERS[String(body.userEmail || "").toLowerCase()];
-      const userName = user ? user.name : (body.userEmail || "unknown");
+      const userEmail = String(body.userEmail || "").toLowerCase();
+      const user = USERS[userEmail];
+      const userName = user ? user.name : (userEmail || "unknown");
 
-      const page = {
-        parent: { database_id: NOTION_DATABASE_ID },
-        properties: {
-          Detail: { title: [{ text: { content: String(body.detail || "").slice(0, 2000) || action } }] },
-          Action: { select: { name: action } },
-          "User Email": { email: String(body.userEmail || "").toLowerCase() || null },
-          "User Name": { rich_text: [{ text: { content: userName.slice(0, 200) } }] },
-          "Target Record ID": { rich_text: [{ text: { content: String(body.targetRecordId || "").slice(0, 100) } }] },
-          "Target Name": { rich_text: [{ text: { content: String(body.targetName || "").slice(0, 500) } }] },
-          "Source Endpoint": { rich_text: [{ text: { content: String(body.sourceEndpoint || "").slice(0, 100) } }] },
-        },
+      // Build the record. timestamp is a regular dateTime (not auto), so we set it explicitly.
+      const fields = {
+        "timestamp":     new Date().toISOString(),
+        "action_type":   ACTION_MAP[action],
+        "user_id":       userEmail || userName,
+        "channel":       "hub",                     // distinguishes from system/email/telegram
+        "workflow":      String(body.sourceEndpoint || "hub"),
+        "record_id":     String(body.targetRecordId || ""),
+        "details":       buildDetails(body, userName),
       };
 
-      const res = await fetch("https://api.notion.com/v1/pages", {
+      // typecast: true lets Airtable auto-create the new "hub_*" singleSelect options
+      // and the "hub" channel option on first write.
+      const url = `https://api.airtable.com/v0/${AUDIT_BASE_ID}/${AUDIT_TABLE_ID}`;
+      const res = await fetch(url, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${notionKey}`,
-          "Notion-Version": NOTION_API_VERSION,
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(page),
+        body: JSON.stringify({ fields, typecast: true }),
       });
 
       if (!res.ok) {
         const t = await res.text().catch(() => "");
         console.error("activity-log write failed", res.status, t);
-        return json({ ok: true, persisted: false, error: `Notion ${res.status}` });
+        return json({ ok: true, persisted: false, error: `Airtable ${res.status}` });
       }
       return json({ ok: true, persisted: true });
     } catch (err) {
@@ -76,93 +90,88 @@ export default async (req) => {
     }
   }
 
-  // GET: read recent activity
+  // GET: read recent hub activity
   try {
     const url = new URL(req.url);
     const limitParam = parseInt(url.searchParams.get("limit") || "20", 10);
     const limit = Math.min(Math.max(limitParam, 1), 50);
 
-    if (!notionKey) {
-      return json({ entries: [], count: 0, note: "NOTION_API_KEY not configured" });
+    if (!apiKey) {
+      return json({ entries: [], count: 0, note: "AIRTABLE_API_KEY not configured" });
     }
 
-    // Try new data-source endpoint first, fall back to legacy database endpoint
-    const queryBody = {
-      sorts: [{ timestamp: "created_time", direction: "descending" }],
-      page_size: limit,
-    };
-
-    let queryUrl = `https://api.notion.com/v1/data_sources/${NOTION_DATA_SOURCE_ID}/query`;
-    let res = await fetch(queryUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${notionKey}`,
-        "Notion-Version": NOTION_API_VERSION,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(queryBody),
+    // Filter to hub actions only. FIND on a singleSelect needs string coercion via concat with "".
+    const formula = `FIND("${HUB_PREFIX}", {action_type} & "") = 1`;
+    const params = new URLSearchParams({
+      filterByFormula: formula,
+      pageSize: String(limit),
+      "sort[0][field]": "timestamp",
+      "sort[0][direction]": "desc",
     });
 
-    // Fall back to legacy database endpoint on any 4xx
-    if (!res.ok && res.status >= 400 && res.status < 500) {
-      queryUrl = `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`;
-      res = await fetch(queryUrl, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${notionKey}`,
-          "Notion-Version": NOTION_API_VERSION,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(queryBody),
-      });
-    }
+    const queryUrl = `https://api.airtable.com/v0/${AUDIT_BASE_ID}/${AUDIT_TABLE_ID}?${params}`;
+    const res = await fetch(queryUrl, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
 
     if (!res.ok) {
       const t = await res.text().catch(() => "");
       console.error("activity-log GET failed", res.status, t);
-      // Return empty entries gracefully so the Home widget shows "No activity yet" instead of an error.
-      return json({
-        entries: [],
-        count: 0,
-        warning: `Notion ${res.status} — integration may not have access to the activity log database.`,
-      });
+      return json({ entries: [], count: 0, warning: `Airtable ${res.status}` });
     }
 
     const data = await res.json();
-    const entries = (data.results || []).map((page) => {
-      const props = page.properties || {};
+    const entries = (data.records || []).map((rec) => {
+      const f = rec.fields || {};
+      const rawAction = typeof f.action_type === "string"
+        ? f.action_type
+        : (f.action_type && f.action_type.name) || "";
+      const displayAction = DISPLAY_MAP[rawAction] || rawAction.replace(/^hub_/, "");
       return {
-        id: page.id,
-        timestamp: page.created_time,
-        action: extractSelect(props.Action),
-        detail: extractTitle(props.Detail),
-        userEmail: props["User Email"]?.email || null,
-        userName: extractText(props["User Name"]),
-        targetRecordId: extractText(props["Target Record ID"]),
-        targetName: extractText(props["Target Name"]),
-        sourceEndpoint: extractText(props["Source Endpoint"]),
+        id: rec.id,
+        timestamp: f.timestamp || rec.createdTime,
+        action: displayAction,
+        detail: stripUserPrefix(f.details || ""),
+        userEmail: f.user_id || null,
+        userName: extractUserName(f.details, f.user_id),
+        targetRecordId: f.record_id || "",
+        targetName: "",
+        sourceEndpoint: f.workflow || "",
       };
     });
 
     return json({ entries, count: entries.length });
   } catch (err) {
     console.error("activity-log GET error:", err);
-    return json({ error: err.message || "Unknown" }, 500);
+    return json({ entries: [], count: 0, error: err.message });
   }
 };
 
-function extractTitle(prop) {
-  if (!prop || !prop.title) return null;
-  return prop.title.map((t) => t.plain_text || "").join("").trim() || null;
+// --- helpers ---
+
+function buildDetails(body, userName) {
+  // Pack target name + detail into a single multilineText field.
+  // Format: "<userName> · <detail> · (<targetName>)"
+  const parts = [userName];
+  const detail = String(body.detail || "").slice(0, 1500);
+  if (detail) parts.push(detail);
+  const targetName = String(body.targetName || "").slice(0, 200);
+  if (targetName && !detail.includes(targetName)) {
+    parts.push(`(${targetName})`);
+  }
+  return parts.join(" · ");
 }
-function extractSelect(prop) {
-  if (!prop || !prop.select) return null;
-  return prop.select.name || null;
+
+function extractUserName(details, userIdFallback) {
+  if (!details) return userIdFallback || "Someone";
+  const first = String(details).split(" · ")[0];
+  return first || userIdFallback || "Someone";
 }
-function extractText(prop) {
-  if (!prop) return null;
-  const arr = prop.rich_text || prop.text || [];
-  return arr.map((t) => t.plain_text || "").join("").trim() || null;
+
+function stripUserPrefix(details) {
+  // Remove the leading "<userName> · " we packed in
+  const idx = String(details).indexOf(" · ");
+  return idx >= 0 ? details.slice(idx + 3) : details;
 }
 
 function json(body, status = 200) {

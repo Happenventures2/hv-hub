@@ -44,8 +44,10 @@ The repo is **wired to Netlify auto-deploy** — push to `main` and a deploy fir
 | `/api/wiki-docs` | GET | Airtable | List of active Resource Repository docs (for UI badges) |
 | `/api/wiki-chat` | POST | Anthropic | Streams Claude responses with Resource Repo system prompt + prompt caching |
 | `/api/tickets?email=X` | GET | Notion | Tech Build Queue tickets — Alexis sees his own; CEO sees all |
-| `/api/bot-feedback` | POST | Notion | Persist thumbs up/down on bot answers |
-| `/api/activity-log` | GET / POST | Notion | Hub-wide activity stream (writes from snooze/comment/update/bot) |
+| `/api/bot-feedback` | POST | Airtable Audit_Log | Persist thumbs up/down on bot answers (action_type = `hub_bot_feedback_*`) |
+| `/api/activity-log` | GET / POST | Airtable Audit_Log | Hub-wide activity stream (writes from snooze/comment/update/bot, action_type prefixed `hub_*`) |
+
+**Storage decision:** Notion is used only for the Tech Build Queue (where dev tickets natively live). Everything else writes to Airtable — the operational SoT. Hub events go into the existing Audit_Log table (Bot Master DB) using `hub_*` prefixed action types so they're filterable from the n8n workflow logs that share the table.
 
 ---
 
@@ -65,26 +67,29 @@ All set in Netlify (site `a79154be-d7b5-453a-9dbc-b5154f95c002`), scope `functio
 
 ## Notion integration setup
 
-The `NOTION_API_KEY` belongs to an internal integration named **HV Hub**. For the API to read/write a database, that database must be **shared with the integration**:
+The `NOTION_API_KEY` belongs to an internal integration named **HV Hub**. For the API to read the Tech Build Queue, it must be **shared with the integration**:
 
 1. Open the database in Notion
 2. Click `...` (top right) → **Connections** → search for **HV Hub** → connect
 
-Databases the integration needs access to:
+Database the integration needs access to:
 
 | Database | URL | Used by |
 |---|---|---|
 | Tech Build Queue | https://www.notion.so/e96fef48cdf949f98b08c8d794894cb8 | tickets endpoint |
-| HV Bot Feedback | https://www.notion.so/75fe208d288a49fbb0ff99ca0045588e | bot-feedback endpoint |
-| HV Hub Activity Log | https://www.notion.so/8d21e9b23a674a51bada8967374ae5e5 | activity-log endpoint |
 
 If a Notion call returns 404, it usually means the integration isn't shared with that database. Endpoints degrade gracefully — they return empty results + a warning rather than 500.
+
+> **Bot Feedback** and **Activity Log** used to live in Notion but were swapped to Airtable Audit_Log on 2026-04-24. The orphan Notion databases (HV Bot Feedback, HV Hub Activity Log) can be deleted manually if not already.
 
 ---
 
 ## Airtable map
 
-Base `appGDkdfPiiZ2lwO2`:
+**Bot Master DB** (`appUDQ65M1lSnSM5p`):
+- **Audit_Log** (`tblZApA0UnoBhuMzZ`) — n8n + hub event log. Hub writes use `action_type` prefixed with `hub_*` (e.g. `hub_snooze`, `hub_bot_feedback_up`) and `channel = "hub"`. Filter views by these to separate hub activity from n8n workflow logs.
+
+**General Airtable** (`appGDkdfPiiZ2lwO2`):
 - **Tasks** (`tblI12xpnUKg9T8Cm`) — task source for `/api/tasks`. Filter by `ARRAYJOIN({Assigned To})` because that field is `multipleCollaborators` and ARRAYJOIN returns *display names*, not user IDs.
 - **Resource Repository** (`tblnCrYTt35on4bPW`) — bot knowledge. 195 docs, 148 with rich MD content. Bot reads in priority: `Bot-Ready Content (MD)` → `MD File Conversion` (aiText) → `md_file` (aiText) → `Quick Summary` → metadata only.
 - **Regular Meetings** (`tblcpPeqZ6G6jzPJv`) — placeholder until Google Cal integration ships.

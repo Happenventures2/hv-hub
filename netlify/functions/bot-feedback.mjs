@@ -1,8 +1,11 @@
 // netlify/functions/bot-feedback.mjs
 // POST /api/bot-feedback
 // Body: { rating: 'up'|'down', question, answer, docsUsed, userEmail, mode }
-// Persists the rating to the HV Bot Feedback Notion database so Jess can see
-// which answers are weak and which docs need better content.
+// Persists feedback to the Airtable Audit_Log table (Bot Master DB) using
+// action_type = "hub_bot_feedback_up" or "hub_bot_feedback_down".
+// The full feedback payload (question, answer, docs, mode) is packed into the
+// details + before_value/after_value fields so a Jess-facing view can group by
+// rating to surface weak bot answers.
 
 const USERS = {
   "joan@happenventures.com":    { name: "Joan Moya" },
@@ -11,21 +14,19 @@ const USERS = {
   "alexis@happenventures.com":  { name: "Alexis" },
 };
 
-// HV Bot Feedback database (Notion). Created 2026-04-24 under HV Hub master page.
-const NOTION_DATA_SOURCE_ID = "8dbb285b-c769-4eb9-ae6e-e6f5b15643f6";
-const NOTION_DATABASE_ID    = "75fe208d-288a-49fb-b0ff-99ca0045588e";
-const NOTION_API_VERSION = "2022-06-28";
+const AUDIT_BASE_ID = "appUDQ65M1lSnSM5p";   // Bot Master DB
+const AUDIT_TABLE_ID = "tblZApA0UnoBhuMzZ";  // Audit_Log
 
 export default async (req) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
   try {
     const body = await req.json().catch(() => ({}));
     const rating = (body.rating || "").toLowerCase();
-    const question = String(body.question || "").slice(0, 2000);
-    const answer = String(body.answer || "").slice(0, 2000);
+    const question = String(body.question || "").slice(0, 1500);
+    const answer = String(body.answer || "").slice(0, 1500);
     const docsUsed = Array.isArray(body.docsUsed)
-      ? body.docsUsed.join(", ").slice(0, 2000)
-      : String(body.docsUsed || "").slice(0, 2000);
+      ? body.docsUsed.join(", ").slice(0, 500)
+      : String(body.docsUsed || "").slice(0, 500);
     const userEmail = String(body.userEmail || "").toLowerCase();
     const mode = String(body.mode || "HV-specific");
 
@@ -34,57 +35,53 @@ export default async (req) => {
     }
     if (!question) return json({ error: "question required" }, 400);
 
+    const apiKey = Netlify.env.get("AIRTABLE_API_KEY");
+    if (!apiKey) {
+      console.warn("bot-feedback: AIRTABLE_API_KEY missing, skipping persistence");
+      return json({ ok: true, persisted: false, note: "AIRTABLE_API_KEY not configured" });
+    }
+
     const user = USERS[userEmail];
     const userName = user ? user.name : (userEmail || "unknown");
 
-    const notionKey = Netlify.env.get("NOTION_API_KEY");
-    if (!notionKey) {
-      // Non-fatal: log and return 200 so the UI doesn't surface an error to the user.
-      // This way the thumbs click "works" as far as the user can see, even if persistence is down.
-      console.warn("bot-feedback: NOTION_API_KEY missing, skipping persistence", {
-        rating, userEmail, questionPreview: question.slice(0, 80),
-      });
-      return json({ ok: true, persisted: false, note: "NOTION_API_KEY not configured" });
-    }
-
-    // Validate mode against the allowed select options
     const ALLOWED_MODES = new Set(["HV-specific", "General", "Hybrid", "Off-topic"]);
     const safeMode = ALLOWED_MODES.has(mode) ? mode : "HV-specific";
 
-    const page = {
-      parent: { database_id: NOTION_DATABASE_ID },
-      properties: {
-        Question: { title: [{ text: { content: question } }] },
-        Rating: { select: { name: rating === "up" ? "Up" : "Down" } },
-        "User Email": { email: userEmail || null },
-        "User Name": { rich_text: [{ text: { content: userName.slice(0, 200) } }] },
-        Mode: { select: { name: safeMode } },
-        Answer: { rich_text: [{ text: { content: answer } }] },
-        "Docs Used": { rich_text: [{ text: { content: docsUsed } }] },
-      },
+    const actionType = rating === "up" ? "hub_bot_feedback_up" : "hub_bot_feedback_down";
+    // Pack everything into the available Audit_Log fields:
+    // - details        = "<userName> · [<rating>] <question>"  (visible in feed)
+    // - before_value   = the bot's answer (mirror of "what was said before feedback")
+    // - after_value    = "Mode: <mode> · Docs: <docsUsed>"     (context tags)
+    const fields = {
+      "timestamp":     new Date().toISOString(),
+      "action_type":   actionType,
+      "user_id":       userEmail || userName,
+      "channel":       "hub",
+      "workflow":      "/api/bot-feedback",
+      "details":       `${userName} · [${rating === "up" ? "👍" : "👎"}] ${question}`,
+      "before_value":  answer,
+      "after_value":   `Mode: ${safeMode} · Docs: ${docsUsed || "(none cited)"}`,
     };
 
-    const res = await fetch("https://api.notion.com/v1/pages", {
+    const url = `https://api.airtable.com/v0/${AUDIT_BASE_ID}/${AUDIT_TABLE_ID}`;
+    const res = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${notionKey}`,
-        "Notion-Version": NOTION_API_VERSION,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(page),
+      body: JSON.stringify({ fields, typecast: true }),
     });
 
     if (!res.ok) {
-      const errorText = await res.text().catch(() => "Unknown error");
-      console.error("bot-feedback: Notion write failed", res.status, errorText);
-      // Still 200 — we don't want to break the UI for a logging failure
-      return json({ ok: true, persisted: false, error: `Notion ${res.status}` });
+      const errorText = await res.text().catch(() => "");
+      console.error("bot-feedback: Airtable write failed", res.status, errorText);
+      return json({ ok: true, persisted: false, error: `Airtable ${res.status}` });
     }
 
     return json({ ok: true, persisted: true });
   } catch (err) {
     console.error("bot-feedback error:", err);
-    // Always return ok so UI doesn't break
     return json({ ok: true, persisted: false, error: err.message });
   }
 };
