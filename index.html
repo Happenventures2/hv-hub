@@ -259,6 +259,19 @@
 
   .home-empty-row { padding: 24px 18px; text-align: center; color: var(--color-muted); font-size: 12px; font-style: italic; }
 
+  .home-meeting-row { display: grid; grid-template-columns: 80px 1fr auto; gap: 14px; padding: 12px 18px; border-top: 1px solid var(--color-gray-100); align-items: center; }
+  .home-meeting-row:first-child { border-top: none; }
+  .home-meeting-row:hover { background: var(--color-gray-50); }
+  .home-meeting-time { font-size: 13px; font-weight: 600; color: var(--color-text); white-space: nowrap; }
+  .home-meeting-time .day { display: block; font-size: 10px; color: var(--color-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 1px; }
+  .home-meeting-name { font-size: 13px; font-weight: 600; color: var(--color-text); margin-bottom: 3px; }
+  .home-meeting-meta { font-size: 11px; color: var(--color-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .home-meeting-tag { display: inline-block; padding: 1px 7px; border-radius: 8px; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); font-size: 10px; font-weight: 500; color: var(--color-text-secondary); }
+  .home-meeting-actions { display: flex; gap: 6px; }
+  .home-meeting-actions a { padding: 5px 10px; border-radius: 5px; border: 1px solid var(--color-gray-100); font-size: 11px; color: var(--color-text-secondary); text-decoration: none; display: inline-flex; align-items: center; gap: 3px; transition: all 0.12s; }
+  .home-meeting-actions a:hover { border-color: var(--color-text); color: var(--color-text); }
+  .home-meeting-actions a .material-symbols-outlined { font-size: 12px; }
+
   .home-quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
   .home-action { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 16px; cursor: pointer; transition: all 0.12s; text-align: left; font-family: inherit; color: var(--color-text); }
   .home-action:hover { border-color: var(--color-text); transform: translateY(-1px); }
@@ -592,6 +605,7 @@
     <a href="#" class="nav-tab active" data-tab="home"><span class="material-symbols-outlined">home</span> Home</a>
     <a href="#" class="nav-tab" data-tab="queue"><span class="material-symbols-outlined">bolt</span> Task Queue <span class="badge alert">6</span></a>
     <a href="#" class="nav-tab" data-tab="tasks"><span class="material-symbols-outlined">check_circle</span> Airtable Tasks <span class="badge" id="tasksNavBadge">—</span></a>
+    <a href="#" class="nav-tab" data-tab="calendar"><span class="material-symbols-outlined">calendar_month</span> Calendar</a>
     <a href="#" class="nav-tab" data-tab="bot"><span class="material-symbols-outlined">smart_toy</span> HV Bot</a>
     <a href="#" class="nav-tab" data-tab="tools"><span class="material-symbols-outlined">build</span> Tools</a>
     <div class="nav-divider"></div>
@@ -1259,6 +1273,17 @@
       </div>
     </div>
 
+    <!-- Today's meetings -->
+    <div class="home-section" id="homeMeetingsSection">
+      <div class="home-section-head">
+        <h3><span class="material-symbols-outlined">event</span><span id="meetingsHeading">Today's meetings</span></h3>
+        <a class="home-section-link" href="https://airtable.com/appGDkdfPiiZ2lwO2/tblcpPeqZ6G6jzPJv" target="_blank" rel="noopener">View all <span class="material-symbols-outlined">open_in_new</span></a>
+      </div>
+      <div id="homeMeetings">
+        <div class="home-loading">Loading…</div>
+      </div>
+    </div>
+
     <!-- Tasks to tackle -->
     <div class="home-section">
       <div class="home-section-head">
@@ -1676,6 +1701,43 @@ R3 Operations · Happen Ventures</div>
       <p>No open tasks assigned to you in HV Hub right now.</p>
     </div>
   </section>
+  <section class="tab-panel" data-panel="calendar">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Calendar <span class="tag-mod">Universal · Tasks by date</span></h1>
+        <p class="page-meta" id="calMeta">Your tasks laid out by due date</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn" id="calTodayBtn"><span class="material-symbols-outlined">today</span> Today</button>
+      </div>
+    </div>
+
+    <div class="cal-shell">
+      <div class="cal-toolbar">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" id="calPrev" title="Previous month"><span class="material-symbols-outlined">chevron_left</span></button>
+          <div class="cal-month-label" id="calMonthLabel">—</div>
+          <button class="cal-nav-btn" id="calNext" title="Next month"><span class="material-symbols-outlined">chevron_right</span></button>
+        </div>
+        <div class="cal-legend">
+          <span class="cal-legend-item"><span class="dot urgent"></span>Overdue</span>
+          <span class="cal-legend-item"><span class="dot warn"></span>Due soon</span>
+          <span class="cal-legend-item"><span class="dot normal"></span>Open</span>
+          <span class="cal-legend-item"><span class="dot done"></span>Closed</span>
+        </div>
+      </div>
+
+      <div class="cal-grid-wrap">
+        <div class="cal-weekdays">
+          <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+        </div>
+        <div class="cal-grid" id="calGrid">
+          <!-- generated by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="tab-panel" data-panel="bot">
     <div class="page-head">
       <div>
@@ -1974,8 +2036,9 @@ R3 Operations · Happen Ventures</div>
 
   document.getElementById('tasksRefreshBtn').addEventListener('click', loadTasks);
   userSelect.addEventListener('change', () => {
-    // Always reload tasks so home page + tasks tab + badge stay in sync
+    // Always reload tasks + meetings so home page + tasks tab + badge stay in sync
     loadTasks();
+    loadMeetings();
     showToast(`Switched to ${userSelect.options[userSelect.selectedIndex].text}`);
   });
 
@@ -2189,8 +2252,74 @@ R3 Operations · Happen Ventures</div>
     });
   });
 
+  // ============ MEETINGS (Home page section) ============
+  async function loadMeetings() {
+    const container = document.getElementById('homeMeetings');
+    const heading = document.getElementById('meetingsHeading');
+    try {
+      const email = currentUserEmail();
+      const res = await fetch(`/api/meetings?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        container.innerHTML = `<div class="home-empty-row" style="color: var(--color-red);">Couldn't load meetings: ${esc(data.error || 'Unknown')}</div>`;
+        return;
+      }
+
+      const today = data.today || [];
+      const week = data.weekAhead || [];
+      const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+
+      if (today.length > 0) {
+        heading.textContent = `Today's meetings (${todayName})`;
+        container.innerHTML = today.map(m => renderMeetingRow(m, true)).join('');
+      } else if (week.length > 0) {
+        heading.textContent = `Upcoming this week`;
+        container.innerHTML = week.slice(0, 5).map(m => renderMeetingRow(m, false)).join('');
+      } else if (data.unscheduled && data.unscheduled.length > 0) {
+        heading.textContent = `Your recurring meetings`;
+        container.innerHTML = `
+          <div class="home-empty-row" style="font-style: normal; text-align: left;">
+            Nothing scheduled today. ${data.unscheduled.length} of your meetings have no day/time set —
+            <a href="https://airtable.com/appGDkdfPiiZ2lwO2/tblcpPeqZ6G6jzPJv" target="_blank" rel="noopener" style="color: var(--color-text); text-decoration: underline;">add them in Airtable</a>.
+          </div>
+        `;
+      } else {
+        heading.textContent = `Today's meetings (${todayName})`;
+        container.innerHTML = `<div class="home-empty-row">Nothing on the calendar — clear day ✨</div>`;
+      }
+    } catch (err) {
+      container.innerHTML = `<div class="home-empty-row" style="color: var(--color-red);">Network error loading meetings</div>`;
+    }
+  }
+
+  function renderMeetingRow(m, isToday) {
+    const dayLabel = isToday ? 'Today' : (m.dayName || '').slice(0, 3);
+    return `
+      <div class="home-meeting-row">
+        <div class="home-meeting-time">
+          <span class="day">${esc(dayLabel)}</span>
+          ${esc(m.time || 'TBD')}
+        </div>
+        <div>
+          <div class="home-meeting-name">${esc(m.name)}</div>
+          <div class="home-meeting-meta">
+            ${m.department ? `<span class="home-meeting-tag">${esc(m.department)}</span>` : ''}
+            ${m.periodicity ? `<span>${esc(m.periodicity)}</span>` : ''}
+            ${m.owner ? `<span>· led by ${esc(m.owner.split(' ')[0])}</span>` : ''}
+            ${m.attendees && m.attendees.length ? `<span>· ${m.attendees.length} ppl</span>` : ''}
+          </div>
+        </div>
+        <div class="home-meeting-actions">
+          ${m.kpiDocUrl ? `<a href="${escAttr(m.kpiDocUrl)}" target="_blank" rel="noopener" title="KPI doc"><span class="material-symbols-outlined">description</span> Notes</a>` : ''}
+          <a href="${escAttr(m.airtableUrl)}" target="_blank" rel="noopener" title="Airtable record"><span class="material-symbols-outlined">open_in_new</span> Open</a>
+        </div>
+      </div>
+    `;
+  }
+
   // Initial load — fires loadTasks which will populate BOTH the badge and the home page
   loadTasks();
+  loadMeetings();
 
   // ============ HV BOT (CHAT) ============
   const botMessages = document.getElementById('botMessages');
