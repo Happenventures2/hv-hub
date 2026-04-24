@@ -275,6 +275,21 @@
   .home-meeting-actions a .material-symbols-outlined { font-size: 12px; }
 
   .home-quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+
+  /* Recent activity feed */
+  .activity-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--color-gray-100); font-size: 13px; }
+  .activity-row:last-child { border-bottom: none; }
+  .activity-row .activity-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: var(--color-gray-200); }
+  .activity-row .activity-dot.snooze { background: #D97706; }
+  .activity-row .activity-dot.comment { background: var(--color-accent); }
+  .activity-row .activity-dot.update { background: #7C3AED; }
+  .activity-row .activity-dot.bot { background: var(--color-green); }
+  .activity-row .activity-dot.up { background: var(--color-green); }
+  .activity-row .activity-dot.down { background: var(--color-red); }
+  .activity-row .activity-text { flex: 1; min-width: 0; color: var(--color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .activity-row .activity-text strong { font-weight: 600; }
+  .activity-row .activity-time { color: var(--color-muted); font-size: 11px; flex-shrink: 0; font-weight: 500; }
+  .activity-empty { padding: 16px 0; color: var(--color-muted); font-size: 13px; }
   .home-action { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 16px; cursor: pointer; transition: all 0.12s; text-align: left; font-family: inherit; color: var(--color-text); }
   .home-action:hover { border-color: var(--color-text); transform: translateY(-1px); }
   .home-action-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--color-gray-50); display: flex; align-items: center; justify-content: center; margin-bottom: 10px; color: var(--color-text); }
@@ -1317,6 +1332,16 @@
       </div>
     </div>
 
+    <!-- Recent activity (HVH-03) -->
+    <div class="home-section" id="homeActivitySection">
+      <div class="home-section-head">
+        <h3><span class="material-symbols-outlined">history</span>Recent activity</h3>
+      </div>
+      <div id="homeActivity">
+        <div class="home-loading">Loading…</div>
+      </div>
+    </div>
+
     <!-- Quick actions -->
     <div class="home-section-head" style="border: none; padding: 14px 0 8px 0;">
       <h3><span class="material-symbols-outlined">bolt</span>Quick actions</h3>
@@ -1843,6 +1868,27 @@ R3 Operations · Happen Ventures</div>
     setTimeout(() => t.classList.remove('show'), 2400);
   }
 
+  // Fire-and-forget activity log writer.
+  // Allowed actions: Snooze, Comment, Update Status, Bot Question, Bot Feedback Up, Bot Feedback Down, Task Opened
+  function logActivity(action, { detail = '', targetRecordId = '', targetName = '', sourceEndpoint = '' } = {}) {
+    try {
+      fetch('/api/activity-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          detail,
+          targetRecordId,
+          targetName,
+          sourceEndpoint,
+          userEmail: typeof currentUserEmail === 'function' ? currentUserEmail() : '',
+        }),
+      }).catch(err => console.warn('activity log failed', err));
+    } catch (err) {
+      console.warn('activity log error', err);
+    }
+  }
+
   function fmtDue(iso, isOverdue) {
     if (!iso) return null;
     const due = new Date(iso + 'T00:00:00');
@@ -1962,6 +2008,7 @@ R3 Operations · Happen Ventures</div>
     // Always reload tasks + meetings so home page + tasks tab + badge stay in sync
     loadTasks();
     loadMeetings();
+    loadActivity();
     // Invalidate tickets cache so next toggle reloads
     ticketsLoaded = false;
     if (currentSource === 'tickets') loadTickets();
@@ -2119,6 +2166,12 @@ R3 Operations · Happen Ventures</div>
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
         showToast(`Snoozed to ${data.newDueDate}`);
+        logActivity('Snooze', {
+          detail: `Snoozed "${activeRecordName || 'task'}" by ${days} day${days === 1 ? '' : 's'} → ${data.newDueDate}`,
+          targetRecordId: activeRecordId,
+          targetName: activeRecordName || '',
+          sourceEndpoint: '/api/snooze',
+        });
         closeModal('snoozeModal');
         loadTasks();
       } catch (err) {
@@ -2145,6 +2198,12 @@ R3 Operations · Happen Ventures</div>
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
       showToast('Comment posted');
+      logActivity('Comment', {
+        detail: `Commented on "${activeRecordName || 'task'}": ${text.slice(0, 200)}`,
+        targetRecordId: activeRecordId,
+        targetName: activeRecordName || '',
+        sourceEndpoint: '/api/comment',
+      });
       closeModal('commentModal');
     } catch (err) {
       showToast(`Comment failed: ${err.message}`, true);
@@ -2169,6 +2228,12 @@ R3 Operations · Happen Ventures</div>
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
         showToast(`Status set to ${status}`);
+        logActivity('Update Status', {
+          detail: `Set "${activeRecordName || 'task'}" to ${status}`,
+          targetRecordId: activeRecordId,
+          targetName: activeRecordName || '',
+          sourceEndpoint: '/api/update-task',
+        });
         closeModal('updateModal');
         loadTasks();
       } catch (err) {
@@ -2349,9 +2414,58 @@ R3 Operations · Happen Ventures</div>
     `;
   }
 
+  // ============ RECENT ACTIVITY (HVH-03) ============
+  async function loadActivity() {
+    const container = document.getElementById('homeActivity');
+    if (!container) return;
+    try {
+      const res = await fetch('/api/activity-log?limit=10');
+      const data = await res.json();
+      if (!res.ok) {
+        container.innerHTML = `<div class="activity-empty">Couldn't load activity</div>`;
+        return;
+      }
+      const entries = data.entries || [];
+      if (!entries.length) {
+        container.innerHTML = `<div class="activity-empty">No activity yet — actions you take in the hub will show up here.</div>`;
+        return;
+      }
+      container.innerHTML = entries.map(renderActivityRow).join('');
+    } catch (err) {
+      container.innerHTML = `<div class="activity-empty">Network error loading activity</div>`;
+    }
+  }
+
+  function renderActivityRow(e) {
+    const dotClass = activityDotClass(e.action);
+    const firstName = (e.userName || 'Someone').split(' ')[0];
+    const detail = e.detail || e.action || '';
+    const time = relativeTime(new Date(e.timestamp).getTime());
+    return `
+      <div class="activity-row">
+        <span class="activity-dot ${dotClass}"></span>
+        <span class="activity-text"><strong>${esc(firstName)}</strong> · ${esc(detail)}</span>
+        <span class="activity-time">${esc(time)}</span>
+      </div>
+    `;
+  }
+
+  function activityDotClass(action) {
+    switch (action) {
+      case 'Snooze': return 'snooze';
+      case 'Comment': return 'comment';
+      case 'Update Status': return 'update';
+      case 'Bot Question': return 'bot';
+      case 'Bot Feedback Up': return 'up';
+      case 'Bot Feedback Down': return 'down';
+      default: return '';
+    }
+  }
+
   // Initial load — fires loadTasks which will populate BOTH the badge and the home page
   loadTasks();
   loadMeetings();
+  loadActivity();
 
   // ============ AUTO-REFRESH POLLING (HVH-05) ============
   // Refresh tasks + meetings every 60s when the tab is visible. Pause when hidden.
@@ -2369,6 +2483,7 @@ R3 Operations · Happen Ventures</div>
     if (isAnyModalOpen()) return;           // user is mid-action
     loadTasks();
     loadMeetings();
+    loadActivity();
     if (currentSource === 'tickets') loadTickets();
     lastSyncedAt = Date.now();
     updateLastSyncedIndicator();
@@ -2537,6 +2652,12 @@ R3 Operations · Happen Ventures</div>
     // Add user message to UI + conversation
     botConversation.push({ role: 'user', content: text });
     appendBotMessage('user', text);
+
+    // Log the question (fire-and-forget)
+    logActivity('Bot Question', {
+      detail: text.slice(0, 500),
+      sourceEndpoint: '/api/wiki-chat',
+    });
 
     // Clear input
     botInput.value = '';
@@ -2752,6 +2873,13 @@ R3 Operations · Happen Ventures</div>
         fb.querySelectorAll('button[data-fb="up"], button[data-fb="down"]').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         showToast(action === 'up' ? 'Glad that helped' : 'Thanks — feedback noted');
+
+        // Log to activity feed
+        const lastUserMsgForLog = [...botConversation].reverse().find(m => m.role === 'user');
+        logActivity(action === 'up' ? 'Bot Feedback Up' : 'Bot Feedback Down', {
+          detail: lastUserMsgForLog ? lastUserMsgForLog.content.slice(0, 200) : '(no question)',
+          sourceEndpoint: '/api/bot-feedback',
+        });
 
         // Persist to Notion (fire and forget; don't block UI on failure)
         try {
