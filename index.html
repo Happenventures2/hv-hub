@@ -222,6 +222,8 @@
   .home-greeting { margin-bottom: 24px; }
   .home-greeting h1 { font-size: 24px; font-weight: 700; color: var(--color-text); letter-spacing: -0.4px; margin-bottom: 4px; }
   .home-greeting p { font-size: 13px; color: var(--color-muted); }
+  .home-synced { margin-top: 6px; font-size: 11px; color: var(--color-muted); display: inline-flex; align-items: center; gap: 4px; opacity: 0.7; }
+  .home-synced .material-symbols-outlined { font-size: 12px; }
 
   .home-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
   .home-stat { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 16px 18px; transition: border-color 0.12s; cursor: pointer; }
@@ -1266,6 +1268,7 @@
     <div class="home-greeting">
       <h1 id="homeGreeting">Welcome</h1>
       <p id="homeSubgreeting">Loading your day…</p>
+      <div class="home-synced"><span class="material-symbols-outlined">autorenew</span>Synced <span id="homeLastSynced">just now</span></div>
     </div>
 
     <!-- 4 stat cards -->
@@ -2350,6 +2353,77 @@ R3 Operations · Happen Ventures</div>
   loadTasks();
   loadMeetings();
 
+  // ============ AUTO-REFRESH POLLING (HVH-05) ============
+  // Refresh tasks + meetings every 60s when the tab is visible. Pause when hidden.
+  // Also pause while any modal is open (prevents flicker during user input).
+  const POLL_INTERVAL_MS = 60 * 1000;
+  let pollTimerId = null;
+  let lastSyncedAt = Date.now();
+
+  function isAnyModalOpen() {
+    return document.querySelector('.modal-backdrop.show') !== null;
+  }
+
+  function tickAutoRefresh() {
+    if (document.hidden) return;           // paused in background
+    if (isAnyModalOpen()) return;           // user is mid-action
+    loadTasks();
+    loadMeetings();
+    if (currentSource === 'tickets') loadTickets();
+    lastSyncedAt = Date.now();
+    updateLastSyncedIndicator();
+  }
+
+  function startPolling() {
+    if (pollTimerId) return;
+    pollTimerId = setInterval(tickAutoRefresh, POLL_INTERVAL_MS);
+  }
+  function stopPolling() {
+    if (!pollTimerId) return;
+    clearInterval(pollTimerId);
+    pollTimerId = null;
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopPolling();
+    } else {
+      // Catch up on return if we've been away more than the poll interval
+      if (Date.now() - lastSyncedAt > POLL_INTERVAL_MS) {
+        tickAutoRefresh();
+      }
+      startPolling();
+    }
+  });
+
+  // Update lastSyncedAt whenever tasks actually load (wraps loadTasks)
+  const _origLoadTasks = loadTasks;
+  loadTasks = async function (...args) {
+    const r = await _origLoadTasks.apply(this, args);
+    lastSyncedAt = Date.now();
+    updateLastSyncedIndicator();
+    return r;
+  };
+
+  function updateLastSyncedIndicator() {
+    const el = document.getElementById('homeLastSynced');
+    if (!el) return;
+    el.textContent = relativeTime(lastSyncedAt);
+  }
+  function relativeTime(ts) {
+    const secs = Math.floor((Date.now() - ts) / 1000);
+    if (secs < 5) return 'just now';
+    if (secs < 60) return `${secs} sec ago`;
+    const mins = Math.floor(secs / 60);
+    if (mins < 60) return `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    return `${hrs} hr ago`;
+  }
+  // Tick the indicator every 5s so it ages visibly
+  setInterval(updateLastSyncedIndicator, 5000);
+
+  startPolling();
+
   // ============ HV BOT (CHAT) ============
   const botMessages = document.getElementById('botMessages');
   const botInput = document.getElementById('botInput');
@@ -2673,11 +2747,40 @@ R3 Operations · Happen Ventures</div>
         if (action === 'copy') {
           navigator.clipboard.writeText(mainText.trim());
           showToast('Copied to clipboard');
-        } else {
-          fb.querySelectorAll('button[data-fb="up"], button[data-fb="down"]').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          showToast(action === 'up' ? 'Glad that helped' : 'Thanks — feedback noted');
-          // TODO: log to Airtable feedback table later
+          return;
+        }
+        fb.querySelectorAll('button[data-fb="up"], button[data-fb="down"]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        showToast(action === 'up' ? 'Glad that helped' : 'Thanks — feedback noted');
+
+        // Persist to Notion (fire and forget; don't block UI on failure)
+        try {
+          const lastUserMsg = [...botConversation].reverse().find(m => m.role === 'user');
+          const docsUsed = hasDocSources
+            ? sourcesLine.split('·').map(s => s.trim()).filter(s => s && !/general knowledge/i.test(s))
+            : [];
+          const mode = hasDocSources && hasGeneral
+            ? 'Hybrid'
+            : hasGeneral
+              ? 'General'
+              : hasDocSources
+                ? 'HV-specific'
+                : 'Off-topic';
+
+          fetch('/api/bot-feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              rating: action,
+              question: lastUserMsg ? lastUserMsg.content : '',
+              answer: mainText.trim(),
+              docsUsed,
+              userEmail: currentUserEmail(),
+              mode,
+            }),
+          }).catch(err => console.warn('bot feedback persist failed', err));
+        } catch (err) {
+          console.warn('bot feedback persist error', err);
         }
       });
     });
