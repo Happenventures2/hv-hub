@@ -103,7 +103,8 @@ export default async (req) => {
       body: JSON.stringify(queryBody),
     });
 
-    if (!res.ok && (res.status === 404 || res.status === 400)) {
+    // Fall back to legacy database endpoint on any 4xx
+    if (!res.ok && res.status >= 400 && res.status < 500) {
       queryUrl = `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`;
       res = await fetch(queryUrl, {
         method: "POST",
@@ -118,7 +119,13 @@ export default async (req) => {
 
     if (!res.ok) {
       const t = await res.text().catch(() => "");
-      return json({ error: `Notion ${res.status}`, detail: t.slice(0, 500) }, res.status);
+      console.error("activity-log GET failed", res.status, t);
+      // Return empty entries gracefully so the Home widget shows "No activity yet" instead of an error.
+      return json({
+        entries: [],
+        count: 0,
+        warning: `Notion ${res.status} — integration may not have access to the activity log database.`,
+      });
     }
 
     const data = await res.json();

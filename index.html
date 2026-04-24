@@ -2511,14 +2511,10 @@ R3 Operations · Happen Ventures</div>
     }
   });
 
-  // Update lastSyncedAt whenever tasks actually load (wraps loadTasks)
-  const _origLoadTasks = loadTasks;
-  loadTasks = async function (...args) {
-    const r = await _origLoadTasks.apply(this, args);
-    lastSyncedAt = Date.now();
-    updateLastSyncedIndicator();
-    return r;
-  };
+  // Update lastSyncedAt whenever any of the auto-refresh fetches complete.
+  // We achieve this by hooking into tickAutoRefresh and into the initial loadTasks/loadMeetings/loadActivity calls.
+  // Rather than reassigning loadTasks (which is brittle), we just update the timestamp from tickAutoRefresh
+  // (already wired) and from the initial load below.
 
   function updateLastSyncedIndicator() {
     const el = document.getElementById('homeLastSynced');

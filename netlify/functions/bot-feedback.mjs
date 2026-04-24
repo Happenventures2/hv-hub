@@ -21,11 +21,11 @@ export default async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
     const rating = (body.rating || "").toLowerCase();
-    const question = String(body.question || "").slice(0, 1800);
-    const answer = String(body.answer || "").slice(0, 1800);
+    const question = String(body.question || "").slice(0, 2000);
+    const answer = String(body.answer || "").slice(0, 2000);
     const docsUsed = Array.isArray(body.docsUsed)
-      ? body.docsUsed.join(", ").slice(0, 1800)
-      : String(body.docsUsed || "").slice(0, 1800);
+      ? body.docsUsed.join(", ").slice(0, 2000)
+      : String(body.docsUsed || "").slice(0, 2000);
     const userEmail = String(body.userEmail || "").toLowerCase();
     const mode = String(body.mode || "HV-specific");
 
@@ -54,13 +54,13 @@ export default async (req) => {
     const page = {
       parent: { database_id: NOTION_DATABASE_ID },
       properties: {
-        Question: { title: [{ text: { content: question.slice(0, 2000) } }] },
+        Question: { title: [{ text: { content: question } }] },
         Rating: { select: { name: rating === "up" ? "Up" : "Down" } },
         "User Email": { email: userEmail || null },
         "User Name": { rich_text: [{ text: { content: userName.slice(0, 200) } }] },
         Mode: { select: { name: safeMode } },
-        Answer: { rich_text: [{ text: { content: answer.slice(0, 2000) } }] },
-        "Docs Used": { rich_text: [{ text: { content: docsUsed.slice(0, 2000) } }] },
+        Answer: { rich_text: [{ text: { content: answer } }] },
+        "Docs Used": { rich_text: [{ text: { content: docsUsed } }] },
       },
     };
 

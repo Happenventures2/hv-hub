@@ -43,19 +43,20 @@ export default async (req) => {
       }, 503);
     }
 
-    // Notion's /v1/data_sources/{id}/query endpoint returns pages. Filter by Assignee + exclude closed.
-    // We use the modern data-source API (rather than /v1/databases/.../query which is being deprecated).
+    // Filter: only this user's tickets that are actually actionable.
+    // Excludes Done/Canceled/Idea Dump statuses and Archived phase.
     const queryUrl = `https://api.notion.com/v1/data_sources/${NOTION_DATA_SOURCE_ID}/query`;
     const body = {
       filter: {
         and: [
           { property: "Assignee", select: { equals: user.notionAssignee } },
-          { property: "Status", select: { does_not_equal: "Done" } },
-          { property: "Status", select: { does_not_equal: "Canceled" } },
+          { property: "Status",   select: { does_not_equal: "Done" } },
+          { property: "Status",   select: { does_not_equal: "Canceled" } },
+          { property: "Status",   select: { does_not_equal: "💡 Idea Dump" } },
+          { property: "Phase",    select: { does_not_equal: "🗄️ Archived" } },
         ],
       },
       sorts: [
-        // Priority is a select; sort by its internal order (P0 → P1 → P2)
         { property: "Priority", direction: "ascending" },
       ],
       page_size: 50,
@@ -73,9 +74,9 @@ export default async (req) => {
 
     if (!res.ok) {
       const errorText = await res.text().catch(() => "Unknown error");
-      // Fall back gracefully if the data-source API isn't available for this workspace yet;
-      // try the legacy database query endpoint.
-      if (res.status === 404 || res.status === 400) {
+      // Try the legacy database query endpoint on 4xx errors. The data-source endpoint is newer
+      // and may not yet be available for this workspace.
+      if (res.status >= 400 && res.status < 500) {
         const legacyUrl = `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`;
         const legacyRes = await fetch(legacyUrl, {
           method: "POST",
@@ -90,6 +91,16 @@ export default async (req) => {
           const legacyData = await legacyRes.json();
           return json(shapeResponse(email, user, legacyData));
         }
+        // Both failed — return whichever error gives more signal
+        const legacyErr = await legacyRes.text().catch(() => "");
+        return json({
+          error: `Notion API ${res.status} (data_source) + ${legacyRes.status} (database)`,
+          dataSourceError: errorText.slice(0, 300),
+          databaseError: legacyErr.slice(0, 300),
+          hint: legacyRes.status === 404
+            ? "Likely cause: the 'HV Hub' Notion integration isn't shared with the Tech Build Queue database. Open the database in Notion → ... menu → Connections → add HV Hub."
+            : "Check the NOTION_API_KEY in Netlify env vars.",
+        }, legacyRes.status);
       }
       return json({
         error: `Notion API returned ${res.status}`,
