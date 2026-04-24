@@ -466,7 +466,17 @@
   .mode-btn .count { opacity: 0.6; font-weight: 400; }
 
   /* QUEUE SPLIT */
-  .queue-split { display: grid; grid-template-columns: 340px 1fr; gap: 14px; align-items: start; }
+  .queue-split { display: grid; grid-template-columns: 340px 1fr; gap: 14px; align-items: start; transition: grid-template-columns 0.2s ease; }
+  .queue-split.collapsed { grid-template-columns: 44px 1fr; }
+  .queue-split.collapsed .queue-item,
+  .queue-split.collapsed .queue-list-head > span { display: none; }
+  .queue-split.collapsed .queue-list { padding: 0; }
+  .queue-split.collapsed .queue-list-head { justify-content: center; padding: 8px 0; background: transparent; border-bottom: none; }
+
+  .queue-collapse-btn { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: var(--radius-sm); border: 1px solid var(--color-gray-100); background: var(--color-bg); cursor: pointer; color: var(--color-muted); transition: all 0.12s; padding: 0; }
+  .queue-collapse-btn:hover { background: var(--color-gray-50); color: var(--color-text); border-color: var(--color-gray-200); }
+  .queue-collapse-btn .material-symbols-outlined { font-size: 18px; transition: transform 0.2s ease; }
+  .queue-split.collapsed .queue-collapse-btn .material-symbols-outlined { transform: rotate(180deg); }
 
   .queue-list { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); overflow: hidden; position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
   .queue-list-head { padding: 12px 16px; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--color-muted); border-bottom: 1px solid var(--color-gray-100); display: flex; justify-content: space-between; background: var(--color-gray-50); }
@@ -1341,71 +1351,39 @@
       </div>
     </div>
 
-    <!-- WORKFLOW FILTER PILLS — reflects current SSOT (post-archive) -->
+    <!-- WORKFLOW FILTER PILLS — simplified: name + count only, zeros hidden -->
     <div class="wf-filter-card">
       <div class="wf-filter-title">
         <span class="material-symbols-outlined">filter_list</span>
-        Filter by workflow source
+        Filter by workflow
       </div>
       <div class="wf-pills">
         <button class="wf-pill active">
           All <span class="count">6</span>
         </button>
-
-        <!-- R3 OPS -->
         <button class="wf-pill has-items">
           <span>Complaint Routing</span>
-          <span class="wf-code">CMP-01</span>
           <span class="count">2</span>
         </button>
         <button class="wf-pill has-items">
           <span>Equipment Discrepancy</span>
-          <span class="wf-code">OPS</span>
           <span class="count">1</span>
         </button>
-        <button class="wf-pill">
-          <span>Pickup Photo Confirm</span>
-          <span class="wf-code">OPS</span>
-          <span class="count">0</span>
-        </button>
-
-        <!-- FINANCE (Joan acts as Jazz) -->
         <button class="wf-pill has-items">
           <span>AR Generation</span>
-          <span class="wf-code">FIN-02</span>
           <span class="count">1</span>
         </button>
         <button class="wf-pill has-items">
           <span>Price Change Gate</span>
-          <span class="wf-code">FIN-03</span>
           <span class="count">1</span>
         </button>
-        <button class="wf-pill">
-          <span>AP Audit</span>
-          <span class="wf-code">FIN-01</span>
-          <span class="count">0</span>
-        </button>
-        <button class="wf-pill">
-          <span>Bill Inbox · R3</span>
-          <span class="wf-code">FIN</span>
-          <span class="count">0</span>
-        </button>
-
-        <!-- UNIVERSAL -->
         <button class="wf-pill has-items">
           <span>Inbox &amp; Calendar</span>
-          <span class="wf-code">AOE</span>
           <span class="count">1</span>
         </button>
-        <button class="wf-pill">
-          <span>Quote Creation</span>
-          <span class="wf-code">QUO</span>
-          <span class="count">0</span>
-        </button>
       </div>
-      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--color-gray-100); font-size: 11px; color: var(--color-muted); display: flex; align-items: center; gap: 6px;">
-        <span class="material-symbols-outlined" style="font-size: 13px;">archive</span>
-        <span>Archived from Phase 1: Partner Count Chase · Driver Silence · CMP Substantive · Risk Alerts · Tuesday Overdue · Site Compliance Outreach</span>
+      <div style="margin-top: 10px; font-size: 11px; color: var(--color-muted);">
+        5 workflows with 0 items hidden
       </div>
     </div>
 
@@ -1431,6 +1409,9 @@
         <div class="queue-list-head">
           <span>6 Items</span>
           <span>Oldest first</span>
+          <button class="queue-collapse-btn" id="queueCollapseBtn" title="Collapse list" aria-label="Collapse queue list">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
         </div>
 
         <!-- Item 1: SELECTED — Complaint (CMP-01) -->
@@ -1858,6 +1839,19 @@ R3 Operations · Happen Ventures</div>
       p.classList.add('active');
     });
   });
+
+  // Queue list collapse toggle
+  const queueCollapseBtn = document.getElementById('queueCollapseBtn');
+  if (queueCollapseBtn) {
+    queueCollapseBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const split = queueCollapseBtn.closest('.queue-split');
+      if (!split) return;
+      const isCollapsed = split.classList.toggle('collapsed');
+      queueCollapseBtn.title = isCollapsed ? 'Expand list' : 'Collapse list';
+      queueCollapseBtn.setAttribute('aria-label', isCollapsed ? 'Expand queue list' : 'Collapse queue list');
+    });
+  }
 
   // Mode buttons
   document.querySelectorAll('.mode-btn').forEach(b => {
