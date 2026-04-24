@@ -288,6 +288,15 @@
 
   /* ============ AIRTABLE TASKS ============ */
   .tasks-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+
+  /* Source toggle (Tasks / Tickets) */
+  .source-toggle { display: inline-flex; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 3px; gap: 2px; margin-bottom: 14px; }
+  .source-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; background: transparent; color: var(--color-text-secondary); cursor: pointer; border: 1px solid transparent; transition: all 0.12s; }
+  .source-btn:hover { color: var(--color-text); }
+  .source-btn.active { background: var(--color-bg); color: var(--color-text); font-weight: 600; border-color: var(--color-gray-100); box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .source-btn .material-symbols-outlined { font-size: 15px; }
+  .source-btn .source-count { background: var(--color-gray-100); color: var(--color-text-secondary); font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; margin-left: 2px; }
+  .source-btn.active .source-count { background: var(--color-text); color: var(--color-bg); }
   .tasks-loader { color: var(--color-muted); font-size: 12px; display: flex; align-items: center; gap: 6px; }
   .tasks-loader .spinner { width: 12px; height: 12px; border: 2px solid var(--color-gray-100); border-top-color: var(--color-text); border-radius: 50%; animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -615,7 +624,7 @@
   <nav class="nav">
     <a href="#" class="nav-tab active" data-tab="home"><span class="material-symbols-outlined">home</span> Home</a>
     <a href="#" class="nav-tab" data-tab="queue"><span class="material-symbols-outlined">bolt</span> Task Queue <span class="badge alert">6</span></a>
-    <a href="#" class="nav-tab" data-tab="tasks"><span class="material-symbols-outlined">check_circle</span> Airtable Tasks <span class="badge" id="tasksNavBadge">—</span></a>
+    <a href="#" class="nav-tab" data-tab="tasks"><span class="material-symbols-outlined">check_circle</span> Tasks <span class="badge" id="tasksNavBadge">—</span></a>
     <a href="#" class="nav-tab" data-tab="bot"><span class="material-symbols-outlined">smart_toy</span> HV Bot</a>
     <a href="#" class="nav-tab" data-tab="tools"><span class="material-symbols-outlined">build</span> Tools</a>
     <div class="nav-divider"></div>
@@ -1593,28 +1602,56 @@ R3 Operations · Happen Ventures</div>
   <section class="tab-panel" data-panel="tasks">
     <div class="page-head">
       <div>
-        <h1 class="page-title">Airtable Tasks <span class="tag-mod">Universal · Live from HV Hub</span></h1>
+        <h1 class="page-title">Tasks <span class="tag-mod">Universal · Live data</span></h1>
         <p class="page-meta" id="tasksMeta">Loading…</p>
       </div>
       <div class="page-actions">
         <button class="btn" id="tasksRefreshBtn"><span class="material-symbols-outlined">refresh</span> Refresh</button>
-        <a class="btn primary" href="https://airtable.com/appGDkdfPiiZ2lwO2/tblI12xpnUKg9T8Cm/viwZPFLEOADd0h7Ro?blocks=hide" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Open in Airtable</a>
+        <a class="btn primary" id="tasksOpenBtn" href="https://airtable.com/appGDkdfPiiZ2lwO2/tblI12xpnUKg9T8Cm/viwZPFLEOADd0h7Ro?blocks=hide" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Open in Airtable</a>
       </div>
+    </div>
+
+    <!-- Tasks / Tickets source toggle -->
+    <div class="source-toggle" role="tablist" aria-label="Task source">
+      <button class="source-btn active" data-source="tasks" role="tab" aria-selected="true">
+        <span class="material-symbols-outlined">checklist</span>
+        Tasks
+        <span class="source-count" id="tasksCount">—</span>
+      </button>
+      <button class="source-btn" data-source="tickets" role="tab" aria-selected="false">
+        <span class="material-symbols-outlined">confirmation_number</span>
+        Tickets
+        <span class="source-count" id="ticketsCount">—</span>
+      </button>
     </div>
 
     <div class="tasks-toolbar">
       <div class="tasks-loader" id="tasksLoader" style="display:none;">
         <div class="spinner"></div>
-        <span>Pulling from Airtable…</span>
+        <span id="tasksLoaderText">Pulling from Airtable…</span>
       </div>
     </div>
 
     <div id="tasksError" class="tasks-error" style="display:none;"></div>
-    <div id="tasksList" class="tasks-list" style="display:none;"></div>
-    <div id="tasksEmpty" class="tasks-empty" style="display:none;">
-      <span class="material-symbols-outlined">check_circle</span>
-      <h3>You're all clear</h3>
-      <p>No open tasks assigned to you in HV Hub right now.</p>
+
+    <!-- Tasks view (Airtable) -->
+    <div id="tasksView" class="source-view">
+      <div id="tasksList" class="tasks-list" style="display:none;"></div>
+      <div id="tasksEmpty" class="tasks-empty" style="display:none;">
+        <span class="material-symbols-outlined">check_circle</span>
+        <h3>You're all clear</h3>
+        <p>No open tasks assigned to you in HV Hub right now.</p>
+      </div>
+    </div>
+
+    <!-- Tickets view (Notion Tech Build Queue) -->
+    <div id="ticketsView" class="source-view" style="display:none;">
+      <div id="ticketsList" class="tasks-list" style="display:none;"></div>
+      <div id="ticketsEmpty" class="tasks-empty" style="display:none;">
+        <span class="material-symbols-outlined">confirmation_number</span>
+        <h3>No tickets assigned to you</h3>
+        <p>Tickets in the Tech Build Queue are typically assigned to developers. <a href="https://www.notion.so/e96fef48cdf949f98b08c8d794894cb8" target="_blank" rel="noopener">Open Tech Build Queue</a></p>
+      </div>
     </div>
   </section>
   <section class="tab-panel" data-panel="bot">
@@ -1829,8 +1866,11 @@ R3 Operations · Happen Ventures</div>
 
   function renderTasks(data) {
     const { tasks, count, user } = data;
-    tasksMeta.textContent = `${user.name} · ${user.role} · ${count} open task${count === 1 ? '' : 's'}`;
+    if (currentSource === 'tasks') {
+      tasksMeta.textContent = `${user.name} · ${user.role} · ${count} open task${count === 1 ? '' : 's'}`;
+    }
     tasksNavBadge.textContent = count;
+    if (tasksCountEl) tasksCountEl.textContent = count;
 
     if (!tasks.length) {
       tasksList.style.display = 'none';
@@ -1911,13 +1951,125 @@ R3 Operations · Happen Ventures</div>
     }
   }
 
-  document.getElementById('tasksRefreshBtn').addEventListener('click', loadTasks);
+  document.getElementById('tasksRefreshBtn').addEventListener('click', () => {
+    if (currentSource === 'tasks') loadTasks();
+    else loadTickets();
+  });
   userSelect.addEventListener('change', () => {
     // Always reload tasks + meetings so home page + tasks tab + badge stay in sync
     loadTasks();
     loadMeetings();
+    // Invalidate tickets cache so next toggle reloads
+    ticketsLoaded = false;
+    if (currentSource === 'tickets') loadTickets();
     showToast(`Switched to ${userSelect.options[userSelect.selectedIndex].text}`);
   });
+
+  // ============ TICKETS (NOTION TECH BUILD QUEUE) ============
+  const ticketsView = document.getElementById('ticketsView');
+  const tasksView = document.getElementById('tasksView');
+  const ticketsList = document.getElementById('ticketsList');
+  const ticketsEmpty = document.getElementById('ticketsEmpty');
+  const ticketsCountEl = document.getElementById('ticketsCount');
+  const tasksCountEl = document.getElementById('tasksCount');
+  const tasksOpenBtn = document.getElementById('tasksOpenBtn');
+  const tasksLoaderText = document.getElementById('tasksLoaderText');
+  let currentSource = 'tasks';
+  let ticketsLoaded = false;
+
+  const AIRTABLE_TASKS_URL = 'https://airtable.com/appGDkdfPiiZ2lwO2/tblI12xpnUKg9T8Cm/viwZPFLEOADd0h7Ro?blocks=hide';
+  const NOTION_TICKETS_URL = 'https://www.notion.so/e96fef48cdf949f98b08c8d794894cb8';
+
+  document.querySelectorAll('.source-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const src = btn.dataset.source;
+      if (src === currentSource) return;
+      currentSource = src;
+      document.querySelectorAll('.source-btn').forEach(b => {
+        const isActive = b.dataset.source === src;
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      if (src === 'tasks') {
+        tasksView.style.display = '';
+        ticketsView.style.display = 'none';
+        tasksOpenBtn.href = AIRTABLE_TASKS_URL;
+        tasksOpenBtn.innerHTML = '<span class="material-symbols-outlined">open_in_new</span> Open in Airtable';
+      } else {
+        tasksView.style.display = 'none';
+        ticketsView.style.display = '';
+        tasksOpenBtn.href = NOTION_TICKETS_URL;
+        tasksOpenBtn.innerHTML = '<span class="material-symbols-outlined">open_in_new</span> Open in Notion';
+        if (!ticketsLoaded) loadTickets();
+      }
+    });
+  });
+
+  async function loadTickets() {
+    tasksLoader.style.display = 'flex';
+    tasksLoaderText.textContent = 'Pulling from Notion…';
+    tasksError.style.display = 'none';
+    try {
+      const email = currentUserEmail();
+      const res = await fetch(`/api/tickets?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        tasksError.style.display = 'block';
+        tasksError.innerHTML = `<strong>Could not load tickets</strong> ${esc(data.error || 'Unknown error')}`;
+        ticketsList.style.display = 'none';
+        ticketsEmpty.style.display = 'none';
+        tasksMeta.textContent = 'Error loading tickets';
+        return;
+      }
+      renderTickets(data);
+      ticketsLoaded = true;
+    } catch (err) {
+      tasksError.style.display = 'block';
+      tasksError.innerHTML = `<strong>Network error</strong> ${esc(err.message)}`;
+    } finally {
+      tasksLoader.style.display = 'none';
+      tasksLoaderText.textContent = 'Pulling from Airtable…';
+    }
+  }
+
+  function renderTickets(data) {
+    const tickets = data.tickets || [];
+    ticketsCountEl.textContent = tickets.length;
+    if (currentSource === 'tickets') {
+      tasksMeta.textContent = tickets.length
+        ? `${tickets.length} ticket${tickets.length === 1 ? '' : 's'} assigned to you`
+        : 'No tickets assigned to you';
+    }
+    if (!tickets.length) {
+      ticketsList.style.display = 'none';
+      ticketsEmpty.style.display = 'block';
+      return;
+    }
+    ticketsEmpty.style.display = 'none';
+    ticketsList.style.display = 'block';
+    ticketsList.innerHTML = tickets.map(t => {
+      const priorityClass = t.priority && t.priority.startsWith('P0') ? 'urgent'
+        : t.priority && t.priority.startsWith('P1') ? 'high' : '';
+      return `
+        <div class="task-row" data-id="${escAttr(t.id)}">
+          <div class="task-main">
+            <div class="task-meta-row">
+              <span class="task-status-pill ${statusClass(t.status)}">${esc(t.status)}</span>
+              ${t.priority ? `<span class="task-type-tag ${priorityClass}">${esc(t.priority)}</span>` : ''}
+              ${t.phase ? `<span class="task-type-tag">${esc(t.phase)}</span>` : ''}
+              ${t.department ? `<span class="task-type-tag">${esc(t.department)}</span>` : ''}
+            </div>
+            <div class="task-title">${esc(t.title)}</div>
+            ${t.notes ? `<div class="task-desc">${esc(t.notes)}</div>` : ''}
+          </div>
+          <div class="task-actions">
+            ${t.specUrl ? `<a class="task-btn" href="${escAttr(t.specUrl)}" target="_blank" rel="noopener"><span class="material-symbols-outlined">description</span> Spec</a>` : ''}
+            <a class="task-btn" href="${escAttr(t.notionUrl)}" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Open</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
 
   // ============ MODALS ============
   let activeRecordId = null;
