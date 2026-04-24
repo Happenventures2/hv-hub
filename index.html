@@ -339,6 +339,8 @@
   .bot-source-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); border-radius: 10px; font-size: 11px; color: var(--color-text); text-decoration: none; transition: all 0.12s; }
   .bot-source-chip:hover { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
   .bot-source-chip .material-symbols-outlined { font-size: 11px; }
+  .bot-source-chip.general { background: rgba(217,119,6,0.06); border-color: rgba(217,119,6,0.25); color: var(--color-amber); font-style: italic; }
+  .bot-source-chip.general:hover { background: var(--color-amber); color: var(--color-bg); border-color: var(--color-amber); }
 
   .bot-followups { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
   .bot-followups-label { font-size: 10px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--color-muted); }
@@ -2180,11 +2182,15 @@ R3 Operations · Happen Ventures</div>
     'ivan@happenventures.com': { initials: 'IR' },
   };
 
-  // Render streaming text — strips out the source/followup markers from the live text
+  // Render streaming text — strips out the source/general/followup markers from live text
   function renderStreamingText(el, fullText, cursor) {
-    // Find where sources/followups start (📚 or 💡 line) and only render text before that
-    const sourceIdx = fullText.indexOf('\n📚');
-    const visibleText = sourceIdx >= 0 ? fullText.substring(0, sourceIdx) : fullText;
+    const indices = [
+      fullText.indexOf('\n📚'),
+      fullText.indexOf('\n📖'),
+      fullText.indexOf('\n💡'),
+    ].filter(i => i >= 0);
+    const cutAt = indices.length ? Math.min(...indices) : -1;
+    const visibleText = cutAt >= 0 ? fullText.substring(0, cutAt) : fullText;
 
     el.innerHTML = renderMarkdown(visibleText);
     el.appendChild(cursor);
@@ -2194,42 +2200,59 @@ R3 Operations · Happen Ventures</div>
   function finalizeBotMessage(bubbleEl, fullText) {
     const textEl = bubbleEl.querySelector('.bot-msg-text');
     const sourceIdx = fullText.indexOf('\n📚');
+    const generalIdx = fullText.indexOf('\n📖');
     const followIdx = fullText.indexOf('\n💡');
 
-    let mainText = fullText;
+    // Find the earliest marker — that's where the answer body ends
+    const markers = [sourceIdx, generalIdx, followIdx].filter(i => i >= 0);
+    const firstMarker = markers.length ? Math.min(...markers) : -1;
+
+    let mainText = firstMarker >= 0 ? fullText.substring(0, firstMarker) : fullText;
     let sourcesLine = '';
+    let generalLine = '';
     let followupsLine = '';
 
-    if (sourceIdx >= 0) {
-      mainText = fullText.substring(0, sourceIdx);
-      const after = fullText.substring(sourceIdx + 1);
-      const lines = after.split('\n');
-      sourcesLine = (lines.find(l => l.startsWith('📚')) || '').replace(/^📚\s*/, '');
-      followupsLine = (lines.find(l => l.startsWith('💡')) || '').replace(/^💡\s*/, '');
-    } else if (followIdx >= 0) {
-      mainText = fullText.substring(0, followIdx);
-      followupsLine = fullText.substring(followIdx + 1).split('\n').find(l => l.startsWith('💡')) || '';
-      followupsLine = followupsLine.replace(/^💡\s*/, '');
+    if (firstMarker >= 0) {
+      const after = fullText.substring(firstMarker + 1);
+      const lines = after.split('\n').map(l => l.trim()).filter(Boolean);
+      for (const line of lines) {
+        if (line.startsWith('📚')) sourcesLine = line.replace(/^📚\s*/, '');
+        else if (line.startsWith('📖')) generalLine = line.replace(/^📖\s*/, '');
+        else if (line.startsWith('💡')) followupsLine = line.replace(/^💡\s*/, '');
+      }
     }
 
     textEl.innerHTML = renderMarkdown(mainText.trim());
 
-    // Render source chips
-    if (sourcesLine) {
-      const sourceNames = sourcesLine.split('·').map(s => s.trim()).filter(Boolean);
-      if (sourceNames.length) {
-        const sourcesEl = document.createElement('div');
-        sourcesEl.className = 'bot-sources';
-        sourcesEl.innerHTML = `
-          <span class="bot-sources-label">📚 Sources</span>
-          ${sourceNames.map(n => `
+    // Render source chips (HV docs)
+    const hasDocSources = sourcesLine && !/general knowledge/i.test(sourcesLine);
+    const hasGeneral = !!generalLine || /general knowledge/i.test(sourcesLine);
+
+    if (hasDocSources || hasGeneral) {
+      const sourcesEl = document.createElement('div');
+      sourcesEl.className = 'bot-sources';
+
+      let html = '';
+      if (hasDocSources) {
+        const sourceNames = sourcesLine.split('·').map(s => s.trim())
+          .filter(s => s && !/general knowledge/i.test(s));
+        if (sourceNames.length) {
+          html += `<span class="bot-sources-label">📚 HV Sources</span>`;
+          html += sourceNames.map(n => `
             <span class="bot-source-chip" title="From Resource Repository">
               <span class="material-symbols-outlined">description</span>${esc(n)}
             </span>
-          `).join('')}
-        `;
-        textEl.parentElement.appendChild(sourcesEl);
+          `).join('');
+        }
       }
+      if (hasGeneral) {
+        if (hasDocSources) html += `<span style="width: 8px;"></span>`;
+        html += `<span class="bot-source-chip general" title="Answered from general knowledge — not from HV docs">
+          <span class="material-symbols-outlined">menu_book</span>General Knowledge
+        </span>`;
+      }
+      sourcesEl.innerHTML = html;
+      textEl.parentElement.appendChild(sourcesEl);
     }
 
     // Render follow-up chips
