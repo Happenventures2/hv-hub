@@ -390,6 +390,27 @@
   .task-status-pill.high { background: rgba(217,119,6,0.08); color: var(--color-amber); border-color: rgba(217,119,6,0.2); }
   .task-status-pill.medium { background: rgba(50,189,174,0.08); color: #0d8076; border-color: rgba(50,189,174,0.25); }
   .task-status-pill.low { background: var(--color-gray-50); color: var(--color-text-secondary); border-color: var(--color-gray-100); }
+  .task-row.expandable { cursor: default; }
+  .task-row .expand-toggle { background: none; border: none; color: var(--color-text-secondary); cursor: pointer; padding: 4px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-family: inherit; }
+  .task-row .expand-toggle:hover { background: var(--color-gray-50); color: var(--color-text); }
+  .task-row .expand-toggle .material-symbols-outlined { font-size: 16px; transition: transform 0.15s; }
+  .task-row.expanded .expand-toggle .material-symbols-outlined { transform: rotate(180deg); }
+  .task-detail { border-top: 1px solid var(--color-gray-100); margin-top: 12px; padding-top: 12px; display: none; }
+  .task-row.expanded .task-detail { display: block; }
+  .task-detail-section { margin-bottom: 14px; }
+  .task-detail-label { font-size: 10px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block; }
+  .task-detail-value { font-size: 13px; color: var(--color-text); line-height: 1.5; }
+  .task-edit-textarea { width: 100%; min-height: 70px; padding: 8px 10px; border: 1px solid var(--color-gray-100); border-radius: 6px; font-size: 13px; color: var(--color-text); background: var(--color-bg); font-family: inherit; resize: vertical; line-height: 1.5; }
+  .task-edit-textarea:focus { outline: none; border-color: #32BDAE; box-shadow: 0 0 0 2px rgba(50,189,174,0.12); }
+  .task-edit-row { display: flex; gap: 6px; margin-top: 6px; }
+  .task-snooze-menu { position: relative; display: inline-block; }
+  .task-snooze-options { position: absolute; top: 100%; right: 0; margin-top: 4px; background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 4px; display: none; z-index: 10; min-width: 110px; }
+  .task-snooze-menu.open .task-snooze-options { display: block; }
+  .task-snooze-options button { display: block; width: 100%; text-align: left; padding: 6px 10px; background: none; border: none; cursor: pointer; font-size: 12px; color: var(--color-text); border-radius: 4px; font-family: inherit; }
+  .task-snooze-options button:hover { background: var(--color-gray-50); }
+  .task-resolution-log { background: var(--color-gray-50); border-radius: 6px; padding: 8px 10px; font-size: 12px; color: var(--color-text-secondary); white-space: pre-wrap; max-height: 120px; overflow-y: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .ticket-source-tag { background: rgba(50,189,174,0.08); color: #0d8076; border: 1px solid rgba(50,189,174,0.2); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; }
+  .ticket-source-tag.dev { background: rgba(99,102,241,0.08); color: #4338ca; border-color: rgba(99,102,241,0.2); }
 
   /* USER SWITCHER */
   .user-switcher { display: flex; align-items: center; gap: 6px; padding: 4px 8px 4px 12px; border: 1px solid var(--color-gray-100); border-radius: var(--radius-sm); background: var(--color-bg); cursor: pointer; font-family: inherit; font-size: 12px; color: var(--color-text); transition: border-color 0.12s; }
@@ -1919,11 +1940,20 @@
     ticketsCountEl.textContent = tickets.length;
     if (currentSource === 'tickets') {
       const noun = tickets.length === 1 ? 'ticket' : 'tickets';
+      const sourceLabel = data.user && data.user.sources
+        ? (data.user.sources.includes('airtable') && data.user.sources.includes('notion') ? 'across ops + dev'
+           : data.user.sources.includes('airtable') ? 'ops tickets'
+           : 'dev tickets')
+        : '';
       tasksMeta.textContent = isAllView
-        ? `${tickets.length} open ${noun} across the team (CEO view)`
+        ? `${tickets.length} open ${noun} ${sourceLabel}`
         : tickets.length
-          ? `${tickets.length} ${noun} assigned to you`
-          : 'No tickets assigned to you';
+          ? `${tickets.length} ${noun} (${sourceLabel})`
+          : 'No open tickets';
+    }
+    if (data.errors && data.errors.length) {
+      tasksError.style.display = 'block';
+      tasksError.innerHTML = `<strong>Some sources failed:</strong> ${esc(data.errors.join(' · '))}`;
     }
     if (!tickets.length) {
       ticketsList.style.display = 'none';
@@ -1933,24 +1963,32 @@
     ticketsEmpty.style.display = 'none';
     ticketsList.style.display = 'block';
     ticketsList.innerHTML = tickets.map(t => {
-      const priorityClass = t.priority && t.priority.startsWith('P0') ? 'urgent'
-        : t.priority && t.priority.startsWith('P1') ? 'high' : '';
+      const priorityClass = (t.priority || '').toLowerCase().replace(/\s+/g, '-');
+      const sourceClass = t.source === 'Tech Queue' ? 'dev' : '';
+      const created = t.createdAt ? new Date(t.createdAt) : null;
+      const createdLabel = created ? fmtRelative(created) : '';
+      const dueLabel = t.dueDate ? `Due ${new Date(t.dueDate).toLocaleDateString()}` : '';
       return `
         <div class="task-row" data-id="${escAttr(t.id)}">
           <div class="task-main">
             <div class="task-meta-row">
+              <span class="ticket-source-tag ${sourceClass}">${esc(t.source || 'Ticket')}</span>
               <span class="task-status-pill ${statusClass(t.status)}">${esc(t.status)}</span>
-              ${t.priority ? `<span class="task-type-tag ${priorityClass}">${esc(t.priority)}</span>` : ''}
+              ${t.priority ? `<span class="task-status-pill ${priorityClass}">${esc(t.priority)}</span>` : ''}
+              ${t.type ? `<span class="task-type-tag">${esc(t.type)}</span>` : ''}
+              ${t.typeOfTicket ? `<span class="task-type-tag">${esc(t.typeOfTicket)}</span>` : ''}
               ${isAllView && t.assignee ? `<span class="task-type-tag">${esc(t.assignee)}</span>` : ''}
-              ${t.phase ? `<span class="task-type-tag">${esc(t.phase)}</span>` : ''}
-              ${t.department ? `<span class="task-type-tag">${esc(t.department)}</span>` : ''}
             </div>
             <div class="task-title">${esc(t.title)}</div>
-            ${t.notes ? `<div class="task-desc">${esc(t.notes)}</div>` : ''}
+            ${t.description ? `<div class="task-desc">${esc(t.description.slice(0, 280))}${t.description.length > 280 ? '…' : ''}</div>` : ''}
+            <div class="task-meta-foot">
+              ${createdLabel ? `<span>${esc(createdLabel)}</span>` : ''}
+              ${dueLabel ? `<span>· ${esc(dueLabel)}</span>` : ''}
+              ${!isAllView && t.assignee ? `<span>· ${esc(t.assignee)}</span>` : ''}
+            </div>
           </div>
           <div class="task-actions">
-            ${t.specUrl ? `<a class="task-btn" href="${escAttr(t.specUrl)}" target="_blank" rel="noopener"><span class="material-symbols-outlined">description</span> Spec</a>` : ''}
-            <a class="task-btn" href="${escAttr(t.notionUrl)}" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Open</a>
+            <a class="task-btn" href="${escAttr(t.url)}" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Open</a>
           </div>
         </div>
       `;
@@ -2004,84 +2042,253 @@
       const priorityClass = (t.priority || '').toLowerCase();
       const created = t.createdAt ? new Date(t.createdAt) : null;
       const createdLabel = created ? fmtRelative(created) : '';
+      // Stash full task object on the row for actions to read
+      const dataBlob = escAttr(JSON.stringify({
+        id: t.id, title: t.title, description: t.description || '',
+        recommendation: t.recommendation || '', sourceWorkflow: t.sourceWorkflow || ''
+      }));
       return `
-        <div class="task-row" data-id="${escAttr(t.id)}">
+        <div class="task-row expandable" data-id="${escAttr(t.id)}" data-task='${dataBlob}'>
           <div class="task-main">
             <div class="task-meta-row">
               <span class="task-status-pill ${priorityClass}">${esc(t.priority || 'Medium')}</span>
               ${t.category ? `<span class="task-type-tag">${esc(t.category)}</span>` : ''}
               ${t.assignedTo ? `<span class="task-type-tag">${esc(t.assignedTo)}</span>` : ''}
+              ${t.sourceWorkflow ? `<span class="task-type-tag">${esc(t.sourceWorkflow)}</span>` : ''}
             </div>
             <div class="task-title">${esc(t.title)}</div>
             ${t.description ? `<div class="task-desc">${esc(t.description)}</div>` : ''}
             ${t.recommendation ? `<div class="task-rec"><strong>Robin recommends:</strong> ${esc(t.recommendation)}</div>` : ''}
             <div class="task-meta-foot">
-              ${t.sourceWorkflow ? `<span>${esc(t.sourceWorkflow)}</span>` : ''}
-              ${createdLabel ? `<span>· ${esc(createdLabel)}</span>` : ''}
-              ${t.relatedUrl ? `<a href="${escAttr(t.relatedUrl)}" target="_blank" rel="noopener">Related record</a>` : ''}
+              ${createdLabel ? `<span>${esc(createdLabel)}</span>` : ''}
+              ${t.relatedUrl ? `<span>· <a href="${escAttr(t.relatedUrl)}" target="_blank" rel="noopener">Related record</a></span>` : ''}
+              <button class="expand-toggle" data-toggle-row="${escAttr(t.id)}"><span class="material-symbols-outlined">expand_more</span> Details</button>
+            </div>
+
+            <div class="task-detail" data-detail="${escAttr(t.id)}">
+              <div class="task-detail-section" data-mode="view">
+                <span class="task-detail-label">Description</span>
+                <div class="task-detail-value" data-view="description">${esc(t.description || '—')}</div>
+              </div>
+              <div class="task-detail-section" data-mode="view">
+                <span class="task-detail-label">Robin's recommended action</span>
+                <div class="task-detail-value" data-view="recommendation">${esc(t.recommendation || '—')}</div>
+              </div>
+
+              <!-- Edit mode (hidden by default) -->
+              <div class="task-detail-section" data-mode="edit" style="display:none;">
+                <span class="task-detail-label">Description</span>
+                <textarea class="task-edit-textarea" data-edit="description">${esc(t.description || '')}</textarea>
+              </div>
+              <div class="task-detail-section" data-mode="edit" style="display:none;">
+                <span class="task-detail-label">Robin's recommended action</span>
+                <textarea class="task-edit-textarea" data-edit="recommendation">${esc(t.recommendation || '')}</textarea>
+                <div class="task-edit-row">
+                  <button class="task-btn" data-edit-action="cancel" data-id="${escAttr(t.id)}">Cancel</button>
+                  <button class="task-btn primary" data-edit-action="save" data-id="${escAttr(t.id)}">Save edits</button>
+                  <button class="task-btn success" data-edit-action="save-approve" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">check</span> Save & Approve</button>
+                </div>
+              </div>
+
+              <!-- Comment composer (hidden by default) -->
+              <div class="task-detail-section" data-mode="comment" style="display:none;">
+                <span class="task-detail-label">Add a note (does not change status)</span>
+                <textarea class="task-edit-textarea" data-edit="comment" placeholder="Why are you holding this? What context should we capture?"></textarea>
+                <div class="task-edit-row">
+                  <button class="task-btn" data-comment-action="cancel" data-id="${escAttr(t.id)}">Cancel</button>
+                  <button class="task-btn primary" data-comment-action="save" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">chat</span> Post note</button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="task-actions">
-            <button class="task-btn success" data-robin-action="Approved" data-id="${escAttr(t.id)}" data-title="${escAttr(t.title)}"><span class="material-symbols-outlined">check</span> Approve</button>
-            <button class="task-btn danger" data-robin-action="Rejected" data-id="${escAttr(t.id)}" data-title="${escAttr(t.title)}"><span class="material-symbols-outlined">close</span> Reject</button>
-            <a class="task-btn" href="${escAttr(t.airtableUrl)}" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span></a>
+            <button class="task-btn success" data-robin-action="approve" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">check</span> Approve</button>
+            <button class="task-btn danger" data-robin-action="reject" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">close</span> Reject</button>
+            <button class="task-btn" data-robin-action="edit" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">edit</span> Edit</button>
+            <button class="task-btn" data-robin-action="comment" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">chat</span> Comment</button>
+            <div class="task-snooze-menu" data-snooze-menu="${escAttr(t.id)}">
+              <button class="task-btn" data-robin-action="snooze-toggle" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">snooze</span> Snooze</button>
+              <div class="task-snooze-options">
+                <button data-snooze-days="1" data-id="${escAttr(t.id)}">Snooze 1 day</button>
+                <button data-snooze-days="3" data-id="${escAttr(t.id)}">Snooze 3 days</button>
+                <button data-snooze-days="7" data-id="${escAttr(t.id)}">Snooze 1 week</button>
+              </div>
+            </div>
+            <a class="task-btn" href="${escAttr(t.airtableUrl)}" target="_blank" rel="noopener" title="Open in Airtable"><span class="material-symbols-outlined">open_in_new</span></a>
           </div>
         </div>
       `;
     }).join('');
 
-    // Wire Approve / Reject buttons
-    aiTasksList.querySelectorAll('.task-btn[data-robin-action]').forEach(btn => {
-      btn.addEventListener('click', () => handleRobinAction(btn));
-    });
+    wireRobinTaskActions();
   }
 
-  async function handleRobinAction(btn) {
-    const recordId = btn.dataset.id;
-    const action = btn.dataset.robinAction;
-    const title = btn.dataset.title || 'task';
-    const row = btn.closest('.task-row');
-    const allBtns = row ? row.querySelectorAll('.task-btn') : [btn];
+  function wireRobinTaskActions() {
+    // Expand/collapse
+    aiTasksList.querySelectorAll('[data-toggle-row]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const row = btn.closest('.task-row');
+        if (!row) return;
+        row.classList.toggle('expanded');
+      });
+    });
+    // Main action buttons (approve/reject/edit/comment/snooze-toggle)
+    aiTasksList.querySelectorAll('.task-btn[data-robin-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = btn.dataset.robinAction;
+        const recordId = btn.dataset.id;
+        const row = aiTasksList.querySelector(`.task-row[data-id="${cssEscape(recordId)}"]`);
+        if (action === 'approve' || action === 'reject') {
+          submitRobinUpdate(row, btn, { status: action === 'approve' ? 'Approved' : 'Rejected' });
+        } else if (action === 'edit') {
+          openEditMode(row);
+        } else if (action === 'comment') {
+          openCommentMode(row);
+        } else if (action === 'snooze-toggle') {
+          toggleSnoozeMenu(recordId);
+        }
+      });
+    });
+    // Snooze choices
+    aiTasksList.querySelectorAll('[data-snooze-days]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const recordId = btn.dataset.id;
+        const days = parseInt(btn.dataset.snoozeDays, 10);
+        const row = aiTasksList.querySelector(`.task-row[data-id="${cssEscape(recordId)}"]`);
+        closeAllSnoozeMenus();
+        submitRobinUpdate(row, btn, { snoozeDays: days });
+      });
+    });
+    // Edit mode actions
+    aiTasksList.querySelectorAll('[data-edit-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = btn.dataset.editAction;
+        const recordId = btn.dataset.id;
+        const row = aiTasksList.querySelector(`.task-row[data-id="${cssEscape(recordId)}"]`);
+        if (action === 'cancel') {
+          closeEditMode(row);
+        } else {
+          const description = row.querySelector('[data-edit="description"]').value;
+          const recommendation = row.querySelector('[data-edit="recommendation"]').value;
+          const payload = { description, recommendation };
+          if (action === 'save-approve') payload.status = 'Approved';
+          submitRobinUpdate(row, btn, payload);
+        }
+      });
+    });
+    // Comment composer actions
+    aiTasksList.querySelectorAll('[data-comment-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = btn.dataset.commentAction;
+        const recordId = btn.dataset.id;
+        const row = aiTasksList.querySelector(`.task-row[data-id="${cssEscape(recordId)}"]`);
+        if (action === 'cancel') {
+          closeCommentMode(row);
+        } else {
+          const notes = row.querySelector('[data-edit="comment"]').value;
+          if (!notes.trim()) { showToast('Add a note before posting', true); return; }
+          submitRobinUpdate(row, btn, { notes });
+        }
+      });
+    });
+    // Click outside snooze menu closes it
+    document.addEventListener('click', closeAllSnoozeMenus, { once: true });
+  }
 
+  function openEditMode(row) {
+    if (!row) return;
+    row.classList.add('expanded');
+    row.querySelectorAll('[data-mode="view"]').forEach(el => el.style.display = 'none');
+    row.querySelectorAll('[data-mode="comment"]').forEach(el => el.style.display = 'none');
+    row.querySelectorAll('[data-mode="edit"]').forEach(el => el.style.display = '');
+  }
+  function closeEditMode(row) {
+    if (!row) return;
+    row.querySelectorAll('[data-mode="edit"]').forEach(el => el.style.display = 'none');
+    row.querySelectorAll('[data-mode="view"]').forEach(el => el.style.display = '');
+  }
+  function openCommentMode(row) {
+    if (!row) return;
+    row.classList.add('expanded');
+    row.querySelectorAll('[data-mode="edit"]').forEach(el => el.style.display = 'none');
+    row.querySelectorAll('[data-mode="comment"]').forEach(el => el.style.display = '');
+    const ta = row.querySelector('[data-edit="comment"]');
+    if (ta) setTimeout(() => ta.focus(), 50);
+  }
+  function closeCommentMode(row) {
+    if (!row) return;
+    row.querySelectorAll('[data-mode="comment"]').forEach(el => el.style.display = 'none');
+    row.querySelectorAll('[data-mode="view"]').forEach(el => el.style.display = '');
+  }
+  function toggleSnoozeMenu(recordId) {
+    const menu = document.querySelector(`[data-snooze-menu="${cssEscape(recordId)}"]`);
+    if (!menu) return;
+    const wasOpen = menu.classList.contains('open');
+    closeAllSnoozeMenus();
+    if (!wasOpen) {
+      menu.classList.add('open');
+      // Re-bind outside click to close
+      setTimeout(() => document.addEventListener('click', closeAllSnoozeMenus, { once: true }), 0);
+    }
+  }
+  function closeAllSnoozeMenus() {
+    document.querySelectorAll('.task-snooze-menu.open').forEach(m => m.classList.remove('open'));
+  }
+  function cssEscape(s) {
+    return (s || '').replace(/"/g, '\\"');
+  }
+
+  async function submitRobinUpdate(row, btn, payload) {
+    if (!row) return;
+    const recordId = row.dataset.id;
+    let taskMeta = {};
+    try { taskMeta = JSON.parse(row.dataset.task || '{}'); } catch {}
+    const title = taskMeta.title || 'task';
+
+    const allBtns = row.querySelectorAll('.task-btn');
     allBtns.forEach(b => b.disabled = true);
-    btn.innerHTML = `<span class="material-symbols-outlined">hourglass_empty</span> ${action === 'Approved' ? 'Approving…' : 'Rejecting…'}`;
+    const originalLabel = btn.innerHTML;
+    btn.innerHTML = `<span class="material-symbols-outlined">hourglass_empty</span> Saving…`;
 
     try {
       const res = await fetch('/api/robin-task-update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recordId,
-          status: action,
-          email: currentUserEmail(),
-        }),
+        body: JSON.stringify({ recordId, email: currentUserEmail(), ...payload }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || 'Update failed');
 
-      showToast(`${action === 'Approved' ? 'Approved' : 'Rejected'}: ${title}`);
-      logActivity(`Robin task ${action.toLowerCase()}`, {
-        detail: `${action} "${title}"${data.callbackFired ? ' (n8n fired)' : ''}`,
+      const verb = payload.status === 'Approved' ? 'Approved'
+        : payload.status === 'Rejected' ? 'Rejected'
+        : payload.snoozeDays != null ? `Snoozed ${payload.snoozeDays}d`
+        : payload.notes ? 'Note posted'
+        : 'Saved';
+      showToast(`${verb}: ${title}`);
+      logActivity(`Robin task ${verb.toLowerCase()}`, {
+        detail: `${verb} "${title}"${data.callbackFired ? ' (n8n fired)' : ''}`,
         targetRecordId: recordId,
         targetName: title,
         sourceEndpoint: '/api/robin-task-update',
       });
 
-      // Fade row out, then reload list
-      if (row) {
+      // If status changed (or snoozed), the task leaves the queue — fade + reload
+      if (payload.status || payload.snoozeDays != null) {
         row.style.transition = 'opacity 0.3s';
         row.style.opacity = '0';
         setTimeout(() => loadAiTasks(), 350);
       } else {
+        // Just an edit/comment — reload to show the updated content
         loadAiTasks();
       }
     } catch (err) {
       showToast(`Failed: ${err.message}`, true);
       allBtns.forEach(b => b.disabled = false);
-      // Restore button text
-      btn.innerHTML = action === 'Approved'
-        ? `<span class="material-symbols-outlined">check</span> Approve`
-        : `<span class="material-symbols-outlined">close</span> Reject`;
+      btn.innerHTML = originalLabel;
     }
   }
 

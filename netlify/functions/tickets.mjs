@@ -1,25 +1,28 @@
 // netlify/functions/tickets.mjs
-// GET /api/tickets?email=alexis@happenventures.com
-// Pulls tickets from the Notion Tech Build Queue data source, filtered by the current user's Notion-assignee mapping.
-// Returns empty list when the user has no assignee mapping (e.g. non-dev roles).
+// GET /api/tickets?email=X
+// Returns tickets from the right source for each user:
+//   - Joan + Jess  → R3 Airtable Tickets table (operational tickets: complaints, equipment, etc.)
+//   - Alexis       → Notion Tech Build Queue (developer tickets)
+//   - Jess (CEO)   → BOTH, merged with `source` label
+//   - Ivan         → empty (not currently a ticket viewer)
 
-// USER → Notion ticket view mapping:
-//   notionAssignee = "Alexis"  → only tickets assigned to Alexis (developer view)
-//   viewAll = true             → all open tickets across all assignees (CEO oversight)
-//   neither                    → empty list (most users don't need to see dev tickets)
 const USERS = {
-  "joan@happenventures.com":    { name: "Joan Moya",        role: "Operations" },
-  "jessica@happenventures.com": { name: "Jessica Gonzalez", role: "CEO",          viewAll: true },
-  "ivan@happenventures.com":    { name: "Ivan Rangel",      role: "Sales" },
-  "alexis@happenventures.com":  { name: "Alexis",           role: "Tech Manager", notionAssignee: "Alexis" },
+  "joan@happenventures.com":    { name: "Joan Moya",        role: "Operations",   sources: ["airtable"] },
+  "jessica@happenventures.com": { name: "Jessica Gonzalez", role: "CEO",          sources: ["airtable", "notion"], viewAll: true },
+  "ivan@happenventures.com":    { name: "Ivan Rangel",      role: "Sales",        sources: [] },
+  "alexis@happenventures.com":  { name: "Alexis",           role: "Tech Manager", sources: ["notion"], notionAssignee: "Alexis" },
 };
 
-// Notion Tech Build Queue.
-// Primary: data source ID (new API). Fallback: database ID (legacy API).
-// Both point to the same table; Notion supports either depending on workspace migration state.
+// R3 Airtable
+const R3_BASE_ID = "app6GEKoBtHW1iyu1";
+const R3_TICKETS_TABLE_ID = "tbllQM09dx7SftpdC";
+
+// Notion Tech Build Queue
 const NOTION_DATA_SOURCE_ID = "330deb66-302f-41cb-835a-80030da6d925";
 const NOTION_DATABASE_ID = "e96fef48-cdf9-49f9-8b08-c8d794894cb8";
 const NOTION_API_VERSION = "2022-06-28";
+
+const PRIORITY_RANK = { "Urgent": 5, "Critical": 5, "High": 4, "Medium": 3, "Normal": 3, "Low": 2 };
 
 export default async (req) => {
   try {
@@ -30,150 +33,202 @@ export default async (req) => {
     const user = USERS[email];
     if (!user) return json({ error: `Unknown user: ${email}` }, 404);
 
-    // Users with no notionAssignee AND no viewAll get an empty ticket list.
-    if (!user.notionAssignee && !user.viewAll) {
+    if (!user.sources || user.sources.length === 0) {
       return json({
         user: { email, name: user.name, role: user.role },
         tickets: [],
         count: 0,
-        note: "This user has no ticket access. Tickets are for developers and the CEO.",
+        note: "No ticket access for this user.",
       });
     }
 
+    const apiKey = Netlify.env.get("AIRTABLE_API_KEY");
     const notionKey = Netlify.env.get("NOTION_API_KEY");
-    if (!notionKey) {
-      return json({
-        error: "NOTION_API_KEY not configured in Netlify env. Add it as a function-scoped env var to enable tickets.",
-      }, 503);
+
+    let allTickets = [];
+    const errors = [];
+
+    // Pull from Airtable R3 Tickets if needed
+    if (user.sources.includes("airtable")) {
+      if (!apiKey) {
+        errors.push("AIRTABLE_API_KEY not configured");
+      } else {
+        try {
+          const airtableTickets = await fetchAirtableTickets(apiKey);
+          allTickets = allTickets.concat(airtableTickets);
+        } catch (err) {
+          errors.push(`Airtable: ${err.message}`);
+        }
+      }
     }
 
-    // Build filter conditions. Always exclude Done/Canceled/Idea Dump statuses + Archived phase.
-    // Filter by assignee only when the user is a developer (not CEO).
-    const filterConditions = [
-      { property: "Status",   select: { does_not_equal: "Done" } },
-      { property: "Status",   select: { does_not_equal: "Canceled" } },
-      { property: "Status",   select: { does_not_equal: "💡 Idea Dump" } },
-      { property: "Phase",    select: { does_not_equal: "🗄️ Archived" } },
-    ];
-    if (user.notionAssignee) {
-      filterConditions.unshift({ property: "Assignee", select: { equals: user.notionAssignee } });
+    // Pull from Notion Tech Build Queue if needed
+    if (user.sources.includes("notion")) {
+      if (!notionKey) {
+        errors.push("NOTION_API_KEY not configured");
+      } else {
+        try {
+          const notionTickets = await fetchNotionTickets(notionKey, user.notionAssignee);
+          allTickets = allTickets.concat(notionTickets);
+        } catch (err) {
+          errors.push(`Notion: ${err.message}`);
+        }
+      }
     }
 
-    const queryUrl = `https://api.notion.com/v1/data_sources/${NOTION_DATA_SOURCE_ID}/query`;
-    const body = {
-      filter: { and: filterConditions },
-      sorts: [
-        { property: "Priority", direction: "ascending" },
-      ],
-      page_size: 100,
+    // Sort: priority desc, then created asc (oldest first)
+    allTickets.sort((a, b) => {
+      const pa = PRIORITY_RANK[a.priority] || 0;
+      const pb = PRIORITY_RANK[b.priority] || 0;
+      if (pa !== pb) return pb - pa;
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    });
+
+    return json({
+      user: { email, name: user.name, role: user.role, viewAll: !!user.viewAll, sources: user.sources },
+      tickets: allTickets,
+      count: allTickets.length,
+      errors: errors.length ? errors : undefined,
+    });
+  } catch (err) {
+    console.error("tickets error:", err);
+    return json({ error: err.message || "Unknown" }, 500);
+  }
+};
+
+// ---------- Airtable R3 Tickets ----------
+async function fetchAirtableTickets(apiKey) {
+  // Filter: Status NOT in (Done/Closed/Completed/Resolved) — so we surface live tickets only
+  // Note: Airtable doesn't easily support NOT-IN, so we use NOT(OR(...))
+  const formula = `NOT(OR({Status} = "Done", {Status} = "Closed", {Status} = "Completed", {Status} = "Resolved", {Status} = "Cancelled"))`;
+
+  const params = new URLSearchParams({
+    filterByFormula: formula,
+    pageSize: "100",
+    "sort[0][field]": "Created",
+    "sort[0][direction]": "desc",
+  });
+
+  const url = `https://api.airtable.com/v0/${R3_BASE_ID}/${R3_TICKETS_TABLE_ID}?${params}`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+  });
+  if (!res.ok) {
+    const t = await res.text().catch(() => "");
+    throw new Error(`Airtable ${res.status}: ${t.slice(0, 200)}`);
+  }
+  const data = await res.json();
+  return (data.records || []).map((rec) => {
+    const f = rec.fields || {};
+    const assignedTo = Array.isArray(f["Assigned to"])
+      ? f["Assigned to"].map(c => c.name || c.email).filter(Boolean).join(", ")
+      : "";
+    return {
+      id: rec.id,
+      source: "R3 Ops",
+      title: f["Task Name"] || "(untitled)",
+      description: stripRichText(f["Task Description"]) || "",
+      status: extractSelect(f["Status"]) || "Open",
+      priority: extractSelect(f["Priority"]) || "Medium",
+      type: extractSelect(f["Type"]) || "",
+      assignee: assignedTo,
+      dueDate: f["Due Date"] || null,
+      createdAt: f["Created"] || rec.createdTime,
+      url: `https://airtable.com/${R3_BASE_ID}/${R3_TICKETS_TABLE_ID}/${rec.id}`,
+      typeOfTicket: Array.isArray(f["Type of ticket"]) ? f["Type of ticket"].map(extractSelect).filter(Boolean).join(", ") : "",
     };
+  });
+}
 
-    const res = await fetch(queryUrl, {
+// ---------- Notion Tech Build Queue ----------
+async function fetchNotionTickets(notionKey, notionAssignee) {
+  const filterConditions = [
+    { property: "Status", select: { does_not_equal: "Done" } },
+    { property: "Status", select: { does_not_equal: "Canceled" } },
+    { property: "Status", select: { does_not_equal: "💡 Idea Dump" } },
+    { property: "Phase",  select: { does_not_equal: "🗄️ Archived" } },
+  ];
+  if (notionAssignee) {
+    filterConditions.unshift({ property: "Assignee", select: { equals: notionAssignee } });
+  }
+
+  // Try data source first, fall back to database
+  const tryQuery = async (endpoint) => {
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${notionKey}`,
         "Notion-Version": NOTION_API_VERSION,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        filter: { and: filterConditions },
+        sorts: [{ timestamp: "created_time", direction: "descending" }],
+        page_size: 100,
+      }),
     });
+    return res;
+  };
 
-    if (!res.ok) {
-      const errorText = await res.text().catch(() => "Unknown error");
-      // Try the legacy database query endpoint on 4xx errors. The data-source endpoint is newer
-      // and may not yet be available for this workspace.
-      if (res.status >= 400 && res.status < 500) {
-        const legacyUrl = `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`;
-        const legacyRes = await fetch(legacyUrl, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${notionKey}`,
-            "Notion-Version": NOTION_API_VERSION,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        });
-        if (legacyRes.ok) {
-          const legacyData = await legacyRes.json();
-          return json(shapeResponse(email, user, legacyData));
-        }
-        // Both failed — return whichever error gives more signal
-        const legacyErr = await legacyRes.text().catch(() => "");
-        return json({
-          error: `Notion API ${res.status} (data_source) + ${legacyRes.status} (database)`,
-          dataSourceError: errorText.slice(0, 300),
-          databaseError: legacyErr.slice(0, 300),
-          hint: legacyRes.status === 404
-            ? "Likely cause: the 'HV Hub' Notion integration isn't shared with the Tech Build Queue database. Open the database in Notion → ... menu → Connections → add HV Hub."
-            : "Check the NOTION_API_KEY in Netlify env vars.",
-        }, legacyRes.status);
-      }
-      return json({
-        error: `Notion API returned ${res.status}`,
-        detail: errorText.slice(0, 500),
-      }, res.status);
-    }
-
-    const data = await res.json();
-    return json(shapeResponse(email, user, data));
-  } catch (err) {
-    console.error("tickets.mjs error:", err);
-    return json({ error: err.message || "Unknown error" }, 500);
+  let res = await tryQuery(`https://api.notion.com/v1/data_sources/${NOTION_DATA_SOURCE_ID}/query`);
+  if (!res.ok) {
+    res = await tryQuery(`https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`);
   }
-};
-
-function shapeResponse(email, user, data) {
-  const tickets = (data.results || []).map((page) => {
+  if (!res.ok) {
+    const t = await res.text().catch(() => "");
+    throw new Error(`Notion ${res.status}: ${t.slice(0, 200)}`);
+  }
+  const data = await res.json();
+  return (data.results || []).map((page) => {
     const props = page.properties || {};
-    const title = extractTitle(props.Task);
     return {
       id: page.id,
-      title: title || "(untitled)",
-      assignee: extractSelect(props.Assignee),
-      priority: extractSelect(props.Priority),
-      status: extractSelect(props.Status) || "Not Started",
-      phase: extractSelect(props.Phase),
-      department: extractSelect(props.Department),
-      system: extractSelect(props.System),
-      notes: extractText(props.Notes),
-      devNotes: extractText(props["Dev Notes"]),
-      specUrl: extractUrl(props["Spec Page"]),
-      startDate: extractDate(props["Start Date"]),
-      notionUrl: page.url || `https://www.notion.so/${page.id.replace(/-/g, "")}`,
-      lastEdited: page.last_edited_time,
+      source: "Tech Queue",
+      title: extractNotionTitle(props["Name"]) || "(untitled)",
+      description: extractNotionRichText(props["Description"]) || "",
+      status: extractNotionSelect(props["Status"]) || "Open",
+      priority: extractNotionSelect(props["Priority"]) || "Medium",
+      type: extractNotionSelect(props["Phase"]) || "",
+      assignee: extractNotionSelect(props["Assignee"]) || "",
+      dueDate: extractNotionDate(props["Due"]) || null,
+      createdAt: page.created_time,
+      url: page.url,
+      typeOfTicket: "",
     };
   });
-
-  return {
-    user: { email, name: user.name, role: user.role, viewAll: !!user.viewAll },
-    tickets,
-    count: tickets.length,
-  };
 }
 
-// --- Notion property extractors ---
-function extractTitle(prop) {
-  if (!prop || !prop.title) return null;
-  return prop.title.map((t) => t.plain_text || "").join("").trim() || null;
+// ---------- Helpers ----------
+function extractSelect(v) {
+  if (!v) return null;
+  if (typeof v === "string") return v;
+  if (typeof v === "object" && v.name) return v.name;
+  return null;
 }
-function extractSelect(prop) {
-  if (!prop || !prop.select) return null;
-  return prop.select.name || null;
+function stripRichText(v) {
+  if (!v) return "";
+  if (typeof v === "string") return v;
+  return String(v);
 }
-function extractText(prop) {
-  if (!prop) return null;
-  const arr = prop.rich_text || prop.text || [];
-  return arr.map((t) => t.plain_text || "").join("").trim() || null;
+function extractNotionTitle(p) {
+  if (!p || !Array.isArray(p.title)) return "";
+  return p.title.map(t => t.plain_text || "").join("").trim();
 }
-function extractUrl(prop) {
-  if (!prop) return null;
-  return prop.url || null;
+function extractNotionRichText(p) {
+  if (!p || !Array.isArray(p.rich_text)) return "";
+  return p.rich_text.map(t => t.plain_text || "").join("").trim();
 }
-function extractDate(prop) {
-  if (!prop || !prop.date) return null;
-  return prop.date.start || null;
+function extractNotionSelect(p) {
+  if (!p) return "";
+  if (p.select && p.select.name) return p.select.name;
+  if (p.status && p.status.name) return p.status.name;
+  if (p.multi_select && Array.isArray(p.multi_select)) return p.multi_select.map(o => o.name).join(", ");
+  return "";
 }
-
+function extractNotionDate(p) {
+  if (!p || !p.date) return null;
+  return p.date.start || null;
+}
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
