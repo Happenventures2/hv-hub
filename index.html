@@ -412,6 +412,51 @@
   .ticket-source-tag { background: rgba(50,189,174,0.08); color: #0d8076; border: 1px solid rgba(50,189,174,0.2); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; }
   .ticket-source-tag.dev { background: rgba(99,102,241,0.08); color: #4338ca; border-color: rgba(99,102,241,0.2); }
 
+  /* ---- AI Tasks v3: rich detail panel ---- */
+  .task-numbers { display: flex; flex-wrap: wrap; gap: 16px; padding: 12px 14px; background: var(--color-gray-50); border-radius: 8px; margin-bottom: 12px; }
+  .task-number-cell { display: flex; flex-direction: column; gap: 2px; }
+  .task-number-label { font-size: 10px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .task-number-value { font-size: 18px; font-weight: 600; color: var(--color-text); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .task-number-value.warn { color: var(--color-amber); }
+  .task-number-value.danger { color: var(--color-red); }
+  .task-number-value.good { color: var(--color-green); }
+
+  .task-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; padding: 12px 14px; background: var(--color-gray-50); border-radius: 8px; margin-bottom: 12px; }
+  .task-compare-side { display: flex; flex-direction: column; gap: 4px; }
+  .task-compare-label { font-size: 10px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .task-compare-value { font-size: 15px; font-weight: 600; color: var(--color-text); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .task-compare-value.before { color: var(--color-text-secondary); text-decoration: line-through; text-decoration-color: rgba(0,0,0,0.2); }
+  .task-compare-arrow { color: var(--color-text-secondary); font-size: 20px; }
+
+  .task-draft { border: 1px solid var(--color-gray-100); border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
+  .task-draft-header { background: var(--color-gray-50); padding: 8px 12px; display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--color-gray-100); }
+  .task-draft-channel-pill { background: var(--color-bg); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--color-gray-100); text-transform: none; letter-spacing: normal; font-size: 11px; }
+  .task-draft-field { display: grid; grid-template-columns: 60px 1fr; gap: 8px; padding: 8px 12px; align-items: baseline; border-bottom: 1px solid var(--color-gray-100); }
+  .task-draft-field:last-of-type { border-bottom: none; }
+  .task-draft-field-label { font-size: 11px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .task-draft-field input, .task-draft-field textarea { width: 100%; padding: 4px 6px; border: 1px solid transparent; background: transparent; font-size: 13px; color: var(--color-text); font-family: inherit; line-height: 1.5; border-radius: 4px; }
+  .task-draft-field input:hover, .task-draft-field textarea:hover { background: var(--color-bg); border-color: var(--color-gray-100); }
+  .task-draft-field input:focus, .task-draft-field textarea:focus { outline: none; background: var(--color-bg); border-color: #32BDAE; box-shadow: 0 0 0 2px rgba(50,189,174,0.12); }
+  .task-draft-field textarea { resize: vertical; min-height: 100px; font-family: inherit; }
+
+  .task-actions-strip { display: flex; gap: 8px; padding: 10px 12px; background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: 8px; margin-bottom: 12px; align-items: center; }
+  .task-actions-strip .primary-cta { font-weight: 600; }
+  .task-actions-strip .keyboard-hint { margin-left: auto; font-size: 10px; color: var(--color-text-secondary); padding: 2px 6px; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  .task-bulk-bar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: rgba(50,189,174,0.06); border: 1px solid rgba(50,189,174,0.2); border-radius: 8px; margin-bottom: 12px; }
+  .task-bulk-bar.hidden { display: none; }
+  .task-bulk-count { font-size: 13px; font-weight: 600; color: #0d8076; }
+  .task-bulk-actions { display: flex; gap: 6px; margin-left: auto; }
+
+  .task-checkbox { width: 18px; height: 18px; flex-shrink: 0; cursor: pointer; accent-color: #32BDAE; margin-top: 2px; }
+  .task-row.expandable { display: grid; grid-template-columns: 18px 1fr auto; gap: 12px; align-items: start; }
+  .task-row.expandable .task-main { min-width: 0; }
+
+  .task-row.focused { outline: 2px solid #32BDAE; outline-offset: -1px; box-shadow: 0 0 0 4px rgba(50,189,174,0.08); }
+
+  .task-shortcuts-help { font-size: 11px; color: var(--color-text-secondary); padding: 6px 12px; background: var(--color-gray-50); border-radius: 6px; margin-bottom: 8px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .task-shortcuts-help kbd { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; padding: 1px 5px; background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: 3px; color: var(--color-text); }
+
   /* USER SWITCHER */
   .user-switcher { display: flex; align-items: center; gap: 6px; padding: 4px 8px 4px 12px; border: 1px solid var(--color-gray-100); border-radius: var(--radius-sm); background: var(--color-bg); cursor: pointer; font-family: inherit; font-size: 12px; color: var(--color-text); transition: border-color 0.12s; }
   .user-switcher:hover { border-color: var(--color-gray-200); }
@@ -2022,6 +2067,76 @@
     }
   }
 
+  // ---- Parser: extract structured payload from Description if n8n wrote one ----
+  // Convention (case-insensitive keys, optional):
+  //   TYPE: draft_message|approval|variance|confirmation|routing
+  //   CHANNEL: email|slack|whatsapp|sms     (for draft_message)
+  //   TO: <recipient>                       (for draft_message)
+  //   SUBJECT: <subject>                    (for draft_message, optional)
+  //   BODY:                                 (for draft_message — everything until --- or end)
+  //   <body lines>
+  //   ---
+  //   NUMBERS: Expected: $3920 | Actual: $4820 | Variance: 23%   (label:value pairs separated by |)
+  //   BEFORE: $0.85                         (for approval/compare)
+  //   AFTER:  $0.92                         (for approval/compare)
+  //   <free-form context after the structured block>
+  // If no TYPE: prefix is found, treat the whole thing as plain prose (back-compat).
+  function parseRobinDescription(raw) {
+    const out = { type: null, channel: null, to: '', subject: '', body: '', numbers: [], before: '', after: '', plainText: raw || '' };
+    if (!raw || !/^\s*TYPE\s*:/i.test(raw)) return out;
+    const lines = raw.split(/\r?\n/);
+    let inBody = false, bodyLines = [], plainTail = [];
+    let pastFence = false;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (pastFence) { plainTail.push(line); continue; }
+      if (/^---\s*$/.test(line)) {
+        if (inBody) inBody = false;
+        pastFence = true;
+        continue;
+      }
+      const m = line.match(/^(TYPE|CHANNEL|TO|SUBJECT|BODY|NUMBERS|BEFORE|AFTER)\s*:\s*(.*)$/i);
+      if (m) {
+        const key = m[1].toUpperCase();
+        const val = m[2];
+        if (key === 'BODY') { inBody = true; if (val.trim()) bodyLines.push(val); continue; }
+        inBody = false;
+        if (key === 'TYPE') out.type = val.trim().toLowerCase();
+        else if (key === 'CHANNEL') out.channel = val.trim().toLowerCase();
+        else if (key === 'TO') out.to = val.trim();
+        else if (key === 'SUBJECT') out.subject = val.trim();
+        else if (key === 'BEFORE') out.before = val.trim();
+        else if (key === 'AFTER') out.after = val.trim();
+        else if (key === 'NUMBERS') {
+          out.numbers = val.split('|').map(p => p.trim()).filter(Boolean).map(p => {
+            const idx = p.indexOf(':');
+            if (idx === -1) return { label: '', value: p };
+            return { label: p.slice(0, idx).trim(), value: p.slice(idx+1).trim() };
+          });
+        }
+      } else if (inBody) {
+        bodyLines.push(line);
+      }
+    }
+    out.body = bodyLines.join('\n').trim();
+    out.plainText = plainTail.join('\n').trim();
+    return out;
+  }
+
+  function classifyNumber(label, value) {
+    const l = (label || '').toLowerCase();
+    const v = (value || '').toLowerCase();
+    if (/variance|delta|over|excess/.test(l)) {
+      const num = parseFloat(value.replace(/[^0-9.\-]/g, ''));
+      if (Number.isFinite(num)) {
+        if (Math.abs(num) > 15) return 'danger';
+        if (Math.abs(num) > 5) return 'warn';
+        return 'good';
+      }
+    }
+    return '';
+  }
+
   function renderAiTasks(data) {
     const items = data.aiTasks || [];
     aiTasksCountEl.textContent = items.length;
@@ -2038,26 +2153,127 @@
     }
     aiTasksEmpty.style.display = 'none';
     aiTasksList.style.display = 'block';
-    aiTasksList.innerHTML = items.map(t => {
+
+    // Shortcuts hint + bulk bar
+    const shortcutsBar = `
+      <div class="task-shortcuts-help">
+        <span><kbd>j</kbd>/<kbd>k</kbd> next/prev</span>
+        <span><kbd>a</kbd> approve</span>
+        <span><kbd>r</kbd> reject</span>
+        <span><kbd>e</kbd> edit</span>
+        <span><kbd>s</kbd> snooze 1d</span>
+        <span><kbd>?</kbd> open details</span>
+      </div>
+      <div class="task-bulk-bar hidden" id="aiTasksBulkBar">
+        <span class="task-bulk-count" id="aiTasksBulkCount">0 selected</span>
+        <div class="task-bulk-actions">
+          <button class="task-btn" data-bulk-action="clear">Clear</button>
+          <button class="task-btn danger" data-bulk-action="reject"><span class="material-symbols-outlined">close</span> Reject all</button>
+          <button class="task-btn success" data-bulk-action="approve"><span class="material-symbols-outlined">check</span> Approve all</button>
+        </div>
+      </div>
+    `;
+
+    aiTasksList.innerHTML = shortcutsBar + items.map(t => {
       const priorityClass = (t.priority || '').toLowerCase();
       const created = t.createdAt ? new Date(t.createdAt) : null;
       const createdLabel = created ? fmtRelative(created) : '';
-      // Stash full task object on the row for actions to read
+      const parsed = parseRobinDescription(t.description);
+      const isDraft = parsed.type === 'draft_message';
+      const hasNumbers = parsed.numbers.length > 0;
+      const hasCompare = parsed.before || parsed.after;
+      const hasStructured = isDraft || hasNumbers || hasCompare;
+
+      // Title hint shows draft type
+      const typeBadge = parsed.type ? `<span class="task-type-tag">${esc(parsed.type.replace(/_/g, ' '))}</span>` : '';
+
+      // Stash the parsed structured payload + meta for actions
       const dataBlob = escAttr(JSON.stringify({
-        id: t.id, title: t.title, description: t.description || '',
-        recommendation: t.recommendation || '', sourceWorkflow: t.sourceWorkflow || ''
+        id: t.id, title: t.title,
+        sourceWorkflow: t.sourceWorkflow || '',
+        recommendation: t.recommendation || '',
+        parsed,
+        rawDescription: t.description || '',
       }));
+
+      // Description preview: prefer parsed plainText if structured, else first line of raw
+      const previewText = hasStructured
+        ? (parsed.plainText || (isDraft ? `${parsed.subject || '(no subject)'} → ${parsed.to || 'recipient'}` : ''))
+        : (t.description || '').slice(0, 240);
+
+      // ---- Numbers strip ----
+      const numbersHtml = hasNumbers ? `
+        <div class="task-numbers">
+          ${parsed.numbers.map(n => {
+            const cls = classifyNumber(n.label, n.value);
+            return `<div class="task-number-cell">
+              <span class="task-number-label">${esc(n.label || '—')}</span>
+              <span class="task-number-value ${cls}">${esc(n.value)}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      ` : '';
+
+      // ---- Compare panel ----
+      const compareHtml = hasCompare ? `
+        <div class="task-compare">
+          <div class="task-compare-side">
+            <span class="task-compare-label">Current</span>
+            <span class="task-compare-value before">${esc(parsed.before || '—')}</span>
+          </div>
+          <span class="task-compare-arrow material-symbols-outlined">arrow_forward</span>
+          <div class="task-compare-side">
+            <span class="task-compare-label">Proposed</span>
+            <span class="task-compare-value">${esc(parsed.after || '—')}</span>
+          </div>
+        </div>
+      ` : '';
+
+      // ---- Draft composer (always editable) ----
+      const draftHtml = isDraft ? `
+        <div class="task-draft">
+          <div class="task-draft-header">
+            <span class="material-symbols-outlined" style="font-size:14px">${parsed.channel === 'slack' ? 'forum' : parsed.channel === 'whatsapp' ? 'chat' : parsed.channel === 'sms' ? 'sms' : 'mail'}</span>
+            <span>Draft message</span>
+            <span class="task-draft-channel-pill">${esc((parsed.channel || 'email').toUpperCase())}</span>
+          </div>
+          <div class="task-draft-field">
+            <span class="task-draft-field-label">To</span>
+            <input type="text" data-draft-field="to" value="${escAttr(parsed.to || '')}" placeholder="recipient" />
+          </div>
+          ${parsed.channel === 'email' || !parsed.channel ? `
+            <div class="task-draft-field">
+              <span class="task-draft-field-label">Subject</span>
+              <input type="text" data-draft-field="subject" value="${escAttr(parsed.subject || '')}" placeholder="subject line" />
+            </div>
+          ` : ''}
+          <div class="task-draft-field">
+            <span class="task-draft-field-label">Body</span>
+            <textarea data-draft-field="body" placeholder="message body">${esc(parsed.body || '')}</textarea>
+          </div>
+        </div>
+      ` : '';
+
+      // ---- Primary CTA strip (context-aware) ----
+      const primaryCtaLabel = isDraft ? 'Send draft'
+        : parsed.type === 'approval' ? 'Approve'
+        : parsed.type === 'variance' ? 'Accept variance'
+        : parsed.type === 'routing' ? 'Confirm routing'
+        : 'Approve';
+
       return `
         <div class="task-row expandable" data-id="${escAttr(t.id)}" data-task='${dataBlob}'>
+          <input type="checkbox" class="task-checkbox" data-bulk-pick="${escAttr(t.id)}" />
           <div class="task-main">
             <div class="task-meta-row">
               <span class="task-status-pill ${priorityClass}">${esc(t.priority || 'Medium')}</span>
               ${t.category ? `<span class="task-type-tag">${esc(t.category)}</span>` : ''}
+              ${typeBadge}
               ${t.assignedTo ? `<span class="task-type-tag">${esc(t.assignedTo)}</span>` : ''}
               ${t.sourceWorkflow ? `<span class="task-type-tag">${esc(t.sourceWorkflow)}</span>` : ''}
             </div>
             <div class="task-title">${esc(t.title)}</div>
-            ${t.description ? `<div class="task-desc">${esc(t.description)}</div>` : ''}
+            ${previewText ? `<div class="task-desc">${esc(previewText)}</div>` : ''}
             ${t.recommendation ? `<div class="task-rec"><strong>Robin recommends:</strong> ${esc(t.recommendation)}</div>` : ''}
             <div class="task-meta-foot">
               ${createdLabel ? `<span>${esc(createdLabel)}</span>` : ''}
@@ -2066,28 +2282,34 @@
             </div>
 
             <div class="task-detail" data-detail="${escAttr(t.id)}">
-              <div class="task-detail-section" data-mode="view">
-                <span class="task-detail-label">Description</span>
-                <div class="task-detail-value" data-view="description">${esc(t.description || '—')}</div>
-              </div>
-              <div class="task-detail-section" data-mode="view">
-                <span class="task-detail-label">Robin's recommended action</span>
-                <div class="task-detail-value" data-view="recommendation">${esc(t.recommendation || '—')}</div>
+              ${numbersHtml}
+              ${compareHtml}
+              ${draftHtml}
+
+              <!-- Action strip at top of expanded panel — context CTA + secondary -->
+              <div class="task-actions-strip">
+                <button class="task-btn success primary-cta" data-strip-action="primary" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">check</span> ${esc(primaryCtaLabel)}</button>
+                <button class="task-btn danger" data-strip-action="reject" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">close</span> Reject</button>
+                <button class="task-btn" data-strip-action="comment" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">chat</span> Comment</button>
+                <button class="task-btn" data-strip-action="snooze-toggle" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">snooze</span> Snooze</button>
+                <span class="keyboard-hint">a · r · s · esc</span>
               </div>
 
-              <!-- Edit mode (hidden by default) -->
-              <div class="task-detail-section" data-mode="edit" style="display:none;">
-                <span class="task-detail-label">Description</span>
-                <textarea class="task-edit-textarea" data-edit="description">${esc(t.description || '')}</textarea>
-              </div>
-              <div class="task-detail-section" data-mode="edit" style="display:none;">
-                <span class="task-detail-label">Robin's recommended action</span>
-                <textarea class="task-edit-textarea" data-edit="recommendation">${esc(t.recommendation || '')}</textarea>
-                <div class="task-edit-row">
-                  <button class="task-btn" data-edit-action="cancel" data-id="${escAttr(t.id)}">Cancel</button>
-                  <button class="task-btn primary" data-edit-action="save" data-id="${escAttr(t.id)}">Save edits</button>
-                  <button class="task-btn success" data-edit-action="save-approve" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">check</span> Save & Approve</button>
+              ${!isDraft && parsed.plainText ? `
+                <div class="task-detail-section">
+                  <span class="task-detail-label">Context</span>
+                  <div class="task-detail-value">${esc(parsed.plainText)}</div>
                 </div>
+              ` : ''}
+              ${!hasStructured ? `
+                <div class="task-detail-section">
+                  <span class="task-detail-label">Description</span>
+                  <div class="task-detail-value">${esc(t.description || '—')}</div>
+                </div>
+              ` : ''}
+              <div class="task-detail-section">
+                <span class="task-detail-label">Robin's recommended action</span>
+                <div class="task-detail-value">${esc(t.recommendation || '—')}</div>
               </div>
 
               <!-- Comment composer (hidden by default) -->
@@ -2102,16 +2324,14 @@
             </div>
           </div>
           <div class="task-actions">
-            <button class="task-btn success" data-robin-action="approve" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">check</span> Approve</button>
-            <button class="task-btn danger" data-robin-action="reject" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">close</span> Reject</button>
-            <button class="task-btn" data-robin-action="edit" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">edit</span> Edit</button>
-            <button class="task-btn" data-robin-action="comment" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">chat</span> Comment</button>
+            <button class="task-btn success" data-robin-action="approve" data-id="${escAttr(t.id)}" title="Approve (a)"><span class="material-symbols-outlined">check</span> Approve</button>
+            <button class="task-btn danger" data-robin-action="reject" data-id="${escAttr(t.id)}" title="Reject (r)"><span class="material-symbols-outlined">close</span> Reject</button>
             <div class="task-snooze-menu" data-snooze-menu="${escAttr(t.id)}">
-              <button class="task-btn" data-robin-action="snooze-toggle" data-id="${escAttr(t.id)}"><span class="material-symbols-outlined">snooze</span> Snooze</button>
+              <button class="task-btn" data-robin-action="snooze-toggle" data-id="${escAttr(t.id)}" title="Snooze (s)"><span class="material-symbols-outlined">snooze</span></button>
               <div class="task-snooze-options">
-                <button data-snooze-days="1" data-id="${escAttr(t.id)}">Snooze 1 day</button>
-                <button data-snooze-days="3" data-id="${escAttr(t.id)}">Snooze 3 days</button>
-                <button data-snooze-days="7" data-id="${escAttr(t.id)}">Snooze 1 week</button>
+                <button data-snooze-days="1" data-id="${escAttr(t.id)}">1 day</button>
+                <button data-snooze-days="3" data-id="${escAttr(t.id)}">3 days</button>
+                <button data-snooze-days="7" data-id="${escAttr(t.id)}">1 week</button>
               </div>
             </div>
             <a class="task-btn" href="${escAttr(t.airtableUrl)}" target="_blank" rel="noopener" title="Open in Airtable"><span class="material-symbols-outlined">open_in_new</span></a>
@@ -2123,33 +2343,86 @@
     wireRobinTaskActions();
   }
 
+  // ---- Bulk select state ----
+  let bulkSelected = new Set();
+
+  function updateBulkBar() {
+    const bar = document.getElementById('aiTasksBulkBar');
+    const cnt = document.getElementById('aiTasksBulkCount');
+    if (!bar || !cnt) return;
+    if (bulkSelected.size === 0) {
+      bar.classList.add('hidden');
+    } else {
+      bar.classList.remove('hidden');
+      cnt.textContent = `${bulkSelected.size} selected`;
+    }
+  }
+
   function wireRobinTaskActions() {
-    // Expand/collapse
-    aiTasksList.querySelectorAll('[data-toggle-row]').forEach(btn => {
+    bulkSelected.clear();
+    updateBulkBar();
+
+    // Checkbox bulk select
+    aiTasksList.querySelectorAll('[data-bulk-pick]').forEach(cb => {
+      cb.addEventListener('click', (e) => e.stopPropagation());
+      cb.addEventListener('change', () => {
+        const id = cb.dataset.bulkPick;
+        if (cb.checked) bulkSelected.add(id); else bulkSelected.delete(id);
+        updateBulkBar();
+      });
+    });
+
+    // Bulk action bar
+    aiTasksList.querySelectorAll('[data-bulk-action]').forEach(btn => {
       btn.addEventListener('click', () => {
+        const action = btn.dataset.bulkAction;
+        if (action === 'clear') {
+          bulkSelected.clear();
+          aiTasksList.querySelectorAll('[data-bulk-pick]').forEach(c => c.checked = false);
+          updateBulkBar();
+        } else if (action === 'approve' || action === 'reject') {
+          bulkSubmit(action === 'approve' ? 'Approved' : 'Rejected');
+        }
+      });
+    });
+
+    // Expand/collapse — also auto-expand on row click (but not on inputs)
+    aiTasksList.querySelectorAll('[data-toggle-row]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const row = btn.closest('.task-row');
         if (!row) return;
         row.classList.toggle('expanded');
       });
     });
-    // Main action buttons (approve/reject/edit/comment/snooze-toggle)
+
+    // Right-side action buttons (compact)
     aiTasksList.querySelectorAll('.task-btn[data-robin-action]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const action = btn.dataset.robinAction;
         const recordId = btn.dataset.id;
         const row = aiTasksList.querySelector(`.task-row[data-id="${cssEscape(recordId)}"]`);
-        if (action === 'approve' || action === 'reject') {
-          submitRobinUpdate(row, btn, { status: action === 'approve' ? 'Approved' : 'Rejected' });
-        } else if (action === 'edit') {
-          openEditMode(row);
-        } else if (action === 'comment') {
-          openCommentMode(row);
-        } else if (action === 'snooze-toggle') {
-          toggleSnoozeMenu(recordId);
-        }
+        if (action === 'approve') triggerPrimaryAction(row, btn);
+        else if (action === 'reject') submitRobinUpdate(row, btn, { status: 'Rejected' });
+        else if (action === 'snooze-toggle') toggleSnoozeMenu(recordId);
       });
     });
+
+    // In-panel action strip (Send draft / Approve / Reject / Comment / Snooze)
+    aiTasksList.querySelectorAll('[data-strip-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = btn.dataset.stripAction;
+        const recordId = btn.dataset.id;
+        const row = aiTasksList.querySelector(`.task-row[data-id="${cssEscape(recordId)}"]`);
+        if (action === 'primary') triggerPrimaryAction(row, btn);
+        else if (action === 'reject') submitRobinUpdate(row, btn, { status: 'Rejected' });
+        else if (action === 'comment') openCommentMode(row);
+        else if (action === 'snooze-toggle') toggleSnoozeMenu(recordId);
+      });
+    });
+
     // Snooze choices
     aiTasksList.querySelectorAll('[data-snooze-days]').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -2161,25 +2434,8 @@
         submitRobinUpdate(row, btn, { snoozeDays: days });
       });
     });
-    // Edit mode actions
-    aiTasksList.querySelectorAll('[data-edit-action]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const action = btn.dataset.editAction;
-        const recordId = btn.dataset.id;
-        const row = aiTasksList.querySelector(`.task-row[data-id="${cssEscape(recordId)}"]`);
-        if (action === 'cancel') {
-          closeEditMode(row);
-        } else {
-          const description = row.querySelector('[data-edit="description"]').value;
-          const recommendation = row.querySelector('[data-edit="recommendation"]').value;
-          const payload = { description, recommendation };
-          if (action === 'save-approve') payload.status = 'Approved';
-          submitRobinUpdate(row, btn, payload);
-        }
-      });
-    });
-    // Comment composer actions
+
+    // Comment composer
     aiTasksList.querySelectorAll('[data-comment-action]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -2195,26 +2451,118 @@
         }
       });
     });
-    // Click outside snooze menu closes it
+
+    // Outside click closes snooze menus
     document.addEventListener('click', closeAllSnoozeMenus, { once: true });
+
+    // Keyboard navigation — bind once
+    if (!aiTasksList.dataset.kbBound) {
+      aiTasksList.dataset.kbBound = '1';
+      document.addEventListener('keydown', handleAiTasksKeyboard);
+    }
+
+    // Auto-focus first row for keyboard nav
+    focusRowAt(0);
   }
 
-  function openEditMode(row) {
+  // ---- Primary action: collects draft fields if present, then approves ----
+  function triggerPrimaryAction(row, btn) {
     if (!row) return;
-    row.classList.add('expanded');
-    row.querySelectorAll('[data-mode="view"]').forEach(el => el.style.display = 'none');
-    row.querySelectorAll('[data-mode="comment"]').forEach(el => el.style.display = 'none');
-    row.querySelectorAll('[data-mode="edit"]').forEach(el => el.style.display = '');
+    const taskMeta = JSON.parse(row.dataset.task || '{}');
+    const isDraft = taskMeta.parsed && taskMeta.parsed.type === 'draft_message';
+    const payload = { status: 'Approved' };
+    if (isDraft) {
+      // Read the (possibly edited) draft fields from the DOM
+      const to = row.querySelector('[data-draft-field="to"]')?.value || '';
+      const subject = row.querySelector('[data-draft-field="subject"]')?.value || '';
+      const body = row.querySelector('[data-draft-field="body"]')?.value || '';
+      // Rebuild the structured Description block so n8n callback gets the edited version
+      const channel = taskMeta.parsed.channel || 'email';
+      const subjectLine = (channel === 'email') ? `SUBJECT: ${subject}\n` : '';
+      const tail = taskMeta.parsed.plainText ? `\n---\n${taskMeta.parsed.plainText}` : '';
+      payload.description = `TYPE: draft_message\nCHANNEL: ${channel}\nTO: ${to}\n${subjectLine}BODY:\n${body}${tail}`.trim();
+    }
+    submitRobinUpdate(row, btn, payload);
   }
-  function closeEditMode(row) {
-    if (!row) return;
-    row.querySelectorAll('[data-mode="edit"]').forEach(el => el.style.display = 'none');
-    row.querySelectorAll('[data-mode="view"]').forEach(el => el.style.display = '');
+
+  // ---- Bulk submit ----
+  async function bulkSubmit(status) {
+    const ids = [...bulkSelected];
+    if (!ids.length) return;
+    if (!confirm(`${status === 'Approved' ? 'Approve' : 'Reject'} ${ids.length} task(s)? This will fire any n8n callbacks attached to approved records.`)) return;
+    showToast(`Processing ${ids.length}…`);
+    let ok = 0, fail = 0;
+    for (const id of ids) {
+      try {
+        const res = await fetch('/api/robin-task-update', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ recordId: id, email: currentUserEmail(), status }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) ok++; else fail++;
+      } catch { fail++; }
+    }
+    showToast(`Done: ${ok} ${status.toLowerCase()}${fail ? `, ${fail} failed` : ''}`, fail > 0);
+    bulkSelected.clear();
+    loadAiTasks();
   }
+
+  // ---- Keyboard shortcuts ----
+  let focusedRowIdx = -1;
+  function focusRowAt(idx) {
+    const rows = [...aiTasksList.querySelectorAll('.task-row')];
+    if (!rows.length) { focusedRowIdx = -1; return; }
+    rows.forEach(r => r.classList.remove('focused'));
+    focusedRowIdx = Math.max(0, Math.min(idx, rows.length - 1));
+    rows[focusedRowIdx].classList.add('focused');
+    rows[focusedRowIdx].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  function focusedRow() {
+    const rows = [...aiTasksList.querySelectorAll('.task-row')];
+    return rows[focusedRowIdx] || null;
+  }
+  function handleAiTasksKeyboard(e) {
+    // Skip if typing in an input/textarea
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea') {
+      if (e.key === 'Escape') e.target.blur();
+      return;
+    }
+    // Skip if the user is on a different tab
+    if (currentSource !== 'ai-tasks') return;
+    const rows = [...aiTasksList.querySelectorAll('.task-row')];
+    if (!rows.length) return;
+    if (e.key === 'j') { e.preventDefault(); focusRowAt(focusedRowIdx + 1); }
+    else if (e.key === 'k') { e.preventDefault(); focusRowAt(focusedRowIdx - 1); }
+    else if (e.key === 'a') {
+      e.preventDefault();
+      const row = focusedRow();
+      if (row) { const btn = row.querySelector('[data-strip-action="primary"], [data-robin-action="approve"]'); if (btn) triggerPrimaryAction(row, btn); }
+    }
+    else if (e.key === 'r') {
+      e.preventDefault();
+      const row = focusedRow();
+      if (row) { const btn = row.querySelector('[data-robin-action="reject"]'); if (btn) submitRobinUpdate(row, btn, { status: 'Rejected' }); }
+    }
+    else if (e.key === 'e' || e.key === '?') {
+      e.preventDefault();
+      const row = focusedRow();
+      if (row) row.classList.toggle('expanded');
+    }
+    else if (e.key === 's') {
+      e.preventDefault();
+      const row = focusedRow();
+      if (row) { const btn = row.querySelector('[data-snooze-days="1"]'); if (btn) submitRobinUpdate(row, btn, { snoozeDays: 1 }); }
+    }
+    else if (e.key === 'Escape') {
+      const row = focusedRow();
+      if (row) row.classList.remove('expanded');
+    }
+  }
+
   function openCommentMode(row) {
     if (!row) return;
     row.classList.add('expanded');
-    row.querySelectorAll('[data-mode="edit"]').forEach(el => el.style.display = 'none');
     row.querySelectorAll('[data-mode="comment"]').forEach(el => el.style.display = '');
     const ta = row.querySelector('[data-edit="comment"]');
     if (ta) setTimeout(() => ta.focus(), 50);
@@ -2222,7 +2570,6 @@
   function closeCommentMode(row) {
     if (!row) return;
     row.querySelectorAll('[data-mode="comment"]').forEach(el => el.style.display = 'none');
-    row.querySelectorAll('[data-mode="view"]').forEach(el => el.style.display = '');
   }
   function toggleSnoozeMenu(recordId) {
     const menu = document.querySelector(`[data-snooze-menu="${cssEscape(recordId)}"]`);
@@ -2231,7 +2578,6 @@
     closeAllSnoozeMenus();
     if (!wasOpen) {
       menu.classList.add('open');
-      // Re-bind outside click to close
       setTimeout(() => document.addEventListener('click', closeAllSnoozeMenus, { once: true }), 0);
     }
   }
