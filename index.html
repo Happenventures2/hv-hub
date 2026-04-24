@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HV Hub — Joan · R3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+<style>
+  :root {
+    --color-accent: #32BDAE;
+    --color-text: #1D1D1D;
+    --color-text-secondary: #5A5A5A;
+    --color-muted: #8A8A8A;
+    --color-bg: #FFFFFF;
+    --color-page: #FAFAF9;
+    --color-gray-50: #F5F5F4;
+    --color-gray-100: #ECECEA;
+    --color-gray-200: #D9D9D6;
+    --color-amber: #D97706;
+    --color-red: #DC2626;
+    --color-green: #059669;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--color-page);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+
+  a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+  /* ============ TOP BAR ============ */
+  .topbar {
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-gray-100);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 13px; letter-spacing: 0.5px; color: var(--color-text); line-height: 1; }
+  .brand .mark { width: 28px; height: 28px; background: var(--color-text); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--color-bg); font-weight: 900; font-size: 12px; }
+  .brand .wordmark { display: flex; flex-direction: column; gap: 1px; }
+  .brand .wordmark .bot { color: var(--color-muted); font-weight: 500; font-size: 11px; }
+
+  .nav { display: flex; gap: 2px; align-items: center; overflow-x: auto; }
+  .nav-tab {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-weight: 500; font-size: 13px;
+    color: var(--color-text-secondary);
+    cursor: pointer; transition: all 0.12s ease;
+    position: relative;
+    white-space: nowrap;
+  }
+  .nav-tab:hover { background: var(--color-gray-50); color: var(--color-text); }
+  .nav-tab.active { color: var(--color-text); font-weight: 600; }
+  .nav-tab.active::after { content: ''; position: absolute; bottom: -21px; left: 10px; right: 10px; height: 2px; background: var(--color-accent); border-radius: 2px; }
+  .nav-tab .material-symbols-outlined { font-size: 18px; }
+  .nav-tab .badge { background: var(--color-gray-100); color: var(--color-text-secondary); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+  .nav-tab .badge.alert { background: var(--color-text); color: var(--color-bg); }
+  .nav-divider { width: 1px; height: 20px; background: var(--color-gray-100); margin: 0 6px; }
+
+  .topbar-right { display: flex; align-items: center; gap: 4px; }
+  .icon-btn { width: 36px; height: 36px; border-radius: var(--radius-sm); background: transparent; display: flex; align-items: center; justify-content: center; color: var(--color-text-secondary); transition: background 0.12s; position: relative; }
+  .icon-btn:hover { background: var(--color-gray-50); color: var(--color-text); }
+  .icon-btn .material-symbols-outlined { font-size: 20px; }
+  .notif-dot { position: absolute; top: 6px; right: 8px; width: 6px; height: 6px; background: var(--color-accent); border-radius: 50%; border: 1.5px solid var(--color-bg); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--color-text); color: var(--color-bg); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; margin-left: 6px; }
+
+  /* ============ MAIN ============ */
+  .main { max-width: 1280px; margin: 0 auto; padding: 32px; }
+
+  .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; }
+  .page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+  .page-title .tag-mod { font-size: 10px; font-weight: 600; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); color: var(--color-text-secondary); padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; }
+  .page-meta { color: var(--color-muted); font-size: 13px; font-weight: 500; }
+
+  .page-actions { display: flex; gap: 8px; align-items: center; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; border: 1px solid var(--color-gray-100); background: var(--color-bg); color: var(--color-text); transition: all 0.12s; }
+  .btn:hover { background: var(--color-gray-50); border-color: var(--color-gray-200); }
+  .btn.primary { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+  .btn.primary:hover { background: #000; }
+  .btn .material-symbols-outlined { font-size: 16px; }
+
+  /* ============ STATS STRIP ============ */
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-bottom: 20px; background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); overflow: hidden; }
+  .stat-card { padding: 18px 22px; border-right: 1px solid var(--color-gray-100); }
+  .stat-card:last-child { border-right: none; }
+  .stat-label { font-size: 11px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; color: var(--color-muted); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .stat-label .material-symbols-outlined { font-size: 14px; }
+  .stat-value { font-size: 24px; font-weight: 700; color: var(--color-text); line-height: 1; margin-bottom: 4px; letter-spacing: -0.4px; }
+  .stat-sub { font-size: 12px; color: var(--color-text-secondary); }
+  .stat-sub .warn { color: var(--color-amber); font-weight: 600; }
+  .stat-sub .bad { color: var(--color-red); font-weight: 600; }
+  .stat-sub .good { color: var(--color-green); font-weight: 600; }
+
+  /* ============ FILTER BAR ============ */
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .filter-pill { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; background: var(--color-bg); border: 1px solid var(--color-gray-100); color: var(--color-text-secondary); cursor: pointer; transition: all 0.12s; }
+  .filter-pill:hover { border-color: var(--color-gray-200); color: var(--color-text); }
+  .filter-pill.active { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+  .filter-pill .count { opacity: 0.6; margin-left: 4px; font-weight: 400; }
+  .search-wrap { margin-left: auto; position: relative; }
+  .search-input { padding: 7px 12px 7px 32px; border-radius: var(--radius-sm); border: 1px solid var(--color-gray-100); font-size: 12px; font-family: inherit; background: var(--color-bg); width: 200px; color: var(--color-text); }
+  .search-input:focus { outline: none; border-color: var(--color-text); }
+  .search-wrap .material-symbols-outlined { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--color-muted); pointer-events: none; }
+
+  /* ============ TABLE ============ */
+  .data-table-wrap { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); overflow: hidden; }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table thead { background: var(--color-gray-50); border-bottom: 1px solid var(--color-gray-100); }
+  .data-table th { text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--color-muted); padding: 12px 16px; white-space: nowrap; }
+  .data-table th.num { text-align: right; }
+  .data-table td { padding: 14px 16px; border-top: 1px solid var(--color-gray-100); vertical-align: middle; }
+  .data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .data-table tbody tr { cursor: pointer; transition: background 0.1s; }
+  .data-table tbody tr:hover { background: var(--color-gray-50); }
+  .data-table tbody tr:first-child td { border-top: none; }
+
+  .cell-primary { font-weight: 600; color: var(--color-text); }
+  .cell-sub { font-size: 11px; color: var(--color-muted); margin-top: 2px; }
+
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid var(--color-gray-100); background: var(--color-gray-50); color: var(--color-text-secondary); }
+  .pill.good { background: rgba(5,150,105,0.08); color: var(--color-green); border-color: rgba(5,150,105,0.2); }
+  .pill.warn { background: rgba(217,119,6,0.08); color: var(--color-amber); border-color: rgba(217,119,6,0.2); }
+  .pill.bad { background: rgba(220,38,38,0.08); color: var(--color-red); border-color: rgba(220,38,38,0.25); }
+  .pill.info { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .row-actions { display: flex; gap: 4px; justify-content: flex-end; }
+  .row-btn { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; border: 1px solid var(--color-gray-100); color: var(--color-text-secondary); background: var(--color-bg); transition: all 0.12s; }
+  .row-btn:hover { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+  .row-btn.ghost { border-color: transparent; }
+  .row-btn.ghost:hover { background: var(--color-gray-100); color: var(--color-text); border-color: transparent; }
+
+  .pct-bar { display: flex; align-items: center; gap: 8px; }
+  .pct-bar .bar { width: 60px; height: 4px; background: var(--color-gray-100); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+  .pct-bar .fill { height: 100%; background: var(--color-text); border-radius: 2px; }
+  .pct-bar .fill.warn { background: var(--color-amber); }
+  .pct-bar .fill.bad { background: var(--color-red); }
+  .pct-bar .fill.good { background: var(--color-green); }
+  .pct-bar .num { font-size: 12px; font-weight: 600; min-width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ============ ROBIN TAB ============ */
+  .robin-hero { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 24px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 24px; }
+  .robin-hero-left { display: flex; align-items: center; gap: 16px; }
+  .robin-avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--color-text); color: var(--color-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .robin-avatar .material-symbols-outlined { font-size: 28px; }
+  .robin-title { font-size: 20px; font-weight: 700; margin-bottom: 3px; display: flex; align-items: center; gap: 10px; }
+  .live-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--color-green); background: rgba(5,150,105,0.1); padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px; }
+  .live-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-green); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .robin-sub { font-size: 13px; color: var(--color-text-secondary); }
+  .kill-switch { display: flex; align-items: center; gap: 10px; }
+  .kill-btn { background: var(--color-red); color: white; padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .kill-btn:hover { background: #B91C1C; }
+
+  .robin-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .card { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 20px 22px; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .card-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .card-title .material-symbols-outlined { color: var(--color-muted); font-size: 18px; }
+  .card-link { color: var(--color-text-secondary); font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 2px; }
+  .card-link:hover { color: var(--color-text); }
+
+  .workflow-row { display: grid; grid-template-columns: 28px 1fr auto auto auto; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--color-gray-100); }
+  .workflow-row:first-child { border-top: none; padding-top: 4px; }
+  .workflow-row:last-child { padding-bottom: 0; }
+  .wf-icon { width: 28px; height: 28px; border-radius: 6px; background: var(--color-gray-50); display: flex; align-items: center; justify-content: center; }
+  .wf-icon .material-symbols-outlined { font-size: 15px; color: var(--color-text); }
+  .wf-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .wf-meta { font-size: 11px; color: var(--color-muted); }
+  .wf-mode { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.3px; }
+  .wf-mode.auto { background: rgba(5,150,105,0.08); color: var(--color-green); border-color: rgba(5,150,105,0.2); }
+  .wf-mode.draft { background: rgba(50,189,174,0.1); color: #1F9A8D; border-color: rgba(50,189,174,0.25); }
+  .wf-mode.escalate { background: rgba(217,119,6,0.08); color: var(--color-amber); border-color: rgba(217,119,6,0.2); }
+
+  .toggle { width: 32px; height: 18px; border-radius: 20px; background: var(--color-gray-100); position: relative; cursor: pointer; transition: background 0.15s; }
+  .toggle::after { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--color-bg); top: 2px; left: 2px; transition: left 0.15s; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+  .toggle.on { background: var(--color-text); }
+  .toggle.on::after { left: 16px; }
+
+  .activity-item { display: flex; gap: 10px; padding: 10px 0; border-top: 1px solid var(--color-gray-100); }
+  .activity-item:first-child { border-top: none; padding-top: 4px; }
+  .activity-item:last-child { padding-bottom: 0; }
+  .activity-dot { width: 26px; height: 26px; border-radius: 50%; background: var(--color-gray-50); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .activity-dot .material-symbols-outlined { font-size: 14px; color: var(--color-text-secondary); }
+  .activity-body { flex: 1; }
+  .activity-text { font-size: 12px; line-height: 1.4; }
+  .activity-text strong { font-weight: 600; }
+  .activity-time { font-size: 10px; color: var(--color-muted); margin-top: 2px; }
+
+  /* ============ DETAIL ASIDE ============ */
+  .two-col-detail { display: grid; grid-template-columns: 1fr 320px; gap: 16px; align-items: start; }
+  .aside-card { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 20px 22px; position: sticky; top: 88px; }
+
+  /* ============ AIRTABLE TASKS ============ */
+  .tasks-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tasks-loader { color: var(--color-muted); font-size: 12px; display: flex; align-items: center; gap: 6px; }
+  .tasks-loader .spinner { width: 12px; height: 12px; border: 2px solid var(--color-gray-100); border-top-color: var(--color-text); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .tasks-empty { text-align: center; padding: 60px 20px; color: var(--color-muted); background: var(--color-bg); border: 1px dashed var(--color-gray-200); border-radius: var(--radius-md); }
+  .tasks-empty .material-symbols-outlined { font-size: 40px; color: var(--color-gray-200); display: block; margin-bottom: 8px; }
+  .tasks-empty h3 { font-size: 16px; color: var(--color-text); margin-bottom: 4px; font-weight: 600; }
+
+  .tasks-error { padding: 14px 18px; background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.25); border-radius: var(--radius-md); color: var(--color-red); font-size: 13px; margin-bottom: 16px; }
+  .tasks-error strong { display: block; margin-bottom: 4px; }
+
+  .tasks-list { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); overflow: hidden; }
+  .task-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 16px 20px; border-top: 1px solid var(--color-gray-100); align-items: flex-start; transition: background 0.1s; }
+  .task-row:first-child { border-top: none; }
+  .task-row:hover { background: var(--color-gray-50); }
+  .task-row.done { opacity: 0.55; }
+  .task-row.done .task-title { text-decoration: line-through; }
+
+  .task-main { min-width: 0; }
+  .task-meta-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+  .task-status-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; border: 1px solid var(--color-gray-100); background: var(--color-gray-50); color: var(--color-text-secondary); }
+  .task-status-pill.overdue { background: rgba(220,38,38,0.08); color: var(--color-red); border-color: rgba(220,38,38,0.25); }
+  .task-status-pill.in-progress { background: rgba(217,119,6,0.08); color: var(--color-amber); border-color: rgba(217,119,6,0.2); }
+  .task-status-pill.open { background: var(--color-gray-50); color: var(--color-text-secondary); }
+  .task-status-pill.closed { background: rgba(5,150,105,0.08); color: var(--color-green); border-color: rgba(5,150,105,0.2); }
+  .task-due { font-size: 11px; color: var(--color-muted); font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
+  .task-due.overdue { color: var(--color-red); font-weight: 600; }
+  .task-due.today { color: var(--color-amber); font-weight: 600; }
+  .task-due .material-symbols-outlined { font-size: 12px; }
+  .task-type-tag { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); color: var(--color-text-secondary); font-weight: 500; }
+
+  .task-title { font-size: 14px; font-weight: 600; color: var(--color-text); line-height: 1.35; margin-bottom: 4px; }
+  .task-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.45; max-width: 720px; }
+
+  .task-actions { display: flex; gap: 4px; align-items: center; }
+  .task-btn { padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; border: 1px solid var(--color-gray-100); color: var(--color-text-secondary); background: var(--color-bg); transition: all 0.12s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit; cursor: pointer; }
+  .task-btn:hover { border-color: var(--color-text); color: var(--color-text); }
+  .task-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .task-btn .material-symbols-outlined { font-size: 13px; }
+  .task-btn.primary { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+  .task-btn.primary:hover { background: #000; border-color: #000; }
+
+  /* USER SWITCHER */
+  .user-switcher { display: flex; align-items: center; gap: 6px; padding: 4px 8px 4px 12px; border: 1px solid var(--color-gray-100); border-radius: var(--radius-sm); background: var(--color-bg); cursor: pointer; font-family: inherit; font-size: 12px; color: var(--color-text); transition: border-color 0.12s; }
+  .user-switcher:hover { border-color: var(--color-gray-200); }
+  .user-switcher select { border: none; background: transparent; font-family: inherit; font-size: 12px; font-weight: 500; color: var(--color-text); cursor: pointer; padding: 4px 0; outline: none; }
+  .user-switcher .material-symbols-outlined { font-size: 14px; color: var(--color-muted); }
+
+  /* MODALS */
+  .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+  .modal-backdrop.show { display: flex; }
+  .modal { background: var(--color-bg); border-radius: var(--radius-md); width: 100%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden; }
+  .modal-head { padding: 20px 24px 12px; border-bottom: 1px solid var(--color-gray-100); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .modal-sub { font-size: 12px; color: var(--color-muted); }
+  .modal-close { width: 28px; height: 28px; border-radius: 6px; border: none; background: transparent; color: var(--color-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { background: var(--color-gray-50); color: var(--color-text); }
+  .modal-body { padding: 18px 24px; }
+  .modal-body label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--color-muted); margin-bottom: 6px; }
+  .modal-body textarea, .modal-body input { width: 100%; padding: 10px 12px; border: 1px solid var(--color-gray-100); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; color: var(--color-text); background: var(--color-bg); }
+  .modal-body textarea { min-height: 100px; resize: vertical; }
+  .modal-body textarea:focus, .modal-body input:focus { outline: none; border-color: var(--color-text); }
+  .modal-body .options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+  .modal-body .option-btn { padding: 10px 12px; border: 1px solid var(--color-gray-100); border-radius: var(--radius-sm); background: var(--color-bg); font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.12s; text-align: left; color: var(--color-text); }
+  .modal-body .option-btn:hover { border-color: var(--color-text); }
+  .modal-body .option-btn.selected { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+  .modal-foot { padding: 14px 24px 18px; display: flex; gap: 8px; justify-content: flex-end; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--color-text); color: var(--color-bg); padding: 12px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 2000; opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+  .toast.error { background: var(--color-red); }
+
+  /* ============ TAB PANELS ============ */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ============ TASK QUEUE ============ */
+  .queue-stats { display: flex; gap: 24px; align-items: center; font-size: 13px; color: var(--color-text-secondary); }
+  .queue-stats .num { font-weight: 700; color: var(--color-text); }
+  .queue-stats .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--color-gray-200); }
+
+  .shortcut-key { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 4px; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); font-size: 10px; font-weight: 600; color: var(--color-text-secondary); font-family: 'Poppins', sans-serif; }
+
+  .wf-filter-card { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 18px 22px; margin-bottom: 14px; }
+  .wf-filter-title { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--color-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .wf-filter-title .material-symbols-outlined { font-size: 14px; }
+  .wf-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .wf-pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); color: var(--color-text-secondary); cursor: pointer; transition: all 0.12s; }
+  .wf-pill:hover { background: var(--color-bg); border-color: var(--color-gray-200); color: var(--color-text); }
+  .wf-pill.active { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+  .wf-pill .wf-code { font-size: 10px; font-weight: 700; color: var(--color-muted); letter-spacing: 0.3px; }
+  .wf-pill.active .wf-code { color: rgba(255,255,255,0.5); }
+  .wf-pill .count { background: var(--color-gray-100); padding: 1px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; min-width: 18px; text-align: center; color: var(--color-text-secondary); }
+  .wf-pill.active .count { background: rgba(255,255,255,0.2); color: var(--color-bg); }
+  .wf-pill.has-items .count { background: var(--color-text); color: var(--color-bg); }
+  .wf-pill.active.has-items .count { background: var(--color-accent); color: var(--color-text); }
+
+  .mode-strip { display: flex; gap: 4px; align-items: center; margin-bottom: 16px; font-size: 12px; color: var(--color-muted); }
+  .mode-strip .label { margin-right: 4px; font-weight: 500; }
+  .mode-btn { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; background: transparent; color: var(--color-text-secondary); transition: all 0.12s; display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent; }
+  .mode-btn:hover { background: var(--color-gray-50); }
+  .mode-btn.active { background: var(--color-gray-100); color: var(--color-text); font-weight: 600; }
+  .mode-btn .count { opacity: 0.6; font-weight: 400; }
+
+  /* QUEUE SPLIT */
+  .queue-split { display: grid; grid-template-columns: 340px 1fr; gap: 14px; align-items: start; }
+
+  .queue-list { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); overflow: hidden; position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
+  .queue-list-head { padding: 12px 16px; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--color-muted); border-bottom: 1px solid var(--color-gray-100); display: flex; justify-content: space-between; background: var(--color-gray-50); }
+  .queue-item { padding: 14px 16px; border-bottom: 1px solid var(--color-gray-100); cursor: pointer; transition: background 0.1s; position: relative; }
+  .queue-item:last-child { border-bottom: none; }
+  .queue-item:hover { background: var(--color-gray-50); }
+  .queue-item.selected { background: var(--color-gray-50); }
+  .queue-item.selected::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--color-accent); }
+  .q-item-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px; }
+  .q-wf-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; color: var(--color-muted); letter-spacing: 0.3px; }
+  .q-wf-tag .wf-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .q-wf-tag .wf-dot.draft { background: #1F9A8D; }
+  .q-wf-tag .wf-dot.escalate { background: var(--color-amber); }
+  .q-wf-tag .wf-dot.auto { background: var(--color-green); }
+  .q-time { font-size: 10px; color: var(--color-muted); font-weight: 500; }
+  .q-title { font-size: 13px; font-weight: 600; color: var(--color-text); margin-bottom: 4px; line-height: 1.3; }
+  .q-sub { font-size: 11px; color: var(--color-text-secondary); line-height: 1.4; }
+  .q-tags { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+  .q-tag { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 3px; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); color: var(--color-text-secondary); letter-spacing: 0.2px; text-transform: uppercase; }
+  .q-tag.urgent { background: rgba(220,38,38,0.08); color: var(--color-red); border-color: rgba(220,38,38,0.25); }
+  .q-tag.high { background: rgba(217,119,6,0.08); color: var(--color-amber); border-color: rgba(217,119,6,0.2); }
+
+  /* DETAIL CARD */
+  .queue-detail { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); overflow: hidden; }
+  .qd-head { padding: 20px 24px; border-bottom: 1px solid var(--color-gray-100); }
+  .qd-eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .qd-workflow-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); font-size: 11px; font-weight: 600; color: var(--color-text-secondary); }
+  .qd-workflow-badge .code { font-size: 10px; color: var(--color-muted); letter-spacing: 0.3px; }
+  .qd-status { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .qd-status.draft { background: rgba(50,189,174,0.12); color: #1F9A8D; }
+  .qd-status.escalate { background: rgba(217,119,6,0.1); color: var(--color-amber); }
+  .qd-priority { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase; background: rgba(220,38,38,0.1); color: var(--color-red); }
+  .qd-title { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 8px; line-height: 1.2; }
+  .qd-subtitle { font-size: 13px; color: var(--color-text-secondary); }
+
+  .qd-context { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-bottom: 1px solid var(--color-gray-100); background: var(--color-gray-50); }
+  .qd-ctx-item { padding: 14px 18px; border-right: 1px solid var(--color-gray-100); }
+  .qd-ctx-item:last-child { border-right: none; }
+  .qd-ctx-label { font-size: 10px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--color-muted); margin-bottom: 4px; }
+  .qd-ctx-value { font-size: 13px; font-weight: 600; color: var(--color-text); }
+
+  .qd-section { padding: 20px 24px; border-bottom: 1px solid var(--color-gray-100); }
+  .qd-section:last-of-type { border-bottom: none; }
+  .qd-section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--color-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .qd-section-label .material-symbols-outlined { font-size: 14px; }
+
+  /* WORKFLOW STEPPER */
+  .qd-stepper { display: flex; align-items: center; gap: 0; }
+  .qd-step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; text-align: center; }
+  .qd-step:not(:last-child)::after { content: ''; position: absolute; top: 11px; left: calc(50% + 14px); right: calc(-50% + 14px); height: 2px; background: var(--color-gray-100); }
+  .qd-step.done::after { background: var(--color-text); }
+  .qd-step-circle { width: 22px; height: 22px; border-radius: 50%; background: var(--color-gray-100); color: var(--color-muted); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; border: 2px solid var(--color-bg); position: relative; z-index: 1; }
+  .qd-step.done .qd-step-circle { background: var(--color-text); color: var(--color-bg); }
+  .qd-step.current .qd-step-circle { background: var(--color-accent); color: var(--color-text); box-shadow: 0 0 0 3px rgba(50,189,174,0.2); }
+  .qd-step-label { font-size: 10px; color: var(--color-muted); line-height: 1.3; max-width: 90px; }
+  .qd-step.current .qd-step-label { color: var(--color-text); font-weight: 600; }
+  .qd-step.done .qd-step-label { color: var(--color-text-secondary); }
+
+  /* ORIGINAL + DRAFT */
+  .qd-quote { background: var(--color-gray-50); border-left: 3px solid var(--color-gray-200); padding: 12px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; font-style: italic; }
+  .qd-quote-meta { font-style: normal; font-size: 11px; color: var(--color-muted); margin-top: 6px; font-weight: 500; }
+
+  .qd-draft-box { border: 1px solid var(--color-gray-100); border-radius: var(--radius-sm); padding: 14px; font-size: 13px; line-height: 1.55; color: var(--color-text); position: relative; background: var(--color-bg); white-space: pre-wrap; }
+  .qd-draft-box:focus { outline: none; border-color: var(--color-text); }
+  .qd-draft-label { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--color-muted); margin-top: 8px; }
+  .qd-draft-label .material-symbols-outlined { font-size: 13px; }
+
+  /* ACTION BAR */
+  .qd-actions { padding: 16px 24px; background: var(--color-gray-50); border-top: 1px solid var(--color-gray-100); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .qd-action-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .qd-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; border: 1px solid var(--color-gray-100); background: var(--color-bg); color: var(--color-text); transition: all 0.12s; font-family: inherit; }
+  .qd-btn:hover { border-color: var(--color-text); }
+  .qd-btn.primary { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+  .qd-btn.primary:hover { background: #000; }
+  .qd-btn.ghost { border-color: transparent; color: var(--color-text-secondary); }
+  .qd-btn.ghost:hover { background: var(--color-gray-100); color: var(--color-text); }
+  .qd-btn .material-symbols-outlined { font-size: 15px; }
+  .qd-btn .shortcut-key { margin-left: 4px; }
+  .qd-btn.primary .shortcut-key { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.15); color: var(--color-bg); }
+
+  .qd-nav { display: flex; gap: 4px; align-items: center; color: var(--color-muted); font-size: 12px; }
+
+  .robin-note { display: flex; gap: 10px; padding: 12px 14px; background: rgba(50,189,174,0.06); border: 1px solid rgba(50,189,174,0.2); border-radius: var(--radius-sm); }
+  .robin-note-icon { width: 22px; height: 22px; border-radius: 50%; background: var(--color-text); color: var(--color-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .robin-note-icon .material-symbols-outlined { font-size: 13px; }
+  .robin-note-body { font-size: 12px; color: var(--color-text); line-height: 1.5; }
+  .robin-note-body strong { font-weight: 600; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 1100px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .stat-card:nth-child(2) { border-right: none; }
+    .stat-card:nth-child(1), .stat-card:nth-child(2) { border-bottom: 1px solid var(--color-gray-100); }
+    .robin-grid { grid-template-columns: 1fr; }
+    .two-col-detail { grid-template-columns: 1fr; }
+    .aside-card { position: static; }
+  }
+  @media (max-width: 760px) {
+    .topbar { padding: 0 16px; }
+    .nav { display: none; }
+    .main { padding: 20px 16px; }
+    .stat-grid { grid-template-columns: 1fr; }
+    .stat-card { border-right: none; border-bottom: 1px solid var(--color-gray-100); }
+    .stat-card:last-child { border-bottom: none; }
+    .data-table { font-size: 12px; }
+    .data-table td, .data-table th { padding: 10px 12px; }
+    .queue-split { grid-template-columns: 1fr; }
+    .queue-list { position: static; max-height: none; }
+    .qd-context { grid-template-columns: repeat(2, 1fr); }
+    .qd-ctx-item:nth-child(2) { border-right: none; }
+    .qd-ctx-item:nth-child(1), .qd-ctx-item:nth-child(2) { border-bottom: 1px solid var(--color-gray-100); }
+  }
+
+  @media (max-width: 1100px) {
+    .queue-split { grid-template-columns: 280px 1fr; }
+  }
+  @media (max-width: 900px) {
+    .queue-split { grid-template-columns: 1fr; }
+    .queue-list { position: static; max-height: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<header class="topbar">
+  <a href="#" class="brand">
+    <div class="mark">H</div>
+    <div class="wordmark">
+      <div>HAPPEN VENTURES<sup style="font-size:7px">®</sup></div>
+      <div class="bot">Joan Nieves · Operations</div>
+    </div>
+  </a>
+
+  <nav class="nav">
+    <a href="#" class="nav-tab" data-tab="home"><span class="material-symbols-outlined">home</span> Home</a>
+    <a href="#" class="nav-tab active" data-tab="queue"><span class="material-symbols-outlined">bolt</span> Task Queue <span class="badge alert">6</span></a>
+    <a href="#" class="nav-tab" data-tab="tasks"><span class="material-symbols-outlined">check_circle</span> Airtable Tasks <span class="badge" id="tasksNavBadge">—</span></a>
+    <a href="#" class="nav-tab" data-tab="bot"><span class="material-symbols-outlined">smart_toy</span> HV Bot</a>
+    <a href="#" class="nav-tab" data-tab="tools"><span class="material-symbols-outlined">build</span> Tools</a>
+    <div class="nav-divider"></div>
+    <a href="#" class="nav-tab" data-tab="sites"><span class="material-symbols-outlined">store</span> Sites</a>
+    <a href="#" class="nav-tab" data-tab="drivers"><span class="material-symbols-outlined">local_shipping</span> Drivers <span class="badge alert">1</span></a>
+    <a href="#" class="nav-tab" data-tab="partners"><span class="material-symbols-outlined">handshake</span> Partners <span class="badge">3</span></a>
+    <a href="#" class="nav-tab" data-tab="robin"><span class="material-symbols-outlined">smart_toy</span> Robin</a>
+  </nav>
+
+  <div class="topbar-right">
+    <button class="icon-btn"><span class="material-symbols-outlined">search</span></button>
+    <button class="icon-btn"><span class="material-symbols-outlined">notifications</span><span class="notif-dot"></span></button>
+    <label class="user-switcher" for="userSelect" title="Switch user view (demo)">
+      <span class="material-symbols-outlined">person</span>
+      <select id="userSelect">
+        <option value="joan@happenventures.com" selected>Joan Moya</option>
+        <option value="jessica@happenventures.com">Jessica Gonzalez</option>
+      </select>
+    </label>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- ==================== SITES TAB ==================== -->
+  <section class="tab-panel" data-panel="sites">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Sites <span class="tag-mod">R3 · Operations</span></h1>
+        <p class="page-meta">47 active sites across the network · 3 flagged for attention</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn"><span class="material-symbols-outlined">download</span> Export</button>
+        <button class="btn primary"><span class="material-symbols-outlined">add</span> Add site</button>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">store</span> Active sites</div>
+        <div class="stat-value">47</div>
+        <div class="stat-sub">+3 this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">confirmation_number</span> Open tickets</div>
+        <div class="stat-value">12</div>
+        <div class="stat-sub"><span class="warn">4 high priority</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">warning</span> Compliance below 80%</div>
+        <div class="stat-value">3</div>
+        <div class="stat-sub"><span class="bad">Needs outreach</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">construction</span> Installs this week</div>
+        <div class="stat-value">5</div>
+        <div class="stat-sub">2 discrepancies pending</div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-pill active">All <span class="count">47</span></button>
+      <button class="filter-pill">Open tickets <span class="count">12</span></button>
+      <button class="filter-pill">Low compliance <span class="count">3</span></button>
+      <button class="filter-pill">New this month <span class="count">3</span></button>
+      <div class="search-wrap">
+        <span class="material-symbols-outlined">search</span>
+        <input class="search-input" placeholder="Site code or company…" />
+      </div>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Site</th>
+            <th>Company</th>
+            <th class="num">Orders MTD</th>
+            <th>Tickets</th>
+            <th>Compliance</th>
+            <th>Last activity</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="cell-primary">UIN1</div>
+              <div class="cell-sub">Seattle, WA</div>
+            </td>
+            <td>Universal Industries</td>
+            <td class="num">18</td>
+            <td><span class="pill good"><span class="dot"></span>Clean</span></td>
+            <td><div class="pct-bar"><div class="bar"><div class="fill good" style="width:94%"></div></div><span class="num">94%</span></div></td>
+            <td>23 min ago</td>
+            <td><div class="row-actions"><button class="row-btn">Open</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">AMZ-PDX-07</div>
+              <div class="cell-sub">Portland, OR</div>
+            </td>
+            <td>Amazon</td>
+            <td class="num">42</td>
+            <td><span class="pill warn">2 open</span></td>
+            <td><div class="pct-bar"><div class="bar"><div class="fill good" style="width:89%"></div></div><span class="num">89%</span></div></td>
+            <td>1 hr ago</td>
+            <td><div class="row-actions"><button class="row-btn">Open</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">TGT-CIN-12</div>
+              <div class="cell-sub">Cincinnati, OH</div>
+            </td>
+            <td>Target</td>
+            <td class="num">24</td>
+            <td><span class="pill bad">3 open</span></td>
+            <td><div class="pct-bar"><div class="bar"><div class="fill bad" style="width:67%"></div></div><span class="num">67%</span></div></td>
+            <td>3 hr ago</td>
+            <td><div class="row-actions"><button class="row-btn">Review</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">WMT-CLT-03</div>
+              <div class="cell-sub">Charlotte, NC</div>
+            </td>
+            <td>Walmart</td>
+            <td class="num">31</td>
+            <td><span class="pill good"><span class="dot"></span>Clean</span></td>
+            <td><div class="pct-bar"><div class="bar"><div class="fill good" style="width:91%"></div></div><span class="num">91%</span></div></td>
+            <td>4 hr ago</td>
+            <td><div class="row-actions"><button class="row-btn">Open</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">UIN4</div>
+              <div class="cell-sub">Tacoma, WA</div>
+            </td>
+            <td>Universal Industries</td>
+            <td class="num">12</td>
+            <td><span class="pill warn">1 open</span></td>
+            <td><div class="pct-bar"><div class="bar"><div class="fill warn" style="width:78%"></div></div><span class="num">78%</span></div></td>
+            <td>Yesterday</td>
+            <td><div class="row-actions"><button class="row-btn">Open</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">KR-ATL-22</div>
+              <div class="cell-sub">Atlanta, GA</div>
+            </td>
+            <td>Kroger</td>
+            <td class="num">8</td>
+            <td><span class="pill bad">4 open</span></td>
+            <td><div class="pct-bar"><div class="bar"><div class="fill bad" style="width:61%"></div></div><span class="num">61%</span></div></td>
+            <td>2 days ago</td>
+            <td><div class="row-actions"><button class="row-btn">Review</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">HD-NAS-15</div>
+              <div class="cell-sub">Nashville, TN</div>
+            </td>
+            <td>Home Depot</td>
+            <td class="num">19</td>
+            <td><span class="pill good"><span class="dot"></span>Clean</span></td>
+            <td><div class="pct-bar"><div class="bar"><div class="fill good" style="width:87%"></div></div><span class="num">87%</span></div></td>
+            <td>5 hr ago</td>
+            <td><div class="row-actions"><button class="row-btn">Open</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ==================== DRIVERS TAB ==================== -->
+  <section class="tab-panel" data-panel="drivers">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Drivers <span class="tag-mod">R3 · Operations</span></h1>
+        <p class="page-meta">14 active drivers across partners · 1 silence alert escalating</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn"><span class="material-symbols-outlined">download</span> Export</button>
+        <button class="btn primary"><span class="material-symbols-outlined">sms</span> Broadcast</button>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">local_shipping</span> Active drivers</div>
+        <div class="stat-value">14</div>
+        <div class="stat-sub">across 4 partners</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">route</span> On route now</div>
+        <div class="stat-value">9</div>
+        <div class="stat-sub">5 completed today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">notifications_active</span> Silence alerts</div>
+        <div class="stat-value">1</div>
+        <div class="stat-sub"><span class="warn">Emanuel Perez · 2nd ping</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">report</span> Incidents this week</div>
+        <div class="stat-value">2</div>
+        <div class="stat-sub">HR threshold: 2/5d</div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-pill active">All <span class="count">14</span></button>
+      <button class="filter-pill">On route <span class="count">9</span></button>
+      <button class="filter-pill">Silent <span class="count">1</span></button>
+      <button class="filter-pill">Incidents <span class="count">2</span></button>
+      <div class="search-wrap">
+        <span class="material-symbols-outlined">search</span>
+        <input class="search-input" placeholder="Driver name…" />
+      </div>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Driver</th>
+            <th>Partner</th>
+            <th>Status</th>
+            <th>Today's route</th>
+            <th class="num">Silence pings</th>
+            <th>Last active</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="cell-primary">Emanuel Perez</div>
+              <div class="cell-sub">+1 (704) 555-0182</div>
+            </td>
+            <td>Drop and Dash</td>
+            <td><span class="pill warn"><span class="dot"></span>Silent 2h</span></td>
+            <td>3 stops · UIN1, AMZ-PDX-07, WMT-CLT-03</td>
+            <td class="num">2/2</td>
+            <td>2h 14m ago</td>
+            <td><div class="row-actions"><button class="row-btn">Escalate</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">Marcus Johnson</div>
+              <div class="cell-sub">+1 (206) 555-0341</div>
+            </td>
+            <td>Queen City</td>
+            <td><span class="pill good"><span class="dot"></span>On route</span></td>
+            <td>4 stops · 2 complete</td>
+            <td class="num">—</td>
+            <td>12 min ago</td>
+            <td><div class="row-actions"><button class="row-btn">Open</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">David Ochoa</div>
+              <div class="cell-sub">+1 (503) 555-0924</div>
+            </td>
+            <td>Pink Champaigne</td>
+            <td><span class="pill good"><span class="dot"></span>On route</span></td>
+            <td>5 stops · 3 complete</td>
+            <td class="num">—</td>
+            <td>4 min ago</td>
+            <td><div class="row-actions"><button class="row-btn">Open</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">Jasmine Reyes</div>
+              <div class="cell-sub">+1 (704) 555-0673</div>
+            </td>
+            <td>Drop and Dash</td>
+            <td><span class="pill info">Completed</span></td>
+            <td>6 stops · all complete</td>
+            <td class="num">—</td>
+            <td>1h ago</td>
+            <td><div class="row-actions"><button class="row-btn">Open</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">Tony Vasquez</div>
+              <div class="cell-sub">+1 (919) 555-0441</div>
+            </td>
+            <td>Bridge Town</td>
+            <td><span class="pill bad"><span class="dot"></span>Incident</span></td>
+            <td>2 stops · not started</td>
+            <td class="num">—</td>
+            <td>Yesterday</td>
+            <td><div class="row-actions"><button class="row-btn">Review</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">Carlos Rivera</div>
+              <div class="cell-sub">+1 (206) 555-0812</div>
+            </td>
+            <td>Queen City</td>
+            <td><span class="pill good"><span class="dot"></span>On route</span></td>
+            <td>3 stops · 1 complete</td>
+            <td class="num">—</td>
+            <td>28 min ago</td>
+            <td><div class="row-actions"><button class="row-btn">Open</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ==================== PARTNERS TAB ==================== -->
+  <section class="tab-panel" data-panel="partners">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Partners <span class="tag-mod">R3 · Operations</span></h1>
+        <p class="page-meta">4 laundry partners · 3 with overdue counts</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn"><span class="material-symbols-outlined">download</span> Export</button>
+        <button class="btn primary"><span class="material-symbols-outlined">bolt</span> Chase all</button>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">handshake</span> Active partners</div>
+        <div class="stat-value">4</div>
+        <div class="stat-sub">All fully onboarded</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">inventory</span> Counts this week</div>
+        <div class="stat-value">18 / 24</div>
+        <div class="stat-sub"><span class="warn">6 overdue</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">schedule</span> Avg response</div>
+        <div class="stat-value">4.2 hr</div>
+        <div class="stat-sub"><span class="good">↓ 1.1 hr</span> vs last wk</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">forum</span> WhatsApp groups</div>
+        <div class="stat-value">4 / 4</div>
+        <div class="stat-sub">All linked</div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-pill active">All <span class="count">4</span></button>
+      <button class="filter-pill">Overdue counts <span class="count">3</span></button>
+      <button class="filter-pill">Responsive <span class="count">2</span></button>
+      <button class="filter-pill">New <span class="count">0</span></button>
+      <div class="search-wrap">
+        <span class="material-symbols-outlined">search</span>
+        <input class="search-input" placeholder="Partner name…" />
+      </div>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Partner</th>
+            <th>POC</th>
+            <th class="num">Orders behind</th>
+            <th>Count status</th>
+            <th>Last response</th>
+            <th>Response rate</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="cell-primary">Drop and Dash</div>
+              <div class="cell-sub">Charlotte, NC · 2 drivers</div>
+            </td>
+            <td>
+              <div class="cell-primary">Joey Gilb</div>
+              <div class="cell-sub">WhatsApp linked</div>
+            </td>
+            <td class="num">2</td>
+            <td><span class="pill warn">Wave 1 chased</span></td>
+            <td>3 hr ago</td>
+            <td><div class="pct-bar"><div class="bar"><div class="fill good" style="width:92%"></div></div><span class="num">92%</span></div></td>
+            <td><div class="row-actions"><button class="row-btn">Chase</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">Queen City</div>
+              <div class="cell-sub">Seattle, WA · 3 drivers</div>
+            </td>
+            <td>
+              <div class="cell-primary">Carrie Hughes</div>
+              <div class="cell-sub">WhatsApp linked</div>
+            </td>
+            <td class="num">0</td>
+            <td><span class="pill good"><span class="dot"></span>Up to date</span></td>
+            <td>45 min ago</td>
+            <td><div class="pct-bar"><div class="bar"><div class="fill good" style="width:98%"></div></div><span class="num">98%</span></div></td>
+            <td><div class="row-actions"><button class="row-btn">Open</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">Pink Champaigne</div>
+              <div class="cell-sub">Portland, OR · 4 drivers</div>
+            </td>
+            <td>
+              <div class="cell-primary">Champaigne Patterson</div>
+              <div class="cell-sub">WhatsApp linked</div>
+            </td>
+            <td class="num">3</td>
+            <td><span class="pill bad">Wave 2 sent</span></td>
+            <td>Yesterday</td>
+            <td><div class="pct-bar"><div class="bar"><div class="fill warn" style="width:74%"></div></div><span class="num">74%</span></div></td>
+            <td><div class="row-actions"><button class="row-btn">Chase</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="cell-primary">Bridge Town</div>
+              <div class="cell-sub">Nashville, TN · 5 drivers</div>
+            </td>
+            <td>
+              <div class="cell-primary">Christopher Ahles</div>
+              <div class="cell-sub">WhatsApp linked</div>
+            </td>
+            <td class="num">1</td>
+            <td><span class="pill warn">Wave 1 chased</span></td>
+            <td>6 hr ago</td>
+            <td><div class="pct-bar"><div class="bar"><div class="fill good" style="width:86%"></div></div><span class="num">86%</span></div></td>
+            <td><div class="row-actions"><button class="row-btn">Chase</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ==================== ROBIN TAB ==================== -->
+  <section class="tab-panel" data-panel="robin">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Robin <span class="tag-mod">R3 · Bot Control</span></h1>
+        <p class="page-meta">12 workflows monitoring R3 operations · you are the operator</p>
+      </div>
+    </div>
+
+    <div class="robin-hero">
+      <div class="robin-hero-left">
+        <div class="robin-avatar"><span class="material-symbols-outlined">smart_toy</span></div>
+        <div>
+          <div class="robin-title">Robin <span class="live-badge"><span class="dot"></span>LIVE</span></div>
+          <div class="robin-sub">47 actions today · 94% auto-resolved · last run 3 min ago</div>
+        </div>
+      </div>
+      <div class="kill-switch">
+        <button class="kill-btn"><span class="material-symbols-outlined">pause</span> Pause all</button>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">play_circle</span> Workflows live</div>
+        <div class="stat-value">10 / 12</div>
+        <div class="stat-sub">2 paused for calibration</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">flash_on</span> Actions today</div>
+        <div class="stat-value">47</div>
+        <div class="stat-sub"><span class="good">↑ 12</span> vs yesterday</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">check_circle</span> Success rate</div>
+        <div class="stat-value">94%</div>
+        <div class="stat-sub">3 escalated, 44 auto</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><span class="material-symbols-outlined">hourglass_top</span> Awaiting you</div>
+        <div class="stat-value">5</div>
+        <div class="stat-sub"><span class="warn">Drafts + escalations</span></div>
+      </div>
+    </div>
+
+    <div class="robin-grid">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="material-symbols-outlined">tune</span> Workflows</div>
+          <a href="#" class="card-link">Manage templates <span class="material-symbols-outlined" style="font-size:14px">arrow_forward</span></a>
+        </div>
+
+        <div class="workflow-row">
+          <div class="wf-icon"><span class="material-symbols-outlined">inventory</span></div>
+          <div>
+            <div class="wf-name">Partner Count Chase</div>
+            <div class="wf-meta">WF03 · 4 runs today · 2 waves triggered</div>
+          </div>
+          <span class="wf-mode auto">Auto</span>
+          <span class="pill good"><span class="dot"></span>Live</span>
+          <div class="toggle on"></div>
+        </div>
+
+        <div class="workflow-row">
+          <div class="wf-icon"><span class="material-symbols-outlined">local_shipping</span></div>
+          <div>
+            <div class="wf-name">DRV-04 Driver Silence</div>
+            <div class="wf-meta">WF04 · 1 run · Emanuel Perez escalating</div>
+          </div>
+          <span class="wf-mode auto">Auto</span>
+          <span class="pill good"><span class="dot"></span>Live</span>
+          <div class="toggle on"></div>
+        </div>
+
+        <div class="workflow-row">
+          <div class="wf-icon"><span class="material-symbols-outlined">support_agent</span></div>
+          <div>
+            <div class="wf-name">CMP-01 Acknowledge &amp; Route</div>
+            <div class="wf-meta">WF05 · 3 complaints classified today</div>
+          </div>
+          <span class="wf-mode auto">Auto</span>
+          <span class="pill good"><span class="dot"></span>Live</span>
+          <div class="toggle on"></div>
+        </div>
+
+        <div class="workflow-row">
+          <div class="wf-icon"><span class="material-symbols-outlined">edit_note</span></div>
+          <div>
+            <div class="wf-name">CMP Substantive Reply</div>
+            <div class="wf-meta">WF06 · 2 drafts waiting for you</div>
+          </div>
+          <span class="wf-mode draft">Draft</span>
+          <span class="pill good"><span class="dot"></span>Live</span>
+          <div class="toggle on"></div>
+        </div>
+
+        <div class="workflow-row">
+          <div class="wf-icon"><span class="material-symbols-outlined">document_scanner</span></div>
+          <div>
+            <div class="wf-name">Equipment Install · Clean</div>
+            <div class="wf-meta">WF07 · 3 slips OCR'd today</div>
+          </div>
+          <span class="wf-mode auto">Auto</span>
+          <span class="pill good"><span class="dot"></span>Live</span>
+          <div class="toggle on"></div>
+        </div>
+
+        <div class="workflow-row">
+          <div class="wf-icon"><span class="material-symbols-outlined">warning</span></div>
+          <div>
+            <div class="wf-name">Equipment Install · Discrepancy</div>
+            <div class="wf-meta">WF08 · 1 ticket built for you</div>
+          </div>
+          <span class="wf-mode escalate">Escalate</span>
+          <span class="pill good"><span class="dot"></span>Live</span>
+          <div class="toggle on"></div>
+        </div>
+
+        <div class="workflow-row">
+          <div class="wf-icon"><span class="material-symbols-outlined">shield</span></div>
+          <div>
+            <div class="wf-name">Risk Alerts · Shrinkage</div>
+            <div class="wf-meta">WF09 · 2 medium, 0 high today</div>
+          </div>
+          <span class="wf-mode auto">Auto</span>
+          <span class="pill good"><span class="dot"></span>Live</span>
+          <div class="toggle on"></div>
+        </div>
+
+        <div class="workflow-row">
+          <div class="wf-icon"><span class="material-symbols-outlined">pending</span></div>
+          <div>
+            <div class="wf-name">FIN-01 AP Audit</div>
+            <div class="wf-meta">WF10 · paused for Wave 3 calibration</div>
+          </div>
+          <span class="wf-mode auto">Auto</span>
+          <span class="pill warn">Paused</span>
+          <div class="toggle"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="material-symbols-outlined">timeline</span> Live activity</div>
+          <a href="#" class="card-link">Full log <span class="material-symbols-outlined" style="font-size:14px">arrow_forward</span></a>
+        </div>
+
+        <div class="activity-item">
+          <div class="activity-dot"><span class="material-symbols-outlined">check</span></div>
+          <div class="activity-body">
+            <div class="activity-text">Auto-chased <strong>Pink Champaigne</strong> — 3 orders overdue · WhatsApp sent</div>
+            <div class="activity-time">3 min ago · WF03</div>
+          </div>
+        </div>
+
+        <div class="activity-item">
+          <div class="activity-dot"><span class="material-symbols-outlined">edit_note</span></div>
+          <div class="activity-body">
+            <div class="activity-text">Draft ready — complaint from <strong>TGT-CIN-12</strong> (Quality · A)</div>
+            <div class="activity-time">12 min ago · WF06</div>
+          </div>
+        </div>
+
+        <div class="activity-item">
+          <div class="activity-dot"><span class="material-symbols-outlined">warning</span></div>
+          <div class="activity-body">
+            <div class="activity-text">Driver silence escalated — <strong>Emanuel Perez</strong> 2nd ping · notified you</div>
+            <div class="activity-time">34 min ago · WF04</div>
+          </div>
+        </div>
+
+        <div class="activity-item">
+          <div class="activity-dot"><span class="material-symbols-outlined">document_scanner</span></div>
+          <div class="activity-body">
+            <div class="activity-text">Install slip clean — <strong>WMT-CLT-03</strong> · 12 bins, 4 racks, 2 signs</div>
+            <div class="activity-time">1 hr ago · WF07</div>
+          </div>
+        </div>
+
+        <div class="activity-item">
+          <div class="activity-dot"><span class="material-symbols-outlined">shield</span></div>
+          <div class="activity-body">
+            <div class="activity-text">Shrinkage alert — <strong>KR-ATL-22</strong> tier Medium · logged ticket</div>
+            <div class="activity-time">2 hr ago · WF09</div>
+          </div>
+        </div>
+
+        <div class="activity-item">
+          <div class="activity-dot"><span class="material-symbols-outlined">support_agent</span></div>
+          <div class="activity-body">
+            <div class="activity-text">Complaint routed — <strong>AMZ-PDX-07</strong> type B (Missing) · acked in 2m</div>
+            <div class="activity-time">3 hr ago · WF05</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== STUB PANELS ==================== -->
+  <section class="tab-panel" data-panel="home">
+    <div class="page-head"><div><h1 class="page-title">Home</h1><p class="page-meta">Joan's home view — already built in previous iteration</p></div></div>
+  </section>
+  <section class="tab-panel active" data-panel="queue">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Task Queue <span class="tag-mod">Universal · Human-in-loop</span></h1>
+        <div class="queue-stats">
+          <span><span class="num">6</span> waiting</span>
+          <span class="sep"></span>
+          <span><span class="num">12</span> completed today</span>
+          <span class="sep"></span>
+          <span>Avg <span class="num">2.4 min</span> per item</span>
+          <span class="sep"></span>
+          <span>Last synced <span class="num">just now</span></span>
+        </div>
+      </div>
+      <div class="page-actions">
+        <button class="btn"><span class="material-symbols-outlined">keyboard</span> Shortcuts</button>
+        <button class="btn primary"><span class="material-symbols-outlined">play_arrow</span> Focus mode</button>
+      </div>
+    </div>
+
+    <!-- WORKFLOW FILTER PILLS — reflects current SSOT (post-archive) -->
+    <div class="wf-filter-card">
+      <div class="wf-filter-title">
+        <span class="material-symbols-outlined">filter_list</span>
+        Filter by workflow source
+      </div>
+      <div class="wf-pills">
+        <button class="wf-pill active">
+          All <span class="count">6</span>
+        </button>
+
+        <!-- R3 OPS -->
+        <button class="wf-pill has-items">
+          <span>Complaint Routing</span>
+          <span class="wf-code">CMP-01</span>
+          <span class="count">2</span>
+        </button>
+        <button class="wf-pill has-items">
+          <span>Equipment Discrepancy</span>
+          <span class="wf-code">OPS</span>
+          <span class="count">1</span>
+        </button>
+        <button class="wf-pill">
+          <span>Pickup Photo Confirm</span>
+          <span class="wf-code">OPS</span>
+          <span class="count">0</span>
+        </button>
+
+        <!-- FINANCE (Joan acts as Jazz) -->
+        <button class="wf-pill has-items">
+          <span>AR Generation</span>
+          <span class="wf-code">FIN-02</span>
+          <span class="count">1</span>
+        </button>
+        <button class="wf-pill has-items">
+          <span>Price Change Gate</span>
+          <span class="wf-code">FIN-03</span>
+          <span class="count">1</span>
+        </button>
+        <button class="wf-pill">
+          <span>AP Audit</span>
+          <span class="wf-code">FIN-01</span>
+          <span class="count">0</span>
+        </button>
+        <button class="wf-pill">
+          <span>Bill Inbox · R3</span>
+          <span class="wf-code">FIN</span>
+          <span class="count">0</span>
+        </button>
+
+        <!-- UNIVERSAL -->
+        <button class="wf-pill has-items">
+          <span>Inbox &amp; Calendar</span>
+          <span class="wf-code">AOE</span>
+          <span class="count">1</span>
+        </button>
+        <button class="wf-pill">
+          <span>Quote Creation</span>
+          <span class="wf-code">QUO</span>
+          <span class="count">0</span>
+        </button>
+      </div>
+      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--color-gray-100); font-size: 11px; color: var(--color-muted); display: flex; align-items: center; gap: 6px;">
+        <span class="material-symbols-outlined" style="font-size: 13px;">archive</span>
+        <span>Archived from Phase 1: Partner Count Chase · Driver Silence · CMP Substantive · Risk Alerts · Tuesday Overdue · Site Compliance Outreach</span>
+      </div>
+    </div>
+
+    <!-- MODE SUBFILTER -->
+    <div class="mode-strip">
+      <span class="label">Mode:</span>
+      <button class="mode-btn active">All <span class="count">6</span></button>
+      <button class="mode-btn">
+        <span style="width:6px;height:6px;border-radius:50%;background:#1F9A8D;"></span>
+        Approval Required <span class="count">4</span>
+      </button>
+      <button class="mode-btn">
+        <span style="width:6px;height:6px;border-radius:50%;background:#D97706;"></span>
+        Escalated <span class="count">2</span>
+      </button>
+    </div>
+
+    <!-- SPLIT LAYOUT -->
+    <div class="queue-split">
+
+      <!-- LEFT: QUEUE LIST — RESET TO REAL WORKFLOWS -->
+      <aside class="queue-list">
+        <div class="queue-list-head">
+          <span>6 Items</span>
+          <span>Oldest first</span>
+        </div>
+
+        <!-- Item 1: SELECTED — Complaint (CMP-01) -->
+        <div class="queue-item selected">
+          <div class="q-item-head">
+            <span class="q-wf-tag"><span class="wf-dot draft"></span>CMP-01 · DRAFT</span>
+            <span class="q-time">12m</span>
+          </div>
+          <div class="q-title">Complaint reply — Target Cincinnati</div>
+          <div class="q-sub">Type A · Quality · needs your send</div>
+          <div class="q-tags">
+            <span class="q-tag high">High</span>
+            <span class="q-tag">TGT-CIN-12</span>
+          </div>
+        </div>
+
+        <!-- Item 2: Equipment Discrepancy -->
+        <div class="queue-item">
+          <div class="q-item-head">
+            <span class="q-wf-tag"><span class="wf-dot escalate"></span>OPS · ESCALATE</span>
+            <span class="q-time">34m</span>
+          </div>
+          <div class="q-title">Install slip mismatch · UIN4</div>
+          <div class="q-sub">2 fields off (bins, signs)</div>
+          <div class="q-tags">
+            <span class="q-tag high">High</span>
+            <span class="q-tag">Tacoma, WA</span>
+          </div>
+        </div>
+
+        <!-- Item 3: FIN-03 Price Change -->
+        <div class="queue-item">
+          <div class="q-item-head">
+            <span class="q-wf-tag"><span class="wf-dot draft"></span>FIN-03 · APPROVAL</span>
+            <span class="q-time">1h</span>
+          </div>
+          <div class="q-title">Price change — Pink Champaigne</div>
+          <div class="q-sub">$4.25 → $4.75 per piece</div>
+          <div class="q-tags">
+            <span class="q-tag">Partner</span>
+          </div>
+        </div>
+
+        <!-- Item 4: Second Complaint -->
+        <div class="queue-item">
+          <div class="q-item-head">
+            <span class="q-wf-tag"><span class="wf-dot draft"></span>CMP-01 · DRAFT</span>
+            <span class="q-time">1h 28m</span>
+          </div>
+          <div class="q-title">Complaint reply — Amazon PDX</div>
+          <div class="q-sub">Type B · Missing items</div>
+          <div class="q-tags">
+            <span class="q-tag high">High</span>
+            <span class="q-tag">AMZ-PDX-07</span>
+          </div>
+        </div>
+
+        <!-- Item 5: FIN-02 AR -->
+        <div class="queue-item">
+          <div class="q-item-head">
+            <span class="q-wf-tag"><span class="wf-dot draft"></span>FIN-02 · APPROVAL</span>
+            <span class="q-time">2h</span>
+          </div>
+          <div class="q-title">AR invoice — Walmart Charlotte</div>
+          <div class="q-sub">$14,320 · delivered, ready to send</div>
+          <div class="q-tags">
+            <span class="q-tag">Invoice</span>
+          </div>
+        </div>
+
+        <!-- Item 6: AOE (Gmail agent) -->
+        <div class="queue-item">
+          <div class="q-item-head">
+            <span class="q-wf-tag"><span class="wf-dot draft"></span>AOE · DRAFT</span>
+            <span class="q-time">3h</span>
+          </div>
+          <div class="q-title">Email reply — Joey Gilb (Drop and Dash)</div>
+          <div class="q-sub">Auto-drafted · partner question re: counts</div>
+          <div class="q-tags">
+            <span class="q-tag">Email</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- RIGHT: DETAIL CARD — still showing CMP-01 complaint example -->
+      <div class="queue-detail">
+
+        <!-- HEAD -->
+        <div class="qd-head">
+          <div class="qd-eyebrow">
+            <span class="qd-workflow-badge">
+              <span class="material-symbols-outlined" style="font-size:14px">support_agent</span>
+              Complaint Acknowledge &amp; Route
+              <span class="code">CMP-01</span>
+            </span>
+            <span class="qd-status draft">Approval required</span>
+            <span class="qd-priority">High · Type A</span>
+          </div>
+          <h2 class="qd-title">Draft reply — Sarah Chen at Target Cincinnati</h2>
+          <div class="qd-subtitle">Complaint: laundry quality · logged 2h 14m ago · Robin classified &amp; drafted in 47 sec</div>
+        </div>
+
+        <!-- CONTEXT STRIP -->
+        <div class="qd-context">
+          <div class="qd-ctx-item">
+            <div class="qd-ctx-label">Site</div>
+            <div class="qd-ctx-value">TGT-CIN-12</div>
+          </div>
+          <div class="qd-ctx-item">
+            <div class="qd-ctx-label">Company</div>
+            <div class="qd-ctx-value">Target</div>
+          </div>
+          <div class="qd-ctx-item">
+            <div class="qd-ctx-label">Order</div>
+            <div class="qd-ctx-value">TGT-CIN-0082</div>
+          </div>
+          <div class="qd-ctx-item">
+            <div class="qd-ctx-label">SLA</div>
+            <div class="qd-ctx-value">Reply within 4h</div>
+          </div>
+        </div>
+
+        <!-- STEPPER -->
+        <div class="qd-section">
+          <div class="qd-section-label">
+            <span class="material-symbols-outlined">route</span>
+            Workflow progress
+          </div>
+          <div class="qd-stepper">
+            <div class="qd-step done">
+              <div class="qd-step-circle"><span class="material-symbols-outlined" style="font-size:12px">check</span></div>
+              <div class="qd-step-label">Site reported</div>
+            </div>
+            <div class="qd-step done">
+              <div class="qd-step-circle"><span class="material-symbols-outlined" style="font-size:12px">check</span></div>
+              <div class="qd-step-label">Robin acked in 2m</div>
+            </div>
+            <div class="qd-step done">
+              <div class="qd-step-circle"><span class="material-symbols-outlined" style="font-size:12px">check</span></div>
+              <div class="qd-step-label">Classified Type A</div>
+            </div>
+            <div class="qd-step current">
+              <div class="qd-step-circle">4</div>
+              <div class="qd-step-label">You review draft</div>
+            </div>
+            <div class="qd-step">
+              <div class="qd-step-circle">5</div>
+              <div class="qd-step-label">Send to site</div>
+            </div>
+            <div class="qd-step">
+              <div class="qd-step-circle">6</div>
+              <div class="qd-step-label">Follow up day 3</div>
+            </div>
+            <div class="qd-step">
+              <div class="qd-step-circle">7</div>
+              <div class="qd-step-label">Close day 7</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ORIGINAL COMPLAINT -->
+        <div class="qd-section">
+          <div class="qd-section-label">
+            <span class="material-symbols-outlined">format_quote</span>
+            Original complaint
+          </div>
+          <div class="qd-quote">
+            "Our staff uniforms came back from the last pickup with a heavy soap residue and a strange chemical smell. Half the team complained. We can't have people wearing these on the floor. Please address this urgently."
+            <div class="qd-quote-meta">— Sarah Chen, Store Manager · via site Slack · 2h 14m ago</div>
+          </div>
+        </div>
+
+        <!-- ROBIN REASONING -->
+        <div class="qd-section">
+          <div class="robin-note">
+            <div class="robin-note-icon"><span class="material-symbols-outlined">smart_toy</span></div>
+            <div class="robin-note-body">
+              <strong>Why this is in your queue:</strong> Complaint classified as Type A (Quality) → High priority per CMP-01. Route linked to <strong>Drop and Dash</strong>, driver <strong>Emanuel Perez</strong>, order <strong>TGT-CIN-0082</strong>. Credit/refund requests escalate to Jess, so draft stays conservative on remedy. <strong>Jess owns the refund call, not you.</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- DRAFT -->
+        <div class="qd-section">
+          <div class="qd-section-label">
+            <span class="material-symbols-outlined">draft</span>
+            Robin's draft reply
+          </div>
+          <div class="qd-draft-box" contenteditable="true" spellcheck="false">Hi Sarah,
+
+Thanks for flagging this — I'm sorry the last pickup didn't come back right. That's not the standard we want for your team.
+
+I'm looking into what happened on order TGT-CIN-0082 with the partner who handled that route. I'll follow up within 24 hours with what we found and how we're making it right.
+
+If any uniforms need immediate replacement or rewash, let me know and we'll prioritize.
+
+— Joan
+R3 Operations · Happen Ventures</div>
+          <div class="qd-draft-label">
+            <span class="material-symbols-outlined">info</span>
+            Click to edit directly · No refund or credit offered per escalation rules
+          </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="qd-actions">
+          <div class="qd-action-group">
+            <button class="qd-btn primary">
+              <span class="material-symbols-outlined">send</span>
+              Send as-is
+              <span class="shortcut-key">A</span>
+            </button>
+            <button class="qd-btn">
+              <span class="material-symbols-outlined">edit</span>
+              Edit &amp; send
+              <span class="shortcut-key">E</span>
+            </button>
+            <button class="qd-btn">
+              <span class="material-symbols-outlined">auto_awesome</span>
+              Rewrite with Claude
+            </button>
+            <button class="qd-btn">
+              <span class="material-symbols-outlined">arrow_upward</span>
+              Escalate to Jess
+            </button>
+            <button class="qd-btn ghost">
+              Skip
+              <span class="shortcut-key">S</span>
+            </button>
+          </div>
+
+          <div class="qd-nav">
+            <button class="qd-btn ghost"><span class="material-symbols-outlined">chevron_left</span></button>
+            <span>1 of 6</span>
+            <button class="qd-btn ghost"><span class="material-symbols-outlined">chevron_right</span></button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+  <section class="tab-panel" data-panel="tasks">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Airtable Tasks <span class="tag-mod">Universal · Live from HV Hub</span></h1>
+        <p class="page-meta" id="tasksMeta">Loading…</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn" id="tasksRefreshBtn"><span class="material-symbols-outlined">refresh</span> Refresh</button>
+        <a class="btn primary" href="https://airtable.com/appGDkdfPiiZ2lwO2/tblI12xpnUKg9T8Cm/viwZPFLEOADd0h7Ro?blocks=hide" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Open in Airtable</a>
+      </div>
+    </div>
+
+    <div class="tasks-toolbar">
+      <div class="tasks-loader" id="tasksLoader" style="display:none;">
+        <div class="spinner"></div>
+        <span>Pulling from Airtable…</span>
+      </div>
+    </div>
+
+    <div id="tasksError" class="tasks-error" style="display:none;"></div>
+    <div id="tasksList" class="tasks-list" style="display:none;"></div>
+    <div id="tasksEmpty" class="tasks-empty" style="display:none;">
+      <span class="material-symbols-outlined">check_circle</span>
+      <h3>You're all clear</h3>
+      <p>No open tasks assigned to you in HV Hub right now.</p>
+    </div>
+  </section>
+  <section class="tab-panel" data-panel="bot">
+    <div class="page-head"><div><h1 class="page-title">HV Bot</h1><p class="page-meta">Company wiki + chat — next to build</p></div></div>
+  </section>
+  <section class="tab-panel" data-panel="tools">
+    <div class="page-head"><div><h1 class="page-title">Tools</h1><p class="page-meta">Claude projects + utilities — next to build</p></div></div>
+  </section>
+
+</main>
+
+<!-- ========== MODALS ========== -->
+<div class="modal-backdrop" id="snoozeModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Snooze task</div>
+        <div class="modal-sub" id="snoozeSubtitle"></div>
+      </div>
+      <button class="modal-close" data-close="snoozeModal"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <label>Push due date forward by</label>
+      <div class="options-grid">
+        <button class="option-btn" data-snooze-days="1">Tomorrow</button>
+        <button class="option-btn" data-snooze-days="3">3 days</button>
+        <button class="option-btn" data-snooze-days="7">1 week</button>
+        <button class="option-btn" data-snooze-days="14">2 weeks</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="commentModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Add comment</div>
+        <div class="modal-sub" id="commentSubtitle"></div>
+      </div>
+      <button class="modal-close" data-close="commentModal"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <label>Your comment</label>
+      <textarea id="commentText" placeholder="Add a note for the team…"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-close="commentModal">Cancel</button>
+      <button class="btn primary" id="commentSubmit"><span class="material-symbols-outlined">send</span> Post comment</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="updateModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Update status</div>
+        <div class="modal-sub" id="updateSubtitle"></div>
+      </div>
+      <button class="modal-close" data-close="updateModal"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <label>Set status to</label>
+      <div class="options-grid">
+        <button class="option-btn" data-status="In Progress">In Progress</button>
+        <button class="option-btn" data-status="Open">Open</button>
+        <button class="option-btn" data-status="Overdue">Overdue</button>
+        <button class="option-btn" data-status="Closed">Closed (Done)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ============ TAB SWITCHING ============
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = tab.dataset.tab;
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      const panel = document.querySelector(`.tab-panel[data-panel="${target}"]`);
+      if (panel) panel.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Lazy-load tasks tab
+      if (target === 'tasks') loadTasks();
+    });
+  });
+
+  // Toggles
+  document.querySelectorAll('.toggle').forEach(t => {
+    t.addEventListener('click', () => t.classList.toggle('on'));
+  });
+
+  // Queue item selection
+  document.querySelectorAll('.queue-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.queue-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+    });
+  });
+
+  // Workflow pill filters
+  document.querySelectorAll('.wf-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.wf-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+
+  // Mode buttons
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.mode-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+
+  // ============ AIRTABLE TASKS ============
+  const userSelect = document.getElementById('userSelect');
+  const tasksList = document.getElementById('tasksList');
+  const tasksEmpty = document.getElementById('tasksEmpty');
+  const tasksError = document.getElementById('tasksError');
+  const tasksLoader = document.getElementById('tasksLoader');
+  const tasksMeta = document.getElementById('tasksMeta');
+  const tasksNavBadge = document.getElementById('tasksNavBadge');
+
+  function currentUserEmail() {
+    return userSelect.value;
+  }
+
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.toggle('error', isError);
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  function fmtDue(iso, isOverdue) {
+    if (!iso) return null;
+    const due = new Date(iso + 'T00:00:00');
+    const today = new Date(); today.setHours(0,0,0,0);
+    const diff = Math.round((due - today) / 86400000);
+    let label, cls = '';
+    if (isOverdue) { label = `Overdue · was due ${due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`; cls = 'overdue'; }
+    else if (diff === 0) { label = 'Due today'; cls = 'today'; }
+    else if (diff === 1) { label = 'Due tomorrow'; cls = 'today'; }
+    else if (diff < 0) { label = `Overdue ${Math.abs(diff)}d`; cls = 'overdue'; }
+    else if (diff <= 7) { label = `Due in ${diff} days`; }
+    else { label = `Due ${due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`; }
+    return { label, cls };
+  }
+
+  function statusClass(status) {
+    if (!status) return 'open';
+    const s = status.toLowerCase();
+    if (s.includes('overdue')) return 'overdue';
+    if (s.includes('progress')) return 'in-progress';
+    if (s.includes('closed') || s.includes('done')) return 'closed';
+    return 'open';
+  }
+
+  function renderTasks(data) {
+    const { tasks, count, user } = data;
+    tasksMeta.textContent = `${user.name} · ${user.role} · ${count} open task${count === 1 ? '' : 's'}`;
+    tasksNavBadge.textContent = count;
+
+    if (!tasks.length) {
+      tasksList.style.display = 'none';
+      tasksEmpty.style.display = 'block';
+      return;
+    }
+
+    tasksEmpty.style.display = 'none';
+    tasksList.style.display = 'block';
+    tasksList.innerHTML = tasks.map(t => {
+      const due = fmtDue(t.dueDate, t.overdue);
+      return `
+        <div class="task-row" data-id="${t.id}" data-name="${escAttr(t.name)}">
+          <div class="task-main">
+            <div class="task-meta-row">
+              <span class="task-status-pill ${statusClass(t.status)}">${esc(t.status)}</span>
+              ${t.type ? `<span class="task-type-tag">${esc(t.type)}</span>` : ''}
+              ${due ? `<span class="task-due ${due.cls}"><span class="material-symbols-outlined">schedule</span>${esc(due.label)}</span>` : ''}
+            </div>
+            <div class="task-title">${esc(t.name)}</div>
+            ${t.description ? `<div class="task-desc">${esc(t.description)}</div>` : ''}
+          </div>
+          <div class="task-actions">
+            <button class="task-btn" data-action="snooze" data-id="${t.id}"><span class="material-symbols-outlined">snooze</span> Snooze</button>
+            <button class="task-btn" data-action="comment" data-id="${t.id}"><span class="material-symbols-outlined">chat</span> Comment</button>
+            <button class="task-btn" data-action="update" data-id="${t.id}"><span class="material-symbols-outlined">tune</span> Update</button>
+            <a class="task-btn" href="${t.airtableUrl}" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Open</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Wire row action buttons
+    tasksList.querySelectorAll('.task-btn[data-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+        const name = btn.closest('.task-row').dataset.name;
+        if (action === 'snooze') openModal('snoozeModal', id, name);
+        if (action === 'comment') openModal('commentModal', id, name);
+        if (action === 'update') openModal('updateModal', id, name);
+      });
+    });
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function escAttr(s) { return esc(s).replace(/"/g, '&quot;'); }
+
+  async function loadTasks() {
+    tasksLoader.style.display = 'flex';
+    tasksError.style.display = 'none';
+    try {
+      const email = currentUserEmail();
+      const res = await fetch(`/api/tasks?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        tasksError.style.display = 'block';
+        tasksError.innerHTML = `<strong>Could not load tasks</strong> ${esc(data.error || 'Unknown error')}`;
+        tasksList.style.display = 'none';
+        tasksEmpty.style.display = 'none';
+        tasksMeta.textContent = 'Error loading tasks';
+        return;
+      }
+      renderTasks(data);
+    } catch (err) {
+      tasksError.style.display = 'block';
+      tasksError.innerHTML = `<strong>Network error</strong> ${esc(err.message)}`;
+    } finally {
+      tasksLoader.style.display = 'none';
+    }
+  }
+
+  document.getElementById('tasksRefreshBtn').addEventListener('click', loadTasks);
+  userSelect.addEventListener('change', () => {
+    const activeTab = document.querySelector('.nav-tab.active')?.dataset.tab;
+    if (activeTab === 'tasks') loadTasks();
+    showToast(`Switched to ${userSelect.options[userSelect.selectedIndex].text}`);
+  });
+
+  // ============ MODALS ============
+  let activeRecordId = null;
+  let activeRecordName = null;
+
+  function openModal(id, recordId, recordName) {
+    activeRecordId = recordId;
+    activeRecordName = recordName;
+    const modal = document.getElementById(id);
+    const sub = modal.querySelector('[id$="Subtitle"]');
+    if (sub) sub.textContent = recordName;
+    modal.classList.add('show');
+    if (id === 'commentModal') {
+      const ta = document.getElementById('commentText');
+      ta.value = '';
+      setTimeout(() => ta.focus(), 50);
+    }
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+    activeRecordId = null;
+  }
+  document.querySelectorAll('[data-close]').forEach(b => {
+    b.addEventListener('click', () => closeModal(b.dataset.close));
+  });
+  document.querySelectorAll('.modal-backdrop').forEach(bd => {
+    bd.addEventListener('click', (e) => {
+      if (e.target === bd) closeModal(bd.id);
+    });
+  });
+
+  // SNOOZE
+  document.querySelectorAll('[data-snooze-days]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const days = parseInt(btn.dataset.snoozeDays, 10);
+      if (!activeRecordId) return;
+      btn.disabled = true; btn.textContent = 'Snoozing…';
+      try {
+        const res = await fetch('/api/snooze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ recordId: activeRecordId, days }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        showToast(`Snoozed to ${data.newDueDate}`);
+        closeModal('snoozeModal');
+        loadTasks();
+      } catch (err) {
+        showToast(`Snooze failed: ${err.message}`, true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = btn.dataset.snoozeDays === '1' ? 'Tomorrow' : btn.dataset.snoozeDays === '3' ? '3 days' : btn.dataset.snoozeDays === '7' ? '1 week' : '2 weeks';
+      }
+    });
+  });
+
+  // COMMENT
+  document.getElementById('commentSubmit').addEventListener('click', async () => {
+    const text = document.getElementById('commentText').value.trim();
+    if (!text || !activeRecordId) return;
+    const btn = document.getElementById('commentSubmit');
+    btn.disabled = true; btn.innerHTML = 'Posting…';
+    try {
+      const res = await fetch('/api/comment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recordId: activeRecordId, text }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+      showToast('Comment posted');
+      closeModal('commentModal');
+    } catch (err) {
+      showToast(`Comment failed: ${err.message}`, true);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">send</span> Post comment';
+    }
+  });
+
+  // UPDATE STATUS
+  document.querySelectorAll('[data-status]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const status = btn.dataset.status;
+      if (!activeRecordId) return;
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/update-task', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ recordId: activeRecordId, status }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        showToast(`Status set to ${status}`);
+        closeModal('updateModal');
+        loadTasks();
+      } catch (err) {
+        showToast(`Update failed: ${err.message}`, true);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // Initial load if Tasks tab is active on page load
+  if (document.querySelector('.nav-tab.active')?.dataset.tab === 'tasks') {
+    loadTasks();
+  } else {
+    // Pre-fetch the count for the badge
+    loadTasks();
+  }
+</script>
+
+</body>
+</html>

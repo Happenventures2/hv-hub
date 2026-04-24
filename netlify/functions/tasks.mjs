@@ -1,0 +1,90 @@
+// netlify/functions/tasks.mjs
+// GET /api/tasks?email=joan@happenventures.com&include_closed=false
+
+const USERS = {
+  "joan@happenventures.com":    { name: "Joan Moya",        role: "Operations", airtableUserId: "usru7wmWXrZ2jodLq" },
+  "jessica@happenventures.com": { name: "Jessica Gonzalez", role: "CEO",        airtableUserId: "usrvgj9oQCGbWO0pn" },
+  "ivan@happenventures.com":    { name: "Ivan Rangel",      role: "Sales",      airtableUserId: "usroHEbrpYrhpYrVv" },
+};
+const TASKS_BASE_ID = "appGDkdfPiiZ2lwO2";
+const TASKS_TABLE_ID = "tblI12xpnUKg9T8Cm";
+
+export default async (req) => {
+  try {
+    const url = new URL(req.url);
+    const email = (url.searchParams.get("email") || "").toLowerCase();
+    const includeClosed = url.searchParams.get("include_closed") === "true";
+
+    if (!email) return json({ error: "Missing email param" }, 400);
+    const user = USERS[email];
+    if (!user) return json({ error: `Unknown user: ${email}` }, 404);
+
+    const apiKey = Netlify.env.get("AIRTABLE_API_KEY");
+    if (!apiKey) return json({ error: "AIRTABLE_API_KEY not configured" }, 500);
+
+    const closedFilter = includeClosed ? "" : `, {Status} != "Closed"`;
+    const formula = `AND(FIND("${user.airtableUserId}", ARRAYJOIN({Assigned To})) > 0 ${closedFilter})`;
+
+    const params = new URLSearchParams({
+      filterByFormula: formula,
+      pageSize: "100",
+      "sort[0][field]": "Due Date",
+      "sort[0][direction]": "asc",
+    });
+
+    const airtableUrl = `https://api.airtable.com/v0/${TASKS_BASE_ID}/${TASKS_TABLE_ID}?${params}`;
+    const res = await fetch(airtableUrl, {
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      return json({ error: "Airtable fetch failed", status: res.status, detail: text }, 502);
+    }
+
+    const data = await res.json();
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    const tasks = (data.records || []).map((r) => {
+      const f = r.fields || {};
+      const due = f["Due Date"] ? new Date(f["Due Date"] + "T00:00:00") : null;
+      const isOverdue = !!(due && due < today && f["Status"] !== "Closed");
+      return {
+        id: r.id,
+        name: f["Task Name"] || "(untitled)",
+        description: stripHtml(f["Task Description"] || ""),
+        updates: f["Updates/Conclusion"] || "",
+        status: f["Status"] || "Open",
+        type: f["Type"] || null,
+        priority: f["Priority"] || null,
+        urgency: f["Urgency"] || null,
+        department: f["Department"] || null,
+        frequency: f["Frequency"] || null,
+        dueDate: f["Due Date"] || null,
+        overdue: isOverdue,
+        assignees: (f["Assigned To"] || []).map(u => ({ name: u.name, email: u.email })),
+        createdDate: f["Created Date"] || null,
+        airtableUrl: `https://airtable.com/${TASKS_BASE_ID}/${TASKS_TABLE_ID}/${r.id}`,
+      };
+    });
+
+    return json({
+      user: { email, name: user.name, role: user.role },
+      count: tasks.length,
+      tasks,
+      fetchedAt: new Date().toISOString(),
+    });
+  } catch (err) {
+    return json({ error: err.message, stack: err.stack }, 500);
+  }
+};
+
+function stripHtml(s) { return String(s).replace(/<[^>]*>/g, "").trim(); }
+function json(body, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+  });
+}
+
+export const config = { path: "/api/tasks" };
