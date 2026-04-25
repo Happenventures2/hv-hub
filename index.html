@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>HV Hub — Joan · R3</title>
+<title>HV Hub — Happen Ventures</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
@@ -725,6 +725,171 @@
     .queue-split { grid-template-columns: 1fr; }
     .queue-list { position: static; max-height: none; }
   }
+
+  /* ============ SCC — DEALS + STAGE TRACKER ============ */
+
+  .deal-back { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 18px; transition: all 0.12s; background: transparent; border: none; cursor: pointer; }
+  .deal-back:hover { background: var(--color-gray-50); color: var(--color-text); }
+  .deal-back .material-symbols-outlined { font-size: 16px; }
+  .deal-detail-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 22px; flex-wrap: wrap; }
+  .deal-detail-meta { font-size: 12px; color: var(--color-muted); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .deal-detail-meta .sep { color: var(--color-gray-200); }
+  .deal-detail-title { font-size: 26px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.2; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .deal-detail-facts { font-size: 12.5px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .deal-detail-facts .fact { display: inline-flex; align-items: center; gap: 5px; }
+  .deal-detail-facts .fact .material-symbols-outlined { font-size: 14px; color: var(--color-muted); }
+  .stage-tracker { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 22px 26px 18px; margin-bottom: 16px; }
+  .stage-track-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0; position: relative; }
+  .stage-step { position: relative; padding: 0 4px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+  .stage-step::after { content: ''; position: absolute; top: 13px; left: 50%; right: -50%; height: 1px; background: var(--color-gray-100); z-index: 0; }
+  .stage-step:last-child::after { display: none; }
+  .stage-step.done::after { background: var(--color-text); }
+  .stage-step.current::after { background: linear-gradient(to right, var(--color-accent), var(--color-gray-100)); }
+  .stage-dot { width: 26px; height: 26px; border-radius: 50%; background: var(--color-bg); border: 1.5px solid var(--color-gray-100); display: grid; place-items: center; position: relative; z-index: 1; color: var(--color-muted); font-size: 11px; font-weight: 700; transition: all 0.15s; }
+  .stage-step:hover .stage-dot { border-color: var(--color-text); color: var(--color-text); }
+  .stage-step.done .stage-dot { background: var(--color-text); border-color: var(--color-text); color: var(--color-bg); }
+  .stage-step.done .stage-dot .material-symbols-outlined { font-size: 15px; color: var(--color-bg); }
+  .stage-step.current .stage-dot { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-bg); box-shadow: 0 0 0 4px rgba(50,189,174,0.15); }
+  .stage-step.current .stage-dot .material-symbols-outlined { font-size: 15px; color: var(--color-bg); }
+  .stage-step-label { font-size: 10px; font-weight: 600; color: var(--color-muted); margin-top: 8px; text-align: center; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
+  .stage-step.current .stage-step-label { color: var(--color-text); }
+  .stage-step.done .stage-step-label { color: var(--color-text-secondary); }
+  .stage-tracker-footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--color-gray-100); font-size: 12px; color: var(--color-muted); display: flex; align-items: center; gap: 8px; }
+  .stage-tracker-footer strong { color: var(--color-text-secondary); font-weight: 600; }
+  .next-move { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-left: 3px solid var(--color-accent); border-radius: var(--radius-md); padding: 22px 24px; margin-bottom: 16px; }
+  .next-move.waiting-not-you { border-left-color: var(--color-gray-200); }
+  .next-move-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .next-move-badge { font-size: 10px; font-weight: 700; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.6px; display: inline-flex; align-items: center; gap: 4px; }
+  .next-move.waiting-not-you .next-move-badge { color: var(--color-muted); }
+  .next-move-badge .material-symbols-outlined { font-size: 13px; }
+  .next-move-spacer { flex: 1; }
+  .next-move-title { font-size: 18px; font-weight: 700; letter-spacing: -0.2px; margin-bottom: 8px; line-height: 1.3; }
+  .next-move-body { font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.55; margin-bottom: 16px; max-width: 720px; }
+  .next-move-body strong { font-weight: 600; color: var(--color-text); }
+  .next-move-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .section-label { font-size: 11px; font-weight: 600; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 22px 0 10px; }
+  .stage-panel { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 18px 22px; margin-bottom: 16px; }
+  .intake-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; }
+  .check-row { display: grid; grid-template-columns: 22px 130px 1fr; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--color-gray-100); font-size: 12.5px; }
+  .check-row:first-child { border-top: none; padding-top: 4px; }
+  .check-icon { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; }
+  .check-row.done .check-icon { background: rgba(5,150,105,0.1); color: var(--color-green); }
+  .check-row.done .check-icon .material-symbols-outlined { font-size: 12px; }
+  .check-row.missing .check-icon { background: var(--color-bg); border: 1px dashed var(--color-gray-200); }
+  .check-label { font-weight: 500; color: var(--color-text-secondary); font-size: 12px; }
+  .check-value { color: var(--color-text); font-weight: 500; }
+  .check-row.missing .check-value { color: var(--color-muted); font-style: italic; font-weight: 400; }
+  .drafted-email { background: var(--color-page); border-radius: var(--radius-sm); padding: 14px; font-size: 12.5px; border: 1px solid var(--color-gray-100); }
+  .drafted-email-head { font-size: 10px; font-weight: 700; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .drafted-email-head .olivia-tag { background: rgba(50,189,174,0.1); color: #1F9A8D; padding: 1px 6px; border-radius: 4px; font-size: 9.5px; }
+  .drafted-email-to { font-size: 11.5px; color: var(--color-muted); margin-bottom: 6px; }
+  .drafted-email-to strong { color: var(--color-text-secondary); font-weight: 600; }
+  .drafted-email-subj { font-weight: 600; margin-bottom: 8px; font-size: 12.5px; }
+  .drafted-email-body { color: var(--color-text-secondary); line-height: 1.55; white-space: pre-wrap; font-size: 12px; }
+  .tier-group { margin-bottom: 14px; }
+  .tier-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 0 2px; }
+  .tier-title { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text); }
+  .tier-desc { font-size: 11px; color: var(--color-muted); }
+  .solution-card { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 6px; display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: start; transition: all 0.1s; }
+  .solution-card:hover { border-color: var(--color-gray-200); }
+  .solution-card.approved { background: rgba(5,150,105,0.04); border-color: rgba(5,150,105,0.25); }
+  .solution-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .solution-badge { font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.4px; background: var(--color-gray-50); color: var(--color-text-secondary); border: 1px solid var(--color-gray-100); }
+  .solution-badge.unique { background: rgba(50,189,174,0.08); color: #1F9A8D; border-color: rgba(50,189,174,0.2); }
+  .solution-badge.high-margin { background: rgba(5,150,105,0.08); color: var(--color-green); border-color: rgba(5,150,105,0.2); }
+  .solution-desc { font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 8px; }
+  .solution-metrics { display: flex; gap: 14px; font-size: 11.5px; color: var(--color-muted); flex-wrap: wrap; }
+  .solution-metric .material-symbols-outlined { font-size: 13px; margin-right: 3px; }
+  .solution-metric strong { color: var(--color-text-secondary); font-weight: 600; }
+  .solution-actions { display: flex; flex-direction: column; gap: 5px; min-width: 90px; }
+  .cadence-row { display: grid; grid-template-columns: 200px 1fr auto auto; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--color-gray-100); }
+  .cadence-row:first-child { border-top: none; padding-top: 4px; }
+  .cadence-vendor-name { font-weight: 600; font-size: 12.5px; }
+  .cadence-vendor-meta { font-size: 11px; color: var(--color-muted); margin-top: 1px; }
+  .cadence-steps { display: flex; gap: 6px; align-items: center; }
+  .cadence-step { width: 26px; height: 26px; border-radius: 50%; background: var(--color-bg); border: 1.5px solid var(--color-gray-100); display: grid; place-items: center; color: var(--color-muted); }
+  .cadence-step .material-symbols-outlined { font-size: 13px; }
+  .cadence-step.done { background: var(--color-text); border-color: var(--color-text); color: var(--color-bg); }
+  .cadence-step.current { border-color: var(--color-accent); color: #1F9A8D; background: rgba(50,189,174,0.1); animation: pulse 2s ease-in-out infinite; }
+  .cadence-step.scheduled { border-style: dashed; }
+  .cadence-status-text { font-size: 12px; color: var(--color-text-secondary); max-width: 220px; line-height: 1.4; }
+  .cadence-status-text strong { color: var(--color-text); font-weight: 600; }
+  .quotes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .quote-card { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 16px; display: flex; flex-direction: column; position: relative; }
+  .quote-card.recommended { border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(50,189,174,0.1); }
+  .quote-card.recommended::before { content: "★ OLIVIA'S PICK"; position: absolute; top: -8px; left: 14px; background: var(--color-accent); color: var(--color-bg); font-size: 9.5px; font-weight: 700; letter-spacing: 0.4px; padding: 2px 7px; border-radius: 4px; }
+  .quote-card-vendor { font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+  .quote-card-meta { font-size: 11px; color: var(--color-muted); margin-bottom: 12px; }
+  .quote-card-price { font-size: 24px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 2px; }
+  .quote-card-unit { font-size: 11.5px; color: var(--color-muted); margin-bottom: 12px; }
+  .quote-card-terms { font-size: 11.5px; color: var(--color-text-secondary); display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; padding-top: 10px; border-top: 1px solid var(--color-gray-100); }
+  .quote-card-terms .term { display: flex; justify-content: space-between; }
+  .quote-card-terms .term strong { color: var(--color-text); font-weight: 600; }
+  .quote-card-actions { display: flex; gap: 6px; margin-top: auto; }
+  .close-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .close-stat { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); padding: 16px; }
+  .close-stat-label { font-size: 10px; font-weight: 700; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+  .close-stat-value { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .close-stat-sub { font-size: 11.5px; color: var(--color-muted); margin-top: 2px; }
+  .close-stat.gp { background: rgba(5,150,105,0.04); border-color: rgba(5,150,105,0.2); }
+  .close-stat.gp .close-stat-value { color: var(--color-green); }
+  .empty-panel { padding: 36px 20px; text-align: center; background: var(--color-page); border-radius: var(--radius-md); border: 1px dashed var(--color-gray-200); }
+  .empty-panel .material-symbols-outlined { font-size: 36px; color: var(--color-gray-200); margin-bottom: 8px; }
+  .empty-panel-title { font-size: 13.5px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .empty-panel-body { font-size: 12.5px; color: var(--color-muted); max-width: 380px; margin: 0 auto; line-height: 1.5; }
+  .brief-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px 22px; margin-bottom: 14px; }
+  .brief-item .brief-label { font-size: 10px; font-weight: 700; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+  .brief-item .brief-value { font-size: 12.5px; font-weight: 500; color: var(--color-text); }
+  .brief-item .brief-value.muted { color: var(--color-muted); font-weight: 400; font-style: italic; }
+  .accordion-block { background: var(--color-bg); border: 1px solid var(--color-gray-100); border-radius: var(--radius-md); margin-bottom: 12px; overflow: hidden; }
+  .accordion-head { width: 100%; display: flex; align-items: center; gap: 10px; padding: 14px 20px; font-size: 13px; font-weight: 600; background: none; border: none; cursor: pointer; color: var(--color-text); text-align: left; }
+  .accordion-head:hover { background: var(--color-gray-50); }
+  .accordion-head .material-symbols-outlined.lead { font-size: 17px; color: var(--color-text-secondary); }
+  .accordion-head .accordion-count { font-size: 11px; font-weight: 600; background: var(--color-gray-50); color: var(--color-text-secondary); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--color-gray-100); }
+  .accordion-head .expand { margin-left: auto; color: var(--color-muted); transition: transform 0.15s; }
+  .accordion-block.open .accordion-head .expand { transform: rotate(180deg); }
+  .accordion-body { display: none; padding: 4px 20px 20px; border-top: 1px solid var(--color-gray-100); }
+  .accordion-block.open .accordion-body { display: block; padding-top: 16px; }
+  .timeline-item { position: relative; padding: 10px 0 10px 22px; border-left: 1px solid var(--color-gray-100); margin-left: 8px; }
+  .timeline-item:last-child { border-left-color: transparent; }
+  .timeline-dot { position: absolute; left: -6px; top: 14px; width: 11px; height: 11px; border-radius: 50%; background: var(--color-bg); border: 1.5px solid var(--color-gray-200); }
+  .timeline-item.olivia .timeline-dot { border-color: var(--color-accent); background: rgba(50,189,174,0.15); }
+  .timeline-item.vendor .timeline-dot { border-color: var(--color-amber); background: rgba(217,119,6,0.15); }
+  .timeline-item.human .timeline-dot { border-color: var(--color-text); background: var(--color-bg); }
+  .timeline-head { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; flex-wrap: wrap; }
+  .timeline-actor { font-weight: 600; font-size: 12px; }
+  .timeline-channel { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--color-muted); background: var(--color-gray-50); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--color-gray-100); }
+  .timeline-time { font-size: 11px; color: var(--color-muted); margin-left: auto; }
+  .timeline-subject { font-weight: 600; font-size: 12.5px; color: var(--color-text); margin-bottom: 2px; }
+  .timeline-body { font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5; }
+  .timeline-body.transcript { font-style: italic; color: var(--color-muted); border-left: 2px solid var(--color-gray-100); padding-left: 10px; margin-top: 5px; }
+  .waiting-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 10px; white-space: nowrap; border: 1px solid; }
+  .waiting-chip .dot { width: 5px; height: 5px; border-radius: 50%; }
+  .waiting-you { background: rgba(220,38,38,0.06); color: var(--color-red); border-color: rgba(220,38,38,0.2); }
+  .waiting-you .dot { background: var(--color-red); }
+  .waiting-olivia { background: rgba(50,189,174,0.08); color: #1F9A8D; border-color: rgba(50,189,174,0.2); }
+  .waiting-olivia .dot { background: var(--color-accent); animation: pulse 1.8s ease-in-out infinite; }
+  .waiting-vendor { background: rgba(217,119,6,0.06); color: var(--color-amber); border-color: rgba(217,119,6,0.2); }
+  .waiting-vendor .dot { background: var(--color-amber); }
+  .waiting-client { background: rgba(46,108,176,0.06); color: #2E6CB0; border-color: rgba(46,108,176,0.2); }
+  .waiting-client .dot { background: #2E6CB0; }
+  .waiting-done { background: rgba(5,150,105,0.06); color: var(--color-green); border-color: rgba(5,150,105,0.2); }
+  .waiting-done .dot { background: var(--color-green); }
+  .stage-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 10px; white-space: nowrap; background: var(--color-gray-50); color: var(--color-text-secondary); border: 1px solid var(--color-gray-100); }
+  .stage-pill .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  @media (max-width: 900px) {
+    .intake-grid { grid-template-columns: 1fr; }
+    .close-grid { grid-template-columns: 1fr; }
+    .stage-tracker { padding: 14px 12px 10px; }
+    .stage-step-label { font-size: 9px; }
+  }
+  /* ============ ROLE PLACEHOLDER PANELS ============ */
+  .role-placeholder { padding: 60px 24px; text-align: center; }
+  .role-placeholder-icon { width: 64px; height: 64px; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  .role-placeholder-icon .material-symbols-outlined { font-size: 32px; color: var(--color-text-secondary); }
+  .role-placeholder h2 { font-size: 20px; font-weight: 700; color: var(--color-text); margin-bottom: 8px; }
+  .role-placeholder p { font-size: 13.5px; color: var(--color-muted); max-width: 400px; margin: 0 auto; line-height: 1.6; }
+  .role-placeholder .role-badge { display: inline-block; margin-top: 16px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-secondary); background: var(--color-gray-50); border: 1px solid var(--color-gray-100); padding: 4px 10px; border-radius: 20px; }
 </style>
 </head>
 <body>
@@ -735,19 +900,17 @@
     <div class="mark">H</div>
     <div class="wordmark">
       <div>HAPPEN VENTURES<sup style="font-size:7px">®</sup></div>
-      <div class="bot">Joan Nieves · Operations</div>
+      <div class="bot" id="brandSubtitle">HV Hub</div>
     </div>
   </a>
 
-  <nav class="nav">
+  <nav class="nav" id="mainNav">
     <a href="#" class="nav-tab active" data-tab="home"><span class="material-symbols-outlined">home</span> Home</a>
     <a href="#" class="nav-tab" data-tab="tasks"><span class="material-symbols-outlined">check_circle</span> Tasks <span class="badge" id="tasksNavBadge">—</span></a>
     <a href="#" class="nav-tab" data-tab="bot"><span class="material-symbols-outlined">smart_toy</span> HV Bot</a>
     <a href="#" class="nav-tab" data-tab="tools"><span class="material-symbols-outlined">build</span> Tools</a>
-    <div class="nav-divider"></div>
-    <a href="#" class="nav-tab" data-tab="sites"><span class="material-symbols-outlined">store</span> Sites</a>
-    <a href="#" class="nav-tab" data-tab="partners"><span class="material-symbols-outlined">handshake</span> Partners <span class="badge">3</span></a>
-    <a href="#" class="nav-tab" data-tab="robin"><span class="material-symbols-outlined">smart_toy</span> Robin</a>
+    <div class="nav-divider" id="roleNavDivider" style="display:none"></div>
+    <span id="roleNavTabs"></span>
   </nav>
 
   <div class="topbar-right">
@@ -756,14 +919,225 @@
     <label class="user-switcher" for="userSelect" title="Switch user view (demo)">
       <span class="material-symbols-outlined">person</span>
       <select id="userSelect">
-        <option value="joan@happenventures.com" selected>Joan Moya</option>
-        <option value="jessica@happenventures.com">Jessica Gonzalez</option>
+        <option value="jessica@happenventures.com" selected>Jess Gonzalez</option>
+        <option value="joan@happenventures.com">Joan Moya</option>
+        <option value="celi@happenventures.com">Celi</option>
+        <option value="mario@happenventures.com">Mario</option>
+        <option value="danny@happenventures.com">Danny</option>
+        <option value="milos@happenventures.com">Milos</option>
+        <option value="ivan@happenventures.com">Ivan</option>
+        <option value="farid@happenventures.com">Farid</option>
       </select>
     </label>
   </div>
 </header>
 
 <main class="main">
+
+  <!-- ==================== DEALS TAB (solutions-admin) ==================== -->
+  <section class="tab-panel" data-panel="deals">
+    <div id="dealsListView">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Deals <span class="tag-mod">Solutions</span></h1>
+          <p class="page-meta">6 active deals · 4 need your attention · 1 ready to invoice</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn"><span class="material-symbols-outlined">download</span> Export</button>
+          <button class="btn primary"><span class="material-symbols-outlined">add</span> New deal</button>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label"><span class="material-symbols-outlined">handshake</span> Active deals</div><div class="stat-value">6</div><div class="stat-sub">Across 7 stages</div></div>
+        <div class="stat-card"><div class="stat-label"><span class="material-symbols-outlined">priority_high</span> Needs your attention</div><div class="stat-value">4</div><div class="stat-sub"><span class="bad">Waiting on you</span></div></div>
+        <div class="stat-card"><div class="stat-label"><span class="material-symbols-outlined">balance</span> In negotiation</div><div class="stat-value">2</div><div class="stat-sub"><span class="warn">$240K combined</span></div></div>
+        <div class="stat-card"><div class="stat-label"><span class="material-symbols-outlined">check_circle</span> Ready to invoice</div><div class="stat-value">1</div><div class="stat-sub"><span class="good">$18.5K · 24% GP</span></div></div>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-pill active">All <span class="count">6</span></button>
+        <button class="filter-pill">Needs attention <span class="count">4</span></button>
+        <button class="filter-pill">Mine <span class="count">3</span></button>
+        <button class="filter-pill">In negotiation <span class="count">2</span></button>
+        <div class="search-wrap"><span class="material-symbols-outlined">search</span><input class="search-input" placeholder="Client, vendor, or location…" /></div>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Deal</th><th>Client</th><th>Stage</th><th class="num">Value</th><th>Owner</th><th>Waiting on</th><th>Last activity</th><th></th></tr></thead>
+          <tbody id="dealsTbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="dealDetailView" style="display:none"></div>
+  </section>
+
+  <!-- ==================== OLIVIA TAB (solutions-admin) ==================== -->
+  <section class="tab-panel" data-panel="olivia">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Olivia <span class="tag-mod">Solutions · PM Bot</span></h1>
+        <p class="page-meta">7 agents managing the deal pipeline · talk to Olivia or use the controls below</p>
+      </div>
+    </div>
+    <div class="bot-shell" style="max-width: none; margin-bottom: 24px;">
+      <div class="bot-meta-bar">
+        <div class="left">
+          <span class="doc-count"><span class="material-symbols-outlined">smart_toy</span><span>Olivia · Solutions PM bot</span></span>
+          <span style="font-size: 11px; color: var(--color-text-secondary);">Claude Sonnet 4.7</span>
+        </div>
+        <div><button id="oliviaNewChatBtn"><span class="material-symbols-outlined">add</span> New chat</button></div>
+      </div>
+      <div class="bot-messages" id="oliviaMessages" style="min-height: 280px; max-height: 420px;">
+        <div class="bot-empty" id="oliviaEmpty">
+          <div class="bot-empty-icon"><span class="material-symbols-outlined">smart_toy</span></div>
+          <h2>Talk to Olivia</h2>
+          <p>Ask about deals in flight, draft a vendor email, get a quote summary, or get the lay of the land. v1 = Q&amp;A + draft generation. Action execution from chat coming v2.</p>
+          <div class="bot-quick-prompts" id="oliviaQuickPrompts">
+            <button class="bot-quick-prompt" data-prompt="What deals are waiting on me right now?">What&#39;s waiting on me?</button>
+            <button class="bot-quick-prompt" data-prompt="Draft a counter-offer to TerraCycle on the OP Mobility deal at $0.38/lb.">Draft TerraCycle counter</button>
+            <button class="bot-quick-prompt" data-prompt="Summarize the 3 quotes on the Target DC deal and recommend a winner.">Compare Target DC quotes</button>
+            <button class="bot-quick-prompt" data-prompt="What&#39;s the status of the Lowe&#39;s pallet outreach cadence?">Lowe&#39;s cadence status</button>
+            <button class="bot-quick-prompt" data-prompt="Walk me through the 7-stage deal flow.">Explain the 7-stage flow</button>
+            <button class="bot-quick-prompt" data-prompt="Which agents are paused or escalated today?">What&#39;s paused or escalated?</button>
+          </div>
+        </div>
+      </div>
+      <div class="bot-input-wrap">
+        <div class="bot-input-row">
+          <textarea class="bot-input" id="oliviaInput" placeholder="Ask Olivia about deals, draft messages, or get status…" rows="1"></textarea>
+          <button class="bot-send-btn" id="oliviaSendBtn" title="Send (Enter)"><span class="material-symbols-outlined">arrow_upward</span></button>
+        </div>
+        <div class="bot-input-hint">Enter to send · Shift+Enter for newline · Action execution from chat coming v2</div>
+      </div>
+    </div>
+    <div class="robin-hero">
+      <div class="robin-hero-left">
+        <div class="robin-avatar"><span class="material-symbols-outlined">smart_toy</span></div>
+        <div>
+          <div class="robin-title">Olivia <span class="live-badge"><span class="dot"></span>LIVE</span></div>
+          <div class="robin-sub">14 actions today · 86% drafted &amp; awaiting approval · last run 4 min ago</div>
+        </div>
+      </div>
+      <div class="kill-switch"><button class="kill-btn"><span class="material-symbols-outlined">pause</span> Pause all</button></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label"><span class="material-symbols-outlined">play_circle</span> Agents live</div><div class="stat-value">7 / 7</div><div class="stat-sub">All agents healthy</div></div>
+      <div class="stat-card"><div class="stat-label"><span class="material-symbols-outlined">flash_on</span> Actions today</div><div class="stat-value">14</div><div class="stat-sub"><span class="good">↑ 5</span> vs yesterday</div></div>
+      <div class="stat-card"><div class="stat-label"><span class="material-symbols-outlined">edit_note</span> Drafts ready</div><div class="stat-value">4</div><div class="stat-sub"><span class="warn">Awaiting approval</span></div></div>
+      <div class="stat-card"><div class="stat-label"><span class="material-symbols-outlined">hourglass_top</span> Awaiting you</div><div class="stat-value">4</div><div class="stat-sub"><span class="warn">Counter, quotes, invoice, intake</span></div></div>
+    </div>
+    <div class="robin-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-title"><span class="material-symbols-outlined">tune</span> Agents</div><a href="#" class="card-link">Manage prompts <span class="material-symbols-outlined" style="font-size:14px">arrow_forward</span></a></div>
+        <div class="workflow-row"><div class="wf-icon"><span class="material-symbols-outlined">inbox</span></div><div><div class="wf-name">Intake Agent</div><div class="wf-meta">SCC-01 · 1 deal in intake · drafted info-request to Knauf</div></div><span class="wf-mode draft">Draft</span><span class="pill good"><span class="dot"></span>Live</span><div class="toggle on"></div></div>
+        <div class="workflow-row"><div class="wf-icon"><span class="material-symbols-outlined">lightbulb</span></div><div><div class="wf-name">Solution Designer</div><div class="wf-meta">SCC-02 · 5 solutions generated for Netflix · awaiting approval</div></div><span class="wf-mode draft">Draft</span><span class="pill good"><span class="dot"></span>Live</span><div class="toggle on"></div></div>
+        <div class="workflow-row"><div class="wf-icon"><span class="material-symbols-outlined">travel_explore</span></div><div><div class="wf-name">Vendor Sourcer</div><div class="wf-meta">SCC-03 · 5 vendors sourced for Lowe&#39;s · shortlist approved</div></div><span class="wf-mode auto">Auto</span><span class="pill good"><span class="dot"></span>Live</span><div class="toggle on"></div></div>
+        <div class="workflow-row"><div class="wf-icon"><span class="material-symbols-outlined">outgoing_mail</span></div><div><div class="wf-name">Cadence Runner</div><div class="wf-meta">SCC-04 · Day 4 of Lowe&#39;s cadence · 3 of 5 vendors responded</div></div><span class="wf-mode auto">Auto</span><span class="pill good"><span class="dot"></span>Live</span><div class="toggle on"></div></div>
+        <div class="workflow-row"><div class="wf-icon"><span class="material-symbols-outlined">balance</span></div><div><div class="wf-name">Quote Comparer</div><div class="wf-meta">SCC-05 · 3 quotes compared on Target DC · RMG recommended</div></div><span class="wf-mode draft">Draft</span><span class="pill good"><span class="dot"></span>Live</span><div class="toggle on"></div></div>
+        <div class="workflow-row"><div class="wf-icon"><span class="material-symbols-outlined">edit_note</span></div><div><div class="wf-name">Counter Drafter</div><div class="wf-meta">SCC-06 · TerraCycle counter at $0.38/lb drafted for OP Mobility</div></div><span class="wf-mode draft">Draft</span><span class="pill good"><span class="dot"></span>Live</span><div class="toggle on"></div></div>
+        <div class="workflow-row"><div class="wf-icon"><span class="material-symbols-outlined">local_shipping</span></div><div><div class="wf-name">Order Dispatcher</div><div class="wf-meta">SCC-07 · 0 orders dispatched today · standby</div></div><span class="wf-mode auto">Auto</span><span class="pill good"><span class="dot"></span>Live</span><div class="toggle on"></div></div>
+        <div class="workflow-row"><div class="wf-icon"><span class="material-symbols-outlined">receipt_long</span></div><div><div class="wf-name">Close-Out Agent</div><div class="wf-meta">SCC-08 · Caribbean Electrical invoice $18.5K drafted &amp; AP logged</div></div><span class="wf-mode draft">Draft</span><span class="pill good"><span class="dot"></span>Live</span><div class="toggle on"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title"><span class="material-symbols-outlined">timeline</span> Live activity</div><a href="#" class="card-link">Full log <span class="material-symbols-outlined" style="font-size:14px">arrow_forward</span></a></div>
+        <div class="activity-item"><div class="activity-dot"><span class="material-symbols-outlined">edit_note</span></div><div class="activity-body"><div class="activity-text">Counter drafted — <strong>OP Mobility</strong> · TerraCycle at $0.38/lb · awaiting your approval</div><div class="activity-time">4 min ago · SCC-06</div></div></div>
+        <div class="activity-item"><div class="activity-dot"><span class="material-symbols-outlined">sms</span></div><div class="activity-body"><div class="activity-text">Sent SMS — <strong>48forty Solutions</strong> · Day 4 follow-up · Lowe&#39;s cadence</div><div class="activity-time">22 min ago · SCC-04</div></div></div>
+        <div class="activity-item"><div class="activity-dot"><span class="material-symbols-outlined">balance</span></div><div class="activity-body"><div class="activity-text">Compared 3 quotes — <strong>Target DC</strong> · RMG recommended at $13K/mo net rebate</div><div class="activity-time">1 hr ago · SCC-05</div></div></div>
+        <div class="activity-item"><div class="activity-dot"><span class="material-symbols-outlined">lightbulb</span></div><div class="activity-body"><div class="activity-text">Generated 5 solutions — <strong>Netflix set-build scrap</strong> · Habitat ReStore flagged unique</div><div class="activity-time">3 hr ago · SCC-02</div></div></div>
+        <div class="activity-item"><div class="activity-dot"><span class="material-symbols-outlined">call</span></div><div class="activity-body"><div class="activity-text">Retell call — <strong>CHEP Recovery</strong> · site visit booked Thu 4/22 10am</div><div class="activity-time">5 hr ago · SCC-04</div></div></div>
+        <div class="activity-item"><div class="activity-dot"><span class="material-symbols-outlined">inbox</span></div><div class="activity-body"><div class="activity-text">Drafted info-request — <strong>Knauf Insulation</strong> · 4 missing fields · awaiting your send</div><div class="activity-time">Yesterday · SCC-01</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PLACEHOLDER: junk-pm — Mario ==================== -->
+  <section class="tab-panel" data-panel="junk-pipeline">
+    <div class="role-placeholder">
+      <div class="role-placeholder-icon"><span class="material-symbols-outlined">delete_forever</span></div>
+      <h2>Junk Pipeline</h2>
+      <p>Coming soon — designed for Mario (Junk PM). Will show the live junk job pipeline, lead status, dispatch queue, and GP per job.</p>
+      <span class="role-badge">junk-pm · mario@happenventures.com</span>
+    </div>
+  </section>
+  <section class="tab-panel" data-panel="cold-outreach">
+    <div class="role-placeholder">
+      <div class="role-placeholder-icon"><span class="material-symbols-outlined">call</span></div>
+      <h2>Cold Outreach</h2>
+      <p>Coming soon — designed for Mario (Junk PM). Will show cold call queue, dialer status, and lead conversion metrics.</p>
+      <span class="role-badge">junk-pm · mario@happenventures.com</span>
+    </div>
+  </section>
+
+  <!-- ==================== PLACEHOLDER: donations-pm — Danny ==================== -->
+  <section class="tab-panel" data-panel="donations-pipeline">
+    <div class="role-placeholder">
+      <div class="role-placeholder-icon"><span class="material-symbols-outlined">volunteer_activism</span></div>
+      <h2>Donations Pipeline</h2>
+      <p>Coming soon — designed for Danny (Donations PM). Will show active donation jobs, nonprofit partner status, and diversion metrics.</p>
+      <span class="role-badge">donations-pm · danny@happenventures.com</span>
+    </div>
+  </section>
+  <section class="tab-panel" data-panel="routes">
+    <div class="role-placeholder">
+      <div class="role-placeholder-icon"><span class="material-symbols-outlined">route</span></div>
+      <h2>Routes</h2>
+      <p>Coming soon — designed for Danny (Donations PM). Will show pickup routes, driver assignments, and stop-by-stop tracking.</p>
+      <span class="role-badge">donations-pm · danny@happenventures.com</span>
+    </div>
+  </section>
+
+  <!-- ==================== PLACEHOLDER: recycle-pm — Milos ==================== -->
+  <section class="tab-panel" data-panel="recycle-pipeline">
+    <div class="role-placeholder">
+      <div class="role-placeholder-icon"><span class="material-symbols-outlined">recycling</span></div>
+      <h2>Recycle Pipeline</h2>
+      <p>Coming soon — designed for Milos (Recycle PM). Will show active recycle programs, material streams, vendor status, and diversion tonnage.</p>
+      <span class="role-badge">recycle-pm · milos@happenventures.com</span>
+    </div>
+  </section>
+
+  <!-- ==================== PLACEHOLDER: cgo-sales — Ivan ==================== -->
+  <section class="tab-panel" data-panel="sales-pipeline">
+    <div class="role-placeholder">
+      <div class="role-placeholder-icon"><span class="material-symbols-outlined">trending_up</span></div>
+      <h2>Sales Pipeline</h2>
+      <p>Coming soon — designed for Ivan (CGO · Sales). Will show active opportunities, deal stages, revenue forecast, and close probability.</p>
+      <span class="role-badge">cgo-sales · ivan@happenventures.com</span>
+    </div>
+  </section>
+  <section class="tab-panel" data-panel="sales-outreach">
+    <div class="role-placeholder">
+      <div class="role-placeholder-icon"><span class="material-symbols-outlined">outgoing_mail</span></div>
+      <h2>Outreach</h2>
+      <p>Coming soon — designed for Ivan (CGO · Sales). Will show active sequences, HubSpot campaign metrics, and reply/book rates.</p>
+      <span class="role-badge">cgo-sales · ivan@happenventures.com</span>
+    </div>
+  </section>
+
+  <!-- ==================== PLACEHOLDER: product-admin — Farid ==================== -->
+  <section class="tab-panel" data-panel="build-queue">
+    <div class="role-placeholder">
+      <div class="role-placeholder-icon"><span class="material-symbols-outlined">build</span></div>
+      <h2>Build Queue</h2>
+      <p>Coming soon — designed for Farid (Product Admin). Will show the Notion tech build queue, sprint status, and dev handoff notes.</p>
+      <span class="role-badge">product-admin · farid@happenventures.com</span>
+    </div>
+  </section>
+  <section class="tab-panel" data-panel="agents">
+    <div class="role-placeholder">
+      <div class="role-placeholder-icon"><span class="material-symbols-outlined">smart_toy</span></div>
+      <h2>Agents</h2>
+      <p>Coming soon — designed for Farid (Product Admin). Will show all active HV agents, health checks, Bot Master DB config, and prompt versions.</p>
+      <span class="role-badge">product-admin · farid@happenventures.com</span>
+    </div>
+  </section>
+  <section class="tab-panel" data-panel="system-health">
+    <div class="role-placeholder">
+      <div class="role-placeholder-icon"><span class="material-symbols-outlined">monitor_heart</span></div>
+      <h2>System Health</h2>
+      <p>Coming soon — designed for Farid (Product Admin). Will show n8n workflow status, Netlify deploy health, Airtable sync errors, and API uptime.</p>
+      <span class="role-badge">product-admin · farid@happenventures.com</span>
+    </div>
+  </section>
 
   <!-- ==================== SITES TAB ==================== -->
   <section class="tab-panel" data-panel="sites">
@@ -1583,20 +1957,12 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ============ TAB SWITCHING ============
-  document.querySelectorAll('.nav-tab').forEach(tab => {
+  // ============ TAB SWITCHING (universal tabs) ============
+  // Role tabs are wired in renderRoleNav() — called on page load + user switch
+  document.querySelectorAll('#mainNav > .nav-tab').forEach(tab => {
     tab.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = tab.dataset.tab;
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      const panel = document.querySelector(`.tab-panel[data-panel="${target}"]`);
-      if (panel) panel.classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // Lazy-load tasks tab
-      if (target === 'tasks') loadTasks();
+      switchToTab(tab.dataset.tab, tab);
     });
   });
 
@@ -1886,18 +2252,23 @@
     else if (currentSource === 'ai-tasks') loadAiTasks();
   });
   userSelect.addEventListener('change', () => {
+    // Re-render role-specific nav tabs + update brand subtitle/avatar
+    renderRoleNav();
+    // Navigate home on user switch so no stale role panel is showing
+    switchToTab('home', document.querySelector('#mainNav .nav-tab[data-tab="home"]'));
     // Always reload tasks + meetings so home page + tasks tab + badge stay in sync
     loadTasks();
     loadMeetings();
     loadActivity();
     // Re-render tools (different users have different visibility)
-    renderTools(document.getElementById('toolsSearch').value || '');
+    renderTools(document.getElementById('toolsSearch') ? document.getElementById('toolsSearch').value || '' : '');
     // Invalidate tickets + ai-tasks caches so next toggle reloads
     ticketsLoaded = false;
     aiTasksLoaded = false;
     if (currentSource === 'tickets') loadTickets();
     if (currentSource === 'ai-tasks') loadAiTasks();
-    showToast(`Switched to ${userSelect.options[userSelect.selectedIndex].text}`);
+    const cfg = getCurrentUserConfig();
+    showToast(`Switched to ${cfg.name}`);
   });
 
   // ============ TICKETS + AI TASKS ============
@@ -3284,12 +3655,146 @@
     return el;
   }
 
-  // User initials map (for chat avatars)
-  const USERS_DISPLAY = {
-    'joan@happenventures.com': { initials: 'JM' },
-    'jessica@happenventures.com': { initials: 'JG' },
-    'ivan@happenventures.com': { initials: 'IR' },
+  // ============ USER CONFIG — single source of truth for all 8 users ============
+  // email is the filter key everywhere data is fetched.
+  // Universal tabs (Home, Tasks, HV Bot, Tools) appear for ALL users.
+  // roleTabs are rendered dynamically per user on dropdown switch.
+  // Tasks tab always filters by ?email=X — new users inherit automatically.
+  const USER_CONFIG = {
+    'jessica@happenventures.com': {
+      name: 'Jess Gonzalez', role: 'solutions-admin', subtitle: 'Solutions Admin', initials: 'JG',
+      roleTabs: [
+        { tab: 'deals',  icon: 'handshake', label: 'Deals' },
+        { tab: 'olivia', icon: 'smart_toy', label: 'Olivia' },
+      ],
+      viewAsToggle: true,
+    },
+    'joan@happenventures.com': {
+      name: 'Joan Moya', role: 'r3-laundry', subtitle: 'R3 · Laundry', initials: 'JM',
+      roleTabs: [
+        { tab: 'sites',    icon: 'store',      label: 'Sites' },
+        { tab: 'partners', icon: 'handshake',  label: 'Partners' },
+        { tab: 'robin',    icon: 'smart_toy',  label: 'Robin' },
+      ],
+    },
+    'celi@happenventures.com': {
+      name: 'Celi', role: 'r3-amazon', subtitle: 'R3 · Amazon', initials: 'CE',
+      roleTabs: [
+        { tab: 'sites',    icon: 'store',      label: 'Sites' },
+        { tab: 'partners', icon: 'handshake',  label: 'Partners' },
+        { tab: 'robin',    icon: 'smart_toy',  label: 'Robin' },
+      ],
+    },
+    'mario@happenventures.com': {
+      name: 'Mario', role: 'junk-pm', subtitle: 'Junk PM', initials: 'MA',
+      roleTabs: [
+        { tab: 'junk-pipeline', icon: 'delete_forever', label: 'Junk Pipeline' },
+        { tab: 'cold-outreach', icon: 'call',           label: 'Cold Outreach' },
+      ],
+    },
+    'danny@happenventures.com': {
+      name: 'Danny', role: 'donations-pm', subtitle: 'Donations PM', initials: 'DA',
+      roleTabs: [
+        { tab: 'donations-pipeline', icon: 'volunteer_activism', label: 'Donations Pipeline' },
+        { tab: 'routes',             icon: 'route',              label: 'Routes' },
+      ],
+    },
+    'milos@happenventures.com': {
+      name: 'Milos', role: 'recycle-pm', subtitle: 'Recycle PM', initials: 'MI',
+      roleTabs: [
+        { tab: 'recycle-pipeline', icon: 'recycling', label: 'Recycle Pipeline' },
+      ],
+    },
+    'ivan@happenventures.com': {
+      name: 'Ivan', role: 'cgo-sales', subtitle: 'CGO · Sales', initials: 'IV',
+      roleTabs: [
+        { tab: 'sales-pipeline',  icon: 'trending_up',   label: 'Sales Pipeline' },
+        { tab: 'sales-outreach',  icon: 'outgoing_mail', label: 'Outreach' },
+      ],
+    },
+    'farid@happenventures.com': {
+      name: 'Farid', role: 'product-admin', subtitle: 'Product Admin', initials: 'FA',
+      roleTabs: [
+        { tab: 'build-queue',   icon: 'build',         label: 'Build Queue' },
+        { tab: 'agents',        icon: 'smart_toy',     label: 'Agents' },
+        { tab: 'system-health', icon: 'monitor_heart', label: 'System Health' },
+      ],
+      viewAsToggle: true,
+    },
   };
+
+  // USERS_DISPLAY kept for backward-compat (chat avatars)
+  const USERS_DISPLAY = Object.fromEntries(
+    Object.entries(USER_CONFIG).map(([email, u]) => [email, { initials: u.initials }])
+  );
+
+  // ============ ROLE NAV RENDERING ============
+  function getCurrentUserConfig() {
+    const email = (typeof currentUserEmail === 'function') ? currentUserEmail() : (userSelect ? userSelect.value : '');
+    return USER_CONFIG[email] || USER_CONFIG['jessica@happenventures.com'] || Object.values(USER_CONFIG)[0];
+  }
+
+  function renderRoleNav() {
+    const cfg = getCurrentUserConfig();
+    const roleNavTabs = document.getElementById('roleNavTabs');
+    const roleNavDivider = document.getElementById('roleNavDivider');
+    const brandSubtitle = document.getElementById('brandSubtitle');
+
+    // Update brand subtitle
+    if (brandSubtitle) brandSubtitle.textContent = cfg.name + ' · ' + cfg.subtitle;
+
+    // Update avatar initials
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) avatarEl.textContent = cfg.initials || cfg.name.substring(0, 2).toUpperCase();
+
+    if (!roleNavTabs) return;
+
+    // Show/hide divider
+    if (roleNavDivider) {
+      roleNavDivider.style.display = (cfg.roleTabs && cfg.roleTabs.length > 0) ? '' : 'none';
+    }
+
+    // Build role tab elements
+    if (!cfg.roleTabs || cfg.roleTabs.length === 0) {
+      roleNavTabs.innerHTML = '';
+      return;
+    }
+
+    roleNavTabs.innerHTML = cfg.roleTabs.map(rt => `
+      <a href="#" class="nav-tab" data-tab="${rt.tab}">
+        <span class="material-symbols-outlined">${rt.icon}</span> ${rt.label}
+      </a>
+    `).join('');
+
+    // Wire up click handlers for the new role tabs
+    roleNavTabs.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = tab.dataset.tab;
+        switchToTab(target, tab);
+      });
+    });
+  }
+
+  // Central tab-switch function used by both universal and role tabs
+  function switchToTab(target, clickedTab) {
+    // Deactivate all nav tabs (universal + role)
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    // Activate clicked tab
+    if (clickedTab) clickedTab.classList.add('active');
+
+    // Deactivate all panels
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    // Activate target panel
+    const panel = document.querySelector(`.tab-panel[data-panel="${target}"]`);
+    if (panel) panel.classList.add('active');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Lazy-loads
+    if (target === 'tasks') loadTasks();
+    if (target === 'deals') { if (typeof renderDealsTable === 'function') renderDealsTable(); }
+  }
 
   // ============ ROBIN CHAT (R3 ops bot) ============
   const robinMessagesEl = document.getElementById('robinMessages');
@@ -3596,6 +4101,429 @@
       return `<p>${block.replace(/\n/g, '<br>')}</p>`;
     }).join('');
   }
+  // ============ SCC — DEALS DATA + RENDER FUNCTIONS ============
+
+  const SCC_STAGES = [
+    { id: 'intake',    label: 'Intake',    icon: 'inbox' },
+    { id: 'design',    label: 'Design',    icon: 'lightbulb' },
+    { id: 'source',    label: 'Source',    icon: 'travel_explore' },
+    { id: 'outreach',  label: 'Outreach',  icon: 'outgoing_mail' },
+    { id: 'negotiate', label: 'Negotiate', icon: 'balance' },
+    { id: 'fulfill',   label: 'Fulfill',   icon: 'local_shipping' },
+    { id: 'close',     label: 'Close',     icon: 'receipt_long' },
+  ];
+  const stageIdx = (id) => SCC_STAGES.findIndex(s => s.id === id);
+
+  const SCC_DEALS = [
+    {
+      id: 'd1', name: 'OP Mobility — PP Plastics Reuse', client: 'OP Mobility', location: 'Troy, MI',
+      stage: 'negotiate', owner: 'Jess Gonzalez', amount: 84000, recurring: true,
+      program: 'Plastics Recycling', daysInStage: 3, lastActivity: '14 min ago',
+      waitingOn: 'You',
+      nextMove: {
+        title: 'Approve counter-offer to TerraCycle at $0.38/lb',
+        body: 'TerraCycle countered your last offer at <strong>$0.40/lb for 18 months</strong>. Your ceiling is $0.38/lb at 12-month commit. Olivia drafted a firm-hold counter. If TerraCycle walks, Midwest Plastics ($0.36/lb, already quoted) is your fallback and still hits your 38% margin target.',
+        actions: [
+          { label: 'Send $0.38 counter', primary: true, icon: 'send' },
+          { label: 'Walk, lock Midwest', primary: false, icon: 'close' },
+          { label: 'Edit draft', primary: false, icon: 'edit' },
+        ],
+      },
+      brief: { wasteStream: 'Plastics — PP scrap', volume: '24,000 lbs/mo', service: 'Weekly pickup', condition: 'Clean / minor contamination (<5%)', hazmat: false, contact: 'Mark Reilly · Plant Ops Director · mark.reilly@opmobility.com', clientPrice: 7200, estMargin: 0.38 },
+      stageData: { negotiate: { quotes: [
+        { vendor: 'Midwest Plastics Recovery', price: 8640, unit: '/mo', recommended: false, status: 'Quoted', terms: [{k:'Rate',v:'$0.36/lb'},{k:'Commit',v:'12 months'},{k:'Service',v:'Weekly'},{k:'Response',v:'48hr'}] },
+        { vendor: 'TerraCycle Solutions', price: 9600, unit: '/mo', recommended: true, status: 'Counter-offered', terms: [{k:'Rate',v:'$0.40/lb (countered)'},{k:'Commit',v:'18 months'},{k:'Service',v:'Weekly'},{k:'Rebate',v:'$200/mo'}] },
+      ] } },
+      history: [
+        { actor: 'Olivia', type: 'olivia', channel: 'Call', time: 'Today · 10:14 AM', subject: 'Called TerraCycle re: counter', transcript: '"Hi Rick, following up on your $0.40 counter — Jess is holding at $0.38/lb for the 12-month commit..."' },
+        { actor: 'Rick Navarro · TerraCycle', type: 'vendor', channel: 'Email', time: 'Yesterday · 4:30 PM', subject: 'Re: Counter Offer', body: 'Appreciate the ask but $0.38 is below our floor. Can do $0.40/lb at 18 months.' },
+        { actor: 'Olivia', type: 'olivia', channel: 'Email', time: 'Yesterday · 11:08 AM', subject: 'Counter Offer — OP Mobility', body: 'Working with a comparable vendor at $0.36/lb. Can you match $0.38/lb on 12-mo commit?' },
+      ],
+    },
+    {
+      id: 'd2', name: 'Target DC — Cardboard Recycling', client: 'Target', location: 'Woodland, CA',
+      stage: 'negotiate', owner: 'Ivan Bennett', amount: 156000, recurring: true,
+      program: 'OCC Recycling', daysInStage: 2, lastActivity: '1 hr ago',
+      waitingOn: 'You',
+      nextMove: {
+        title: 'Pick winner — 3 quotes in, RMG recommended',
+        body: '<strong>RMG Recycling</strong> at $13K/mo net rebate — $4K better than IP, $5.5K better than WM. All three regionally compliant. RMG has fastest response time and best rebate split.',
+        actions: [
+          { label: 'Lock RMG & draft PO', primary: true, icon: 'check' },
+          { label: 'Compare side-by-side', primary: false, icon: 'compare' },
+        ],
+      },
+      brief: { wasteStream: 'Paper / OCC', volume: '180,000 lbs/mo', service: 'Daily pulls', condition: 'Clean, dry', hazmat: false, contact: 'Priya Natarajan · DC Operations · priya.n@target.com', clientPrice: 13000, estMargin: 0.42 },
+      stageData: { negotiate: { quotes: [
+        { vendor: 'RMG Recycling', price: 13000, unit: '/mo net rebate', recommended: true, status: 'Quoted', terms: [{k:'Rebate',v:'$80/ton'},{k:'Commit',v:'12 months'},{k:'Service',v:'Daily'},{k:'Response',v:'24hr'}] },
+        { vendor: 'International Paper', price: 9200, unit: '/mo net rebate', recommended: false, status: 'Quoted', terms: [{k:'Rebate',v:'$55/ton'},{k:'Commit',v:'24 months'},{k:'Service',v:'Daily'}] },
+        { vendor: 'WM Recycle America', price: 7500, unit: '/mo net rebate', recommended: false, status: 'Quoted', terms: [{k:'Rebate',v:'$45/ton'},{k:'Commit',v:'12 months'},{k:'Service',v:'3x/week'}] },
+      ] } },
+      history: [
+        { actor: 'Olivia', type: 'olivia', channel: 'Email', time: '4/17 · 8:02 AM', subject: 'All 3 quotes in — RMG recommended', body: 'RMG $13K/mo, IP $9.2K, WM $7.5K — all net of rebate.' },
+      ],
+    },
+    {
+      id: 'd3', name: "Lowe's DC — Pallet Recovery", client: "Lowe's", location: 'Statesville, NC',
+      stage: 'outreach', owner: 'Milos Petrov', amount: 62000, recurring: true,
+      program: 'Pallet Reuse', daysInStage: 4, lastActivity: '22 min ago',
+      waitingOn: 'Vendor',
+      nextMove: {
+        title: 'Olivia is running outreach — 3 of 5 vendors engaged',
+        body: "Day 4 of the 5-day cadence. CHEP booked a site visit, PalletOne responded for scope, 48forty unresponsive. Olivia will escalate 48forty to SMS tomorrow. No action needed unless a vendor requests direct contact.",
+        actions: [
+          { label: 'View cadence', primary: true, icon: 'visibility' },
+          { label: 'Nudge 48forty now', primary: false, icon: 'bolt' },
+        ],
+      },
+      brief: { wasteStream: 'Wood / Pallets', volume: '4,200 pallets/mo', service: '2x weekly', condition: 'Mixed — repairable + recycle', hazmat: false, contact: 'Darius Holloway · DC Manager · darius.holloway@lowes.com', clientPrice: 5166, estMargin: null },
+      stageData: { outreach: { vendors: [
+        { name: 'CHEP Recovery', region: 'Nationwide', currentStep: 3, responded: true, status: 'Site visit booked Thu 4/22' },
+        { name: 'PalletOne Carolina', region: 'NC · SC · VA', currentStep: 3, responded: true, status: 'Requested scope doc — sent by Olivia' },
+        { name: '48forty Solutions', region: 'Nationwide', currentStep: 4, responded: false, status: 'No response — SMS pending Day 5' },
+        { name: 'Kamps Pallets', region: 'Midwest · Southeast', currentStep: 2, responded: false, status: 'Day 2 follow-up sent' },
+        { name: 'Heritage Pallet Service', region: 'NC · SC', currentStep: 2, responded: false, status: 'Day 2 follow-up sent' },
+      ] } },
+      history: [
+        { actor: 'Olivia', type: 'olivia', channel: 'SMS', time: 'Today · 9:30 AM', subject: 'SMS to 48forty', body: "Olivia at HV — following up on Lowe's pallet program. Got a minute for a quick call?" },
+        { actor: 'Olivia', type: 'olivia', channel: 'Call', time: 'Yesterday · 3:15 PM', subject: 'Called CHEP', transcript: '"...booked site visit Thursday 4/22 at 10am. Darius will meet them..."' },
+      ],
+    },
+    {
+      id: 'd4', name: 'Netflix — Set-Build Scrap Program', client: 'Netflix', location: 'Albuquerque, NM',
+      stage: 'design', owner: 'Jess Gonzalez', amount: 0, recurring: false,
+      program: 'Donations + Recycling', daysInStage: 1, lastActivity: '3 hr ago',
+      waitingOn: 'You',
+      nextMove: {
+        title: 'Approve which solutions to source vendors for',
+        body: 'Olivia generated <strong>5 solution candidates</strong> ranked by waste hierarchy. The Habitat ReStore reuse angle is unique to this deal and a strong sustainability story. Pick which to pursue and Olivia sources 3-5 vendors per approved solution.',
+        actions: [
+          { label: 'Approve selected', primary: true, icon: 'check' },
+          { label: 'Ask Olivia for more', primary: false, icon: 'add' },
+        ],
+      },
+      brief: { wasteStream: 'Construction debris · Metal · Wood', volume: '12 tons / production', service: 'Per-production (8–12 days)', condition: 'Mixed', hazmat: false, contact: 'Laila Santos · Production Sustainability · lsantos@netflix.com', clientPrice: null, estMargin: null },
+      stageData: { design: { solutions: [
+        { tier: 'reuse', title: 'Direct-to-industry lumber resale', description: 'Sell sorted dimensional lumber (2x4s, 2x6s, plywood) to regional contractors + film-set prop houses. Bypass recyclers entirely. Pre-identified buyer: Four Corners Lumber Co-op.', revenue: '+$3,200 / production', co2: '4.2 tons diverted', complexity: 'Medium', badges: ['unique', 'high-margin'] },
+        { tier: 'reuse', title: 'Metal bracket reclamation', description: 'Sort steel brackets/hardware and sell to fabricators for reuse in retail fixtures. Scrap steel buyer as fallback.', revenue: '+$400 / production', co2: '0.8 tons diverted', complexity: 'Low', badges: ['high-margin'] },
+        { tier: 'donate', title: 'Habitat ReStore partnership', description: 'Usable lumber + fixtures donate to Habitat ReStore Albuquerque. Donation receipt + carbon offset for Netflix ESG report. Strong PR angle.', revenue: '$0 revenue · $1,800 tax value', co2: '3.5 tons diverted', complexity: 'Low', badges: ['unique'] },
+        { tier: 'recycle', title: 'Drywall gypsum recycling', description: 'Clean drywall goes to gypsum processor for reuse in new board. Western Gypsum Recovery in Phoenix takes ABQ loads.', revenue: '-$200 / production', co2: '1.5 tons diverted', complexity: 'Medium', badges: [] },
+        { tier: 'landfill', title: 'Foam + contaminated fallback', description: 'Unavoidable landfill for foam, contaminated drywall, non-sortable debris. ~20% of load. Standard rate via Waste Management.', revenue: '-$480 / production', co2: '0 diverted', complexity: 'Low', badges: [] },
+      ] } },
+      history: [
+        { actor: 'Olivia', type: 'olivia', channel: 'System', time: 'Today · 8:22 AM', subject: 'Generated 5 solution candidates', body: 'Based on waste profile + 4 photos + HV historical playbook. Ranked by hierarchy, flagged Habitat ReStore as unique.' },
+      ],
+    },
+    {
+      id: 'd5', name: 'Knauf Insulation — Packaging', client: 'Knauf Insulation', location: 'Shelbyville, IN',
+      stage: 'intake', owner: 'Mario Gonzalez', amount: 0, recurring: false,
+      program: 'General', daysInStage: 1, lastActivity: 'Yesterday',
+      waitingOn: 'You',
+      nextMove: {
+        title: "Approve Olivia's info-request email to Evan at Knauf",
+        body: '4 required fields missing: waste stream, volume, photos, and service window. Olivia drafted a professional info-request email. Review and send — Evan replies, Olivia parses, deal advances to Design stage automatically.',
+        actions: [
+          { label: 'Send email', primary: true, icon: 'send' },
+          { label: 'Edit draft', primary: false, icon: 'edit' },
+          { label: 'Call instead', primary: false, icon: 'call' },
+        ],
+      },
+      brief: { wasteStream: 'TBD', volume: 'TBD', service: 'TBD', condition: 'TBD', hazmat: false, contact: 'Evan Marsh · Facility Manager · emarsh@knauf.com', clientPrice: null, estMargin: null },
+      stageData: { intake: {
+        captured: [
+          { label: 'Client', value: 'Knauf Insulation' },
+          { label: 'Location', value: 'Shelbyville, IN' },
+          { label: 'Contact', value: 'Evan Marsh — Facility Manager' },
+          { label: 'Source', value: "Mario's cold outreach" },
+        ],
+        missing: [
+          { label: 'Waste stream', placeholder: 'Packaging film, cardboard, foam?' },
+          { label: 'Volume', placeholder: 'Est. weight or units per pickup' },
+          { label: 'Site photos', placeholder: 'At least 2–3 of staging area' },
+          { label: 'Service window', placeholder: 'Recurring or one-time?' },
+        ],
+        draftedEmail: {
+          to: 'Evan Marsh <emarsh@knauf.com>',
+          subject: 'Quick questions re: Shelbyville packaging waste program',
+          body: "Hi Evan,\n\nThanks for the intro call with Mario. Before I put together a solution proposal, I need a few details on the Shelbyville site:\n\n1. What packaging materials are we looking at? (Stretch film, cardboard, foam, wood, etc.)\n2. Rough volume per pickup or per month?\n3. Any photos of the staging area + materials would help us scope accurately.\n4. Is this a one-time cleanout or recurring pickup?\n\nHappy to jump on a quick call if easier.\n\nBest,\nOlivia Reed\nSolutions Coordinator, Happen Ventures",
+        },
+      } },
+      history: [
+        { actor: 'Mario Gonzalez', type: 'human', channel: 'Email', time: 'Yesterday · 9:02 AM', subject: 'Intro — Happen Ventures', body: "Saw Knauf's sustainability targets announcement. Curious if Shelbyville has an open RFP for packaging waste." },
+        { actor: 'Evan Marsh · Knauf', type: 'vendor', channel: 'Email', time: 'Yesterday · 2:47 PM', subject: 'Re: Intro', body: "Yes, we're actively reviewing. Send me what you'd need from us to scope a program." },
+      ],
+    },
+    {
+      id: 'd6', name: 'Caribbean Electrical — Office Cleanout', client: 'Caribbean Electrical', location: 'San Juan, PR',
+      stage: 'close', owner: 'Jess Gonzalez', amount: 18500, recurring: false,
+      program: 'Junk Hauling', daysInStage: 2, lastActivity: '4/11',
+      waitingOn: 'You',
+      nextMove: {
+        title: 'Approve invoice to Caribbean Electrical — $18,500',
+        body: 'Job completed 4/8. Before/after photos logged, 6 tons moved (55% diverted via donation + resale). Olivia drafted invoice + pushed AP bill ($14K) to QBO. Actual GP <strong>$4,500 / 24% margin</strong> — matching estimate.',
+        actions: [
+          { label: 'Approve & send invoice', primary: true, icon: 'send' },
+          { label: 'Edit invoice', primary: false, icon: 'edit' },
+        ],
+      },
+      brief: { wasteStream: 'Mixed · E-waste · Metal', volume: '6 tons', service: '3 days', condition: 'Mixed', hazmat: false, contact: 'Raymond Soto · CEO · raymond@caribbean-ec.com', clientPrice: 18500, estMargin: 0.24 },
+      stageData: { close: { invoiceAmount: 18500, invoiceStatus: 'Draft ready', vendorBill: 14000, vendorBillStatus: 'Logged in QBO', actualGP: 4500, estimatedGP: 4400, actualMargin: 0.243 } },
+      history: [
+        { actor: 'Raymond Soto', type: 'vendor', channel: 'Email', time: '4/11 · 8:14 AM', subject: 'Thank you!', body: "Team did a great job. Ready for invoicing. Let me know about the Q3 expansion plan." },
+      ],
+    },
+  ];
+
+  const sccEsc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const sccFmt$ = (n) => n == null ? '—' : '$' + Number(n).toLocaleString();
+  const sccFmtPct = (n) => n == null ? '—' : Math.round(n * 100) + '%';
+
+  function sccWaitingChip(who) {
+    const map = { 'You': { cls: 'waiting-you', label: 'You' }, 'Olivia': { cls: 'waiting-olivia', label: 'Olivia' }, 'Vendor': { cls: 'waiting-vendor', label: 'Vendor' }, 'Client': { cls: 'waiting-client', label: 'Client' }, 'Done': { cls: 'waiting-done', label: 'Done' } };
+    const c = map[who] || map['You'];
+    return `<span class="waiting-chip ${c.cls}"><span class="dot"></span>${c.label}</span>`;
+  }
+
+  function renderDealsTable() {
+    const tbody = document.getElementById('dealsTbody');
+    if (!tbody) return;
+    tbody.innerHTML = SCC_DEALS.map(d => {
+      const si = stageIdx(d.stage);
+      const stageInfo = SCC_STAGES[si] || SCC_STAGES[0];
+      return `<tr onclick="showDealDetail('${d.id}')">
+        <td><div class="cell-primary">${sccEsc(d.name.split(' — ')[0])}</div><div class="cell-sub">${sccEsc(d.name.split(' — ')[1] || '')} · ${sccEsc(d.location)}</div></td>
+        <td>${sccEsc(d.client)}</td>
+        <td><span class="stage-pill"><span class="dot"></span>${sccEsc(stageInfo.label)} · ${si + 1}/7</span></td>
+        <td class="num">${d.amount ? sccFmt$(d.amount) : '<span style="color:var(--color-muted)">—</span>'}</td>
+        <td>${sccEsc(d.owner.split(' ')[0])}</td>
+        <td>${sccWaitingChip(d.waitingOn)}</td>
+        <td style="color:var(--color-text-secondary)">${sccEsc(d.lastActivity)}</td>
+        <td><div class="row-actions"><button class="row-btn">Open</button></div></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function showDealsList() {
+    const lv = document.getElementById('dealsListView');
+    const dv = document.getElementById('dealDetailView');
+    if (lv) lv.style.display = '';
+    if (dv) dv.style.display = 'none';
+    renderDealsTable();
+  }
+
+  function showDealDetail(dealId) {
+    const d = SCC_DEALS.find(x => x.id === dealId);
+    if (!d) return;
+    const lv = document.getElementById('dealsListView');
+    const view = document.getElementById('dealDetailView');
+    if (lv) lv.style.display = 'none';
+    if (!view) return;
+    view.style.display = '';
+    view.innerHTML = renderDealDetail(d);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderDealDetail(d) {
+    const si = stageIdx(d.stage);
+    const stageInfo = SCC_STAGES[si] || SCC_STAGES[0];
+    return `
+      <button class="deal-back" onclick="showDealsList()"><span class="material-symbols-outlined">arrow_back</span> All deals</button>
+      <div class="deal-detail-header">
+        <div>
+          <div class="deal-detail-meta">${sccEsc(d.client)} <span class="sep">·</span> ${sccEsc(d.location)} <span class="sep">·</span> ${sccEsc(d.program)}</div>
+          <h1 class="deal-detail-title">${sccEsc(d.name)} <span class="stage-pill"><span class="dot"></span>${sccEsc(stageInfo.label)}</span></h1>
+          <div class="deal-detail-facts">
+            <span class="fact"><span class="material-symbols-outlined">payments</span>${d.amount ? sccFmt$(d.amount) : 'Not quoted'}${d.recurring ? ' / yr' : ''}</span>
+            <span class="fact"><span class="material-symbols-outlined">schedule</span>Day ${d.daysInStage} in ${sccEsc(stageInfo.label.toLowerCase())}</span>
+            <span class="fact"><span class="material-symbols-outlined">person</span>${sccEsc(d.owner)}</span>
+            ${sccWaitingChip(d.waitingOn)}
+          </div>
+        </div>
+      </div>
+      ${renderStageTracker(d)}
+      ${renderNextMove(d)}
+      ${renderStagePanel(d)}
+      <div class="accordion-block" id="briefAcc">
+        <button class="accordion-head" onclick="document.getElementById('briefAcc').classList.toggle('open')">
+          <span class="material-symbols-outlined lead">description</span>Deal brief<span class="accordion-count">full profile</span><span class="material-symbols-outlined expand">expand_more</span>
+        </button>
+        <div class="accordion-body">${renderBrief(d)}</div>
+      </div>
+      <div class="accordion-block" id="histAcc">
+        <button class="accordion-head" onclick="document.getElementById('histAcc').classList.toggle('open')">
+          <span class="material-symbols-outlined lead">schedule</span>History<span class="accordion-count">${d.history.length} event${d.history.length === 1 ? '' : 's'}</span><span class="material-symbols-outlined expand">expand_more</span>
+        </button>
+        <div class="accordion-body">${renderHistory(d)}</div>
+      </div>
+    `;
+  }
+
+  function renderStageTracker(d) {
+    const si = stageIdx(d.stage);
+    return `<div class="stage-tracker">
+      <div class="stage-track-row">
+        ${SCC_STAGES.map((s, i) => {
+          let cls = i < si ? 'done' : i === si ? 'current' : '';
+          return `<div class="stage-step ${cls}">
+            <div class="stage-dot">${cls === 'done' ? '<span class="material-symbols-outlined">check</span>' : (i + 1)}</div>
+            <div class="stage-step-label">${sccEsc(s.label)}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="stage-tracker-footer"><span class="material-symbols-outlined" style="font-size:14px">info</span>Currently in <strong>${sccEsc(SCC_STAGES[si] ? SCC_STAGES[si].label : '')}</strong> · stage ${si + 1} of 7 · ${d.daysInStage} day${d.daysInStage === 1 ? '' : 's'}</div>
+    </div>`;
+  }
+
+  function renderNextMove(d) {
+    const notYou = d.waitingOn !== 'You';
+    return `<div class="next-move ${notYou ? 'waiting-not-you' : ''}">
+      <div class="next-move-head"><div class="next-move-badge"><span class="material-symbols-outlined">bolt</span> Next move</div><div class="next-move-spacer"></div>${sccWaitingChip(d.waitingOn)}</div>
+      <div class="next-move-title">${sccEsc(d.nextMove.title)}</div>
+      <div class="next-move-body">${d.nextMove.body}</div>
+      <div class="next-move-actions">${d.nextMove.actions.map(a => `<button class="btn ${a.primary ? 'primary' : ''}"><span class="material-symbols-outlined">${sccEsc(a.icon)}</span>${sccEsc(a.label)}</button>`).join('')}</div>
+    </div>`;
+  }
+
+  function renderStagePanel(d) {
+    const map = { intake: renderIntakePanel, design: renderDesignPanel, source: renderSourcePanel, outreach: renderOutreachPanel, negotiate: renderNegotiatePanel, fulfill: renderFulfillPanel, close: renderClosePanel };
+    return (map[d.stage] || (() => ''))(d);
+  }
+
+  function renderIntakePanel(d) {
+    const s = d.stageData.intake || { captured: [], missing: [], draftedEmail: {} };
+    return `<div class="section-label">Intake — capture what the deal is</div>
+    <div class="intake-grid">
+      <div class="stage-panel">
+        <div class="card-head"><div class="card-title"><span class="material-symbols-outlined">fact_check</span>Deal profile <span style="font-size:11px;color:var(--color-muted);font-weight:500">${s.captured.length} / ${s.captured.length + s.missing.length}</span></div></div>
+        ${s.captured.map(c => `<div class="check-row done"><div class="check-icon"><span class="material-symbols-outlined">check</span></div><div class="check-label">${sccEsc(c.label)}</div><div class="check-value">${sccEsc(c.value)}</div></div>`).join('')}
+        ${s.missing.map(m => `<div class="check-row missing"><div class="check-icon"></div><div class="check-label">${sccEsc(m.label)}</div><div class="check-value">${sccEsc(m.placeholder)}</div></div>`).join('')}
+      </div>
+      <div class="stage-panel">
+        <div class="card-head"><div class="card-title"><span class="material-symbols-outlined">smart_toy</span>Drafted info-request</div></div>
+        <div class="drafted-email">
+          <div class="drafted-email-head">Email draft <span class="olivia-tag">Olivia</span></div>
+          <div class="drafted-email-to">To: <strong>${sccEsc(s.draftedEmail.to)}</strong></div>
+          <div class="drafted-email-subj">${sccEsc(s.draftedEmail.subject)}</div>
+          <div class="drafted-email-body">${sccEsc(s.draftedEmail.body)}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function renderDesignPanel(d) {
+    const s = d.stageData.design || { solutions: [] };
+    const tierMeta = { reuse: { name: 'Reuse', desc: 'Highest value — materials back into industry' }, donate: { name: 'Donate', desc: 'Tax value + ESG story' }, recycle: { name: 'Recycle', desc: 'Standard processing' }, w2e: { name: 'Waste-to-Energy', desc: 'Only if above fail' }, landfill: { name: 'Landfill', desc: 'Last resort / fallback' } };
+    const grouped = {};
+    s.solutions.forEach(function(sol) { if (!grouped[sol.tier]) grouped[sol.tier] = []; grouped[sol.tier].push(sol); });
+    const tiers = ['reuse','donate','recycle','w2e','landfill'].filter(function(t) { return grouped[t]; });
+    let out = '<div class="section-label">Design — 5 solution candidates ranked by hierarchy</div>';
+    tiers.forEach(function(tier) {
+      const tm = tierMeta[tier] || { name: tier, desc: '' };
+      out += '<div class="tier-group"><div class="tier-head"><span class="tier-title">' + tm.name + '</span><span class="tier-desc">· ' + tm.desc + '</span></div>';
+      (grouped[tier] || []).forEach(function(sol) {
+        const badgeHtml = (sol.badges || []).map(function(b) {
+          const txt = b === 'unique' ? '★ Unique' : b === 'high-margin' ? '↑ High margin' : '↻ Rebate';
+          return '<span class="solution-badge ' + b + '">' + txt + '</span>';
+        }).join('');
+        out += '<div class="solution-card"><div>';
+        out += '<div class="solution-title">' + sccEsc(sol.title) + badgeHtml + '</div>';
+        out += '<div class="solution-desc">' + sccEsc(sol.description) + '</div>';
+        out += '<div class="solution-metrics"><span class="solution-metric"><span class="material-symbols-outlined">payments</span><strong>' + sccEsc(sol.revenue) + '</strong></span><span class="solution-metric"><span class="material-symbols-outlined">eco</span>' + sccEsc(sol.co2) + '</span><span class="solution-metric"><span class="material-symbols-outlined">trending_flat</span>' + sccEsc(sol.complexity) + ' effort</span></div>';
+        out += '</div><div class="solution-actions"><button class="btn"><span class="material-symbols-outlined">check</span>Approve</button><button class="btn" style="border-color:transparent">Skip</button></div></div>';
+      });
+      out += '</div>';
+    });
+    return out;
+  }
+
+  function renderSourcePanel(d) {
+    return `<div class="section-label">Source — vendors Olivia found</div><div class="empty-panel"><span class="material-symbols-outlined">travel_explore</span><div class="empty-panel-title">Source panel</div><div class="empty-panel-body">When a deal is in Source stage, this panel shows 5–10 vendors Olivia found with match scores.</div></div>`;
+  }
+
+  function renderOutreachPanel(d) {
+    const s = d.stageData.outreach || { vendors: [] };
+    const STEPS = ['mail','mail','call','sms','mail'];
+    const responded = s.vendors.filter(function(v) { return v.responded; }).length;
+    let out = '<div class="section-label">Outreach — 5-day cadence per vendor</div>';
+    out += '<div class="stage-panel"><div class="card-head"><div class="card-title"><span class="material-symbols-outlined">outgoing_mail</span>' + s.vendors.length + ' vendors in cadence <span style="font-size:11px;color:var(--color-muted);font-weight:500">· ' + responded + ' responded</span></div></div>';
+    s.vendors.forEach(function(v) {
+      const steps = STEPS.map(function(icon, i) {
+        const n = i + 1;
+        const cls = n < v.currentStep ? 'done' : n === v.currentStep ? 'current' : 'scheduled';
+        return '<div class="cadence-step ' + cls + '" title="Day ' + n + '"><span class="material-symbols-outlined">' + icon + '</span></div>';
+      }).join('');
+      out += '<div class="cadence-row">';
+      out += '<div><div class="cadence-vendor-name">' + sccEsc(v.name) + '</div><div class="cadence-vendor-meta">' + sccEsc(v.region) + '</div></div>';
+      out += '<div class="cadence-steps">' + steps + '</div>';
+      out += '<div class="cadence-status-text"><strong>' + (v.responded ? 'Responded' : 'No response') + '</strong><br>' + sccEsc(v.status) + '</div>';
+      out += '<div><button class="btn" style="font-size:11px;padding:5px 10px"><span class="material-symbols-outlined">bolt</span>Nudge</button></div>';
+      out += '</div>';
+    });
+    out += '</div>';
+    return out;
+  }
+
+  function renderNegotiatePanel(d) {
+    const s = d.stageData.negotiate || { quotes: [] };
+    return `<div class="section-label">Negotiate — compare quotes, pick the winner</div>
+    <div class="quotes-grid">${s.quotes.map(q => `
+      <div class="quote-card ${q.recommended ? 'recommended' : ''}">
+        <div class="quote-card-vendor">${sccEsc(q.vendor)}</div>
+        <div class="quote-card-meta">${sccEsc(q.status)}</div>
+        <div class="quote-card-price">${sccFmt$(q.price)}</div>
+        <div class="quote-card-unit">${sccEsc(q.unit)}</div>
+        <div class="quote-card-terms">${(q.terms||[]).map(t => `<div class="term"><span>\${sccEsc(t.k)}</span><strong>\${sccEsc(t.v)}</strong></div>`).join('')}</div>
+        <div class="quote-card-actions"><button class="btn ${q.recommended ? 'primary' : ''}" style="flex:1;justify-content:center">${q.recommended ? 'Lock in' : 'Pick this'}</button><button class="btn" style="border-color:transparent">Counter</button></div>
+      </div>`).join('')}
+    </div>`;
+  }
+
+  function renderFulfillPanel(d) {
+    return `<div class="section-label">Fulfill — order is live</div><div class="empty-panel"><span class="material-symbols-outlined">local_shipping</span><div class="empty-panel-title">Fulfill panel</div><div class="empty-panel-body">Once vendor is locked, this panel becomes the order tracker: scheduled pickup date, BOL + Packing Slip buttons, vendor confirmation status, before/after photos.</div></div>`;
+  }
+
+  function renderClosePanel(d) {
+    const s = d.stageData.close || {};
+    return `<div class="section-label">Close — invoice, bill, GP</div>
+    <div class="close-grid">
+      <div class="close-stat"><div class="close-stat-label">Invoice (AR)</div><div class="close-stat-value">${sccFmt$(s.invoiceAmount)}</div><div class="close-stat-sub">${sccEsc(s.invoiceStatus)}</div></div>
+      <div class="close-stat"><div class="close-stat-label">Vendor bill (AP)</div><div class="close-stat-value">${sccFmt$(s.vendorBill)}</div><div class="close-stat-sub">${sccEsc(s.vendorBillStatus)}</div></div>
+      <div class="close-stat gp"><div class="close-stat-label">Actual GP</div><div class="close-stat-value">${sccFmt$(s.actualGP)}</div><div class="close-stat-sub">${sccFmtPct(s.actualMargin)} · est was ${sccFmt$(s.estimatedGP)}</div></div>
+    </div>`;
+  }
+
+  function renderBrief(d) {
+    const b = d.brief || {};
+    return `<div class="brief-grid">
+      <div class="brief-item"><div class="brief-label">Waste stream</div><div class="brief-value ${b.wasteStream === 'TBD' ? 'muted' : ''}">${sccEsc(b.wasteStream)}</div></div>
+      <div class="brief-item"><div class="brief-label">Volume</div><div class="brief-value ${b.volume === 'TBD' ? 'muted' : ''}">${sccEsc(b.volume)}</div></div>
+      <div class="brief-item"><div class="brief-label">Service window</div><div class="brief-value ${b.service === 'TBD' ? 'muted' : ''}">${sccEsc(b.service)}</div></div>
+      <div class="brief-item"><div class="brief-label">Condition</div><div class="brief-value ${b.condition === 'TBD' ? 'muted' : ''}">${sccEsc(b.condition)}</div></div>
+      <div class="brief-item"><div class="brief-label">Hazmat</div><div class="brief-value">${b.hazmat ? 'Yes' : 'No'}</div></div>
+      <div class="brief-item"><div class="brief-label">Client price (est)</div><div class="brief-value">${sccFmt$(b.clientPrice)}</div></div>
+      <div class="brief-item"><div class="brief-label">Est. margin</div><div class="brief-value">${sccFmtPct(b.estMargin)}</div></div>
+      <div class="brief-item" style="grid-column:1/-1"><div class="brief-label">Primary contact</div><div class="brief-value">${sccEsc(b.contact)}</div></div>
+    </div>`;
+  }
+
+  function renderHistory(d) {
+    if (!d.history || !d.history.length) return '<div class="empty-panel"><div class="empty-panel-title">No activity yet</div></div>';
+    return d.history.map(h => `
+      <div class="timeline-item ${sccEsc(h.type)}">
+        <div class="timeline-dot"></div>
+        <div class="timeline-head"><span class="timeline-actor">${sccEsc(h.actor)}</span><span class="timeline-channel">${sccEsc(h.channel)}</span><span class="timeline-time">${sccEsc(h.time)}</span></div>
+        ${h.subject ? `<div class="timeline-subject">\${sccEsc(h.subject)}</div>` : ''}
+        ${h.body ? `<div class="timeline-body">\${sccEsc(h.body)}</div>` : ''}
+        ${h.transcript ? `<div class="timeline-body transcript">\${sccEsc(h.transcript)}</div>` : ''}
+      </div>`).join('');
+  }
+
+  // ============ INIT ============
+  // Run role nav on page load (default user is Jess)
+  renderRoleNav();
+  // Render deals table for initial load
+  renderDealsTable();
+
 </script>
 
 </body>

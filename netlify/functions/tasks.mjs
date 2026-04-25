@@ -2,9 +2,14 @@
 // GET /api/tasks?email=joan@happenventures.com&include_closed=false
 
 const USERS = {
-  "joan@happenventures.com":    { name: "Joan Moya",        role: "Operations", airtableUserId: "usru7wmWXrZ2jodLq" },
-  "jessica@happenventures.com": { name: "Jessica Gonzalez", role: "CEO",        airtableUserId: "usrvgj9oQCGbWO0pn" },
-  "ivan@happenventures.com":    { name: "Ivan Rangel",      role: "Sales",      airtableUserId: "usroHEbrpYrhpYrVv" },
+  "jessica@happenventures.com": { name: "Jess Gonzalez",    role: "CEO",            airtableUserId: "usrvgj9oQCGbWO0pn" },
+  "joan@happenventures.com":    { name: "Joan Moya",        role: "R3 Laundry",     airtableUserId: "usru7wmWXrZ2jodLq" },
+  "celi@happenventures.com":    { name: "Celi",             role: "R3 Amazon",      airtableUserId: null },
+  "mario@happenventures.com":   { name: "Mario",            role: "Junk PM",        airtableUserId: null },
+  "danny@happenventures.com":   { name: "Danny",            role: "Donations PM",   airtableUserId: null },
+  "milos@happenventures.com":   { name: "Milos",            role: "Recycle PM",     airtableUserId: null },
+  "ivan@happenventures.com":    { name: "Ivan",             role: "CGO Sales",      airtableUserId: "usroHEbrpYrhpYrVv" },
+  "farid@happenventures.com":   { name: "Farid",            role: "Product Admin",  airtableUserId: null },
 };
 const TASKS_BASE_ID = "appGDkdfPiiZ2lwO2";
 const TASKS_TABLE_ID = "tblI12xpnUKg9T8Cm";
@@ -18,6 +23,8 @@ export default async (req) => {
     if (!email) return json({ error: "Missing email param" }, 400);
     const user = USERS[email];
     if (!user) return json({ error: `Unknown user: ${email}` }, 404);
+    // Users without an Airtable mapping yet get an empty task list gracefully
+    if (!user.airtableUserId) return json({ tasks: [], meta: { total: 0, note: "No Airtable mapping yet for this user" } }, 200);
 
     const apiKey = Netlify.env.get("AIRTABLE_API_KEY");
     if (!apiKey) return json({ error: "AIRTABLE_API_KEY not configured" }, 500);

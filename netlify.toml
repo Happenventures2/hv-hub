@@ -1,0 +1,68 @@
+# HV Hub — Netlify config
+
+[build]
+  publish = "."
+  command = ""
+  functions = "netlify/functions"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[redirects]]
+  from = "/api/tasks"
+  to = "/.netlify/functions/tasks"
+  status = 200
+
+[[redirects]]
+  from = "/api/meetings"
+  to = "/.netlify/functions/meetings"
+  status = 200
+
+[[redirects]]
+  from = "/api/activity"
+  to = "/.netlify/functions/activity-log"
+  status = 200
+
+[[redirects]]
+  from = "/api/tickets"
+  to = "/.netlify/functions/tickets"
+  status = 200
+
+[[redirects]]
+  from = "/api/ai-tasks"
+  to = "/.netlify/functions/ai-tasks"
+  status = 200
+
+[[redirects]]
+  from = "/api/robin-chat"
+  to = "/.netlify/functions/robin-chat"
+  status = 200
+
+[[redirects]]
+  from = "/api/wiki-chat"
+  to = "/.netlify/functions/wiki-chat"
+  status = 200
+
+[[redirects]]
+  from = "/api/comment"
+  to = "/.netlify/functions/comment"
+  status = 200
+
+[[redirects]]
+  from = "/api/update-task"
+  to = "/.netlify/functions/update-task"
+  status = 200
+
+[[redirects]]
+  from = "/api/snooze"
+  to = "/.netlify/functions/snooze"
+  status = 200
+
+[[redirects]]
+  from = "/api/bot-feedback"
+  to = "/.netlify/functions/bot-feedback"
+  status = 200
