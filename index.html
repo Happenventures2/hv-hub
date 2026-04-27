@@ -1775,11 +1775,16 @@
         Tasks
         <span class="source-count" id="tasksCount">—</span>
       </button>
-      <button class="source-btn" data-source="tickets" role="tab" aria-selected="false">
+      <button class="source-btn" data-source="tickets" id="ticketsSourceBtn" role="tab" aria-selected="false" style="display:none">
         <span class="material-symbols-outlined">confirmation_number</span>
         Tickets
         <span class="source-count" id="ticketsCount">—</span>
       </button>
+              <button class="source-btn" data-source="hubspot-tasks" id="hubspotSourceBtn" role="tab" aria-selected="false" style="display:none">
+                          <span class="material-symbols-outlined">hub</span>
+                                    HubSpot Tasks
+                                              <span class="source-count" id="hubspotTasksCount">—</span>
+                                                      </button>
       <button class="source-btn" data-source="ai-tasks" role="tab" aria-selected="false">
         <span class="material-symbols-outlined">smart_toy</span>
         AI Tasks
@@ -2157,18 +2162,17 @@
 
   function statusClass(status) {
     if (!status) return 'open';
-    const s = status.toLowerCase();
+    const s = status.toLowerCase(
     if (s.includes('overdue')) return 'overdue';
     if (s.includes('progress')) return 'in-progress';
     if (s.includes('closed') || s.includes('done')) return 'closed';
     return 'open';
   }
-
-  function renderTasks(data) {
+  function renderTasks(data) 
     if (!data || !data.user) { tasksError.style.display = 'block'; tasksError.innerHTML = '<strong>Could not load tasks</strong> — unexpected response'; tasksList.style.display = 'none'; tasksEmpty.style.display = 'none'; tasksMeta.textContent = 'Error loading tasks'; return; } const { tasks, count, user } = data;
     if (currentSource === 'tasks') {
       tasksMeta.textContent = `Airtable Tasks · ${user.name} · ${user.role} · ${count} open task${count === 1 ? '' : 's'}`;
-    }
+    
     tasksNavBadge.textContent = count;
     if (tasksCountEl) tasksCountEl.textContent = count;
 
@@ -2271,8 +2275,10 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
     // Invalidate tickets + ai-tasks caches so next toggle reloads
     ticketsLoaded = false;
     aiTasksLoaded = false;
+    hubspotTasksLoaded = false;
     if (currentSource === 'tickets') loadTickets();
     if (currentSource === 'ai-tasks') loadAiTasks();
+    if (currentSource === 'hubspot-tasks') loadHubspotTasks();
     const cfg = getCurrentUserConfig();
     showToast(`Switched to ${cfg.name}`);
   });
@@ -2291,7 +2297,7 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
   const tasksOpenBtn = document.getElementById('tasksOpenBtn');
   const tasksLoaderText = document.getElementById('tasksLoaderText');
   let currentSource = 'tasks';
-  let ticketsLoaded = false;
+  let ticketsLoaded = false; let hubspotTasksLoaded = false;
   let aiTasksLoaded = false;
 
   const AIRTABLE_TASKS_URL    = 'https://airtable.com/appGDkdfPiiZ2lwO2/tblI12xpnUKg9T8Cm/viwZPFLEOADd0h7Ro?blocks=hide';
@@ -2301,7 +2307,7 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
   document.querySelectorAll('.source-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const src = btn.dataset.source;
-      if (src === currentSource) return;
+      if (src === currentSource) return
       currentSource = src;
       document.querySelectorAll('.source-btn').forEach(b => {
         const isActive = b.dataset.source === src;
@@ -2310,7 +2316,7 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
       });
 
       // Hide all, then show the active one
-      tasksView.style.display    = src === 'tasks'    ? '' : 'none';
+              tasksView.style.display    = (src === 'tasks' || src === 'hubspot-tasks') ? '' : 'none';
       ticketsView.style.display  = src === 'tickets'  ? '' : 'none';
       aiTasksView.style.display  = src === 'ai-tasks' ? '' : 'none';
 
@@ -2325,9 +2331,40 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
         tasksOpenBtn.href = AIRTABLE_AI_TASKS_URL;
         tasksOpenBtn.innerHTML = '<span class="material-symbols-outlined">open_in_new</span> Open in Airtable';
         if (!aiTasksLoaded) loadAiTasks();
+      } else if (src === 'hubspot-tasks') {
+        tasksOpenBtn.href = 'https://app.hubspot.com/tasks/';
+        tasksOpenBtn.innerHTML = '<span class="material-symbols-outlined">open_in_new</span> Open in HubSpot';
+        if (!hubspotTasksLoaded) loadHubspotTasks();
       }
     });
   });
+
+  async function loadHubspotTasks() {
+    tasksLoader.style.display = 'flex';
+    tasksLoaderText.textContent = 'Pulling from HubSpot…';
+    tasksError.style.display = 'none';
+    try {
+      const email = currentUserEmail();
+      const res = await fetch(`/api/hubspot-tasks?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        tasksError.style.display = 'block';
+        tasksError.innerHTML = `<strong>Could not load HubSpot tasks</strong> ${esc(data.error || 'Unknown error')}`;
+        tasksMeta.textContent = 'Error loading HubSpot tasks';
+        return;
+      }
+      const hubspotCountEl = document.getElementById('hubspotTasksCount');
+      if (hubspotCountEl) hubspotCountEl.textContent = data.count || 0;
+      renderTasks(data);
+      hubspotTasksLoaded = true;
+    } catch (err) {
+      tasksError.style.display = 'block';
+      tasksError.innerHTML = `<strong>Network error</strong> ${esc(err.message)}`;
+    } finally {
+      tasksLoader.style.display = 'none';
+      tasksLoaderText.textContent = 'Pulling from Airtable…';
+    }
+  }
 
   async function loadTickets() {
     tasksLoader.style.display = 'flex';
@@ -3780,6 +3817,25 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
         switchToTab(target, tab);
       });
     });
+
+        // Show/hide source toggle buttons based on user
+            const SECOND_SOURCE = {
+                  'joan@happenventures.com':    'tickets',
+                        'jessica@happenventures.com': 'hubspot-tasks',
+                              'ivan@happenventures.com':    'hubspot-tasks',
+                                    'danny@happenventures.com':   'hubspot-tasks',
+                                          'milos@happenventures.com':   'hubspot-tasks',
+                                                'mario@happenventures.com':   'hubspot-tasks',
+                                                    };
+                                                        const email = (typeof currentUserEmail === 'function') ? currentUserEmail() : (userSelect ? userSelect.value : '');
+                                                            const secondSrc = SECOND_SOURCE[email] || null;
+                                                                const ticketsBtn = document.getElementById('ticketsSourceBtn');
+                                                                    const hubspotBtn = document.getElementById('hubspotSourceBtn');
+                                                                        if (ticketsBtn) ticketsBtn.style.display = (secondSrc === 'tickets') ? '' : 'none';
+                                                                            if (hubspotBtn) hubspotBtn.style.display = (secondSrc === 'hubspot-tasks') ? '' : 'none';
+                                                                                // If current source is no longer available for this user, reset to tasks
+                                                                                    if (currentSource === 'tickets' && secondSrc !== 'tickets') { currentSource = 'tasks'; }
+                                                                                        if (currentSource === 'hubspot-tasks' && secondSrc !== 'hubspot-tasks') { currentSource = 'tasks'; }
   }
 
   // Central tab-switch function used by both universal and role tabs
