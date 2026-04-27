@@ -2165,7 +2165,7 @@
   }
 
   function renderTasks(data) {
-    const { tasks, count, user } = data;
+    if (!data || !data.user) { tasksError.style.display = 'block'; tasksError.innerHTML = '<strong>Could not load tasks</strong> — unexpected response'; tasksList.style.display = 'none'; tasksEmpty.style.display = 'none'; tasksMeta.textContent = 'Error loading tasks'; return; } const { tasks, count, user } = data;
     if (currentSource === 'tasks') {
       tasksMeta.textContent = `Airtable Tasks · ${user.name} · ${user.role} · ${count} open task${count === 1 ? '' : 's'}`;
     }
@@ -2230,7 +2230,7 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
     try {
       const email = currentUserEmail();
       const res = await fetch(`/api/tasks?email=${encodeURIComponent(email)}`);
-      const data = await res.json();
+      const raw = await res.json(); const data = Array.isArray(raw) ? raw[0] : raw;
       if (!res.ok) {
         tasksError.style.display = 'block';
         tasksError.innerHTML = `<strong>Could not load tasks</strong> ${esc(data.error || 'Unknown error')}`;
