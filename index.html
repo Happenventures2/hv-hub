@@ -2188,7 +2188,7 @@
             <div class="task-meta-row">
               <span class="task-status-pill ${statusClass(t.status)}">${esc(t.status)}</span>
 ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${esc(t.priority)}</span>` : ''}
-              ${t.department ? `<span class="task-dept-tag">${esc(t.department)}</span>` : ''}
+              <span class="task-dept-tag">${esc(user.role)}</span>
                             ${due ? `<span class="task-due ${due.cls}"><span class="material-symbols-outlined">schedule</span>${esc(due.label)}</span>` : `<span class="task-due no-due"><span class="material-symbols-outlined">event</span>No due date</span>`}
             </div>
             <div class="task-title">${esc(t.name)}</div>
