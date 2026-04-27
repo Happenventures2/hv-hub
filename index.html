@@ -3833,9 +3833,27 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
                                                                     const hubspotBtn = document.getElementById('hubspotSourceBtn');
                                                                         if (ticketsBtn) ticketsBtn.style.display = (secondSrc === 'tickets') ? '' : 'none';
                                                                             if (hubspotBtn) hubspotBtn.style.display = (secondSrc === 'hubspot-tasks') ? '' : 'none';
-                                                                                // If current source is no longer available for this user, reset to tasks
-                                                                                    if (currentSource === 'tickets' && secondSrc !== 'tickets') { currentSource = 'tasks'; }
-                                                                                        if (currentSource === 'hubspot-tasks' && secondSrc !== 'hubspot-tasks') { currentSource = 'tasks'; }
+                                                                                // Auto-switch to correct source when user changes
+                                                                                    if (secondSrc === 'hubspot-tasks') {
+                                                                                          currentSource = 'hubspot-tasks';
+                                                                                                document.querySelectorAll('.source-btn').forEach(b => {
+                                                                                                        const on = b.dataset.source === 'hubspot-tasks';
+                                                                                                                b.classList.toggle('active', on);
+                                                                                                                        b.setAttribute('aria-selected', on ? 'true' : 'false');
+                                                                                                                              });
+                                                                                                                                    const _tv = document.getElementById('tasksView');
+                                                                                                                                          const _xv = document.getElementById('ticketsView');
+                                                                                                                                                const _av = document.getElementById('aiTasksView');
+                                                                                                                                                      if (_tv) _tv.style.display = '';
+                                                                                                                                                            if (_xv) _xv.style.display = 'none';
+                                                                                                                                                                  if (_av) _av.style.display = 'none';
+                                                                                                                                                                        const _ob = document.getElementById('tasksOpenBtn');
+                                                                                                                                                                              if (_ob) { _ob.href = 'https://app.hubspot.com/tasks/'; _ob.innerHTML = '<span class="material-symbols-outlined">open_in_new</span> Open in HubSpot'; }
+                                                                                                                                                                                    hubspotTasksLoaded = false;
+                                                                                                                                                                                          if (typeof loadHubspotTasks === 'function') loadHubspotTasks();
+                                                                                                                                                                                              } else if (currentSource === 'tickets' || currentSource === 'hubspot-tasks') {
+                                                                                                                                                                                                    currentSource = 'tasks';
+                                                                                                                                                                                                        }
   }
 
   // Central tab-switch function used by both universal and role tabs
