@@ -366,7 +366,7 @@
   .task-due.today { color: var(--color-amber); font-weight: 600; }
   .task-due .material-symbols-outlined { font-size: 12px; }
   .task-type-tag { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); color: var(--color-text-secondary); font-weight: 500; }
-  .task-dept-tag { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); color: #6366f1; font-weight: 500; }
+  .task-dept-tag { font-size: 10px; padding: 2px 6px; borer-radius: 3px; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); color: #6366f1; font-weight: 500; }
     .task-priority-tag { font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; }
       .task-priority-tag.high { background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.25); color: var(--color-red); }
         .task-priority-tag.medium { background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.2); color: var(--color-amber); }
@@ -1701,7 +1701,7 @@
     <div class="home-section" id="homeMeetingsSection">
       <div class="home-section-head">
         <h3><span class="material-symbols-outlined">event</span><span id="meetingsHeading">Today's meetings</span></h3>
-        <a class="home-section-link" href="https://airtable.com/appGDkdfPiiZ2lwO2/tblcpPeqZ6G6jzPJv" target="_blank" rel="noopener">View all <span class="material-symbols-outlined">open_in_new</span></a>
+        <a class="home-section-link" href="https://airtable.com/appUDQ65M1lSnSM5p/tblMVtcbtjJhCWqSo" target="_blank" rel="noopener">View all <span class="material-symbols-outlined">open_in_new</span></a>
       </div>
       <div id="homeMeetings">
         <div class="home-loading">Loading…</div>
@@ -3304,65 +3304,63 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
     const heading = document.getElementById('meetingsHeading');
     try {
       const email = currentUserEmail();
-      const res = await fetch(`/api/meetings?email=${encodeURIComponent(email)}`);
+      const res = await fetch(`/api/calendar?email=${encodeURIComponent(email)}`);
       const data = await res.json();
       if (!res.ok) {
-        container.innerHTML = `<div class="home-empty-row" style="color: var(--color-red);">Couldn't load meetings: ${esc(data.error || 'Unknown')}</div>`;
+        container.innerHTML = `<div class="home-empty-row" style="color: var(--color-red);">Couldn't load calendar: ${esc(data.error || 'Unknown')}</div>`;
         return;
       }
 
-      const today = data.today || [];
-      const week = data.weekAhead || [];
-      const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-
-      if (today.length > 0) {
-        heading.textContent = `Today's meetings (${todayName})`;
-        container.innerHTML = today.map(m => renderMeetingRow(m, true)).join('');
-      } else if (week.length > 0) {
-        heading.textContent = `Upcoming this week`;
-        container.innerHTML = week.slice(0, 5).map(m => renderMeetingRow(m, false)).join('');
-      } else if (data.unscheduled && data.unscheduled.length > 0) {
-        heading.textContent = `Your recurring meetings`;
-        container.innerHTML = `
-          <div class="home-empty-row" style="font-style: normal; text-align: left;">
-            Nothing scheduled today. ${data.unscheduled.length} of your meetings have no day/time set —
-            <a href="https://airtable.com/appGDkdfPiiZ2lwO2/tblcpPeqZ6G6jzPJv" target="_blank" rel="noopener" style="color: var(--color-text); text-decoration: underline;">add them in Airtable</a>.
-          </div>
-        `;
-      } else {
-        heading.textContent = `Today's meetings (${todayName})`;
-        container.innerHTML = `<div class="home-empty-row">Nothing on the calendar — clear day ✨</div>`;
-      }
+            const events = data.events || [];
+                  const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+                  
+                        if (events.length > 0) {
+                                heading.textContent = `Today's meetings (${todayName}) · ${events.length}`;
+                                        container.innerHTML = events.map(renderCalendarRow).join('');
+                                              } else {
+                                                      heading.textContent = `Today's meetings (${todayName})`;
+                                                              container.innerHTML = `<div class="home-empty-row">Nothing on the calendar — clear day ✨</div>`;
+                                                                    }
+                                                                    }
     } catch (err) {
-      container.innerHTML = `<div class="home-empty-row" style="color: var(--color-red);">Network error loading meetings</div>`;
+      container.innerHTML = `<div class="home-empty-row" style="color: var(--color-red);">Network error loading calendar</div>`;
     }
   }
 
-  function renderMeetingRow(m, isToday) {
-    const dayLabel = isToday ? 'Today' : (m.dayName || '').slice(0, 3);
-    return `
-      <div class="home-meeting-row">
-        <div class="home-meeting-time">
-          <span class="day">${esc(dayLabel)}</span>
-          ${esc(m.time || 'TBD')}
-        </div>
-        <div>
-          <div class="home-meeting-name">${esc(m.name)}</div>
-          <div class="home-meeting-meta">
-            ${m.department ? `<span class="home-meeting-tag">${esc(m.department)}</span>` : ''}
-            ${m.periodicity ? `<span>${esc(m.periodicity)}</span>` : ''}
-            ${m.owner ? `<span>· led by ${esc(m.owner.split(' ')[0])}</span>` : ''}
-            ${m.attendees && m.attendees.length ? `<span>· ${m.attendees.length} ppl</span>` : ''}
-          </div>
-        </div>
-        <div class="home-meeting-actions">
-          ${m.kpiDocUrl ? `<a href="${escAttr(m.kpiDocUrl)}" target="_blank" rel="noopener" title="KPI doc"><span class="material-symbols-outlined">description</span> Notes</a>` : ''}
-          <a href="${escAttr(m.airtableUrl)}" target="_blank" rel="noopener" title="Airtable record"><span class="material-symbols-outlined">open_in_new</span> Open</a>
-        </div>
-      </div>
-    `;
-  }
+    function renderCalendarRow(ev) {
+          function fmtTime(iso) {
+                if (!iso) return '';
+                      const d = new Date(iso);
+                            return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                                }
+                                    const startStr = fmtTime(ev.start);
+                                        const endStr = fmtTime(ev.end);
+                                            const timeRange = startStr && endStr ? `${startStr} – ${endStr}` : startStr || 'TBD';
+                                                const attendeeCount = ev.attendees ? ev.attendees.split(',').length : 0;
 
+                                                    return `
+                                                          <div class="home-meeting-row">
+                                                                  <div class="home-meeting-time">
+                                                                            <span class="day">Today</span>
+                                                                                      ${esc(startStr || 'TBD')}
+                                                                                              </div>
+                                                                                                      <div style="flex:1;min-width:0;">
+                                                                                                                <div class="home-meeting-name">${esc(ev.title)}</div>
+                                                                                                                          <div class="home-meeting-meta">
+                                                                                                                                      <span>${esc(timeRange)}</span>
+                                                                                                                                                  ${ev.location ? `<span>· ${esc(ev.location)}</span>` : ''}
+                                                                                                                                                              ${attendeeCount > 1 ? `<span>· ${attendeeCount} ppl</span>` : ''}
+                                                                                                                                                                        </div>
+                                                                                                                                                                                </div>
+                                                                                                                                                                                        <div class="home-meeting-actions">
+                                                                                                                                                                                                  ${ev.meetingLink ? `<a href="${escAttr(ev.meetingLink)}" target="_blank" rel="noopener" title="Join meeting"><span class="material-symbols-outlined">videocam</span> Join</a>` : ''}
+                                                                                                                                                                                                          </div>
+                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                    `;
+                                                                                                                                                                                                                      }
+
+                                                                                                                                                                                                                      
+    }
   // ============ RECENT ACTIVITY (HVH-03) ============
   async function loadActivity() {
     const container = document.getElementById('homeActivity');
