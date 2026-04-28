@@ -4713,7 +4713,6 @@
     const email = SLUG_TO_EMAIL[slug];
     if (email && userSelect.value !== email) {
       userSelect.value = email;
-      renderRoleNav();
       loadTasks();
       loadMeetings();
       loadActivity();
@@ -4721,6 +4720,7 @@
       ticketsLoaded = false;
       aiTasksLoaded = false;
     }
+    if (email) renderRoleNav();
     const tabEl = document.querySelector('.nav-tab[data-tab="' + tab + '"]');
     switchToTab(tab, tabEl, true);
     if (!skipHistory) history.replaceState({ slug, tab }, '', '/' + slug + '/' + tab);
