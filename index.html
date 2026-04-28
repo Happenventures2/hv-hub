@@ -2289,7 +2289,7 @@
     switchToTab('home', document.querySelector('#mainNav .nav-tab[data-tab="home"]'));
     // Always reload tasks + meetings so home page + tasks tab + badge stay in sync
     // Only load Airtable tasks if NOT using HubSpot tasks (avoid race condition overwriting HubSpot render)
-    loadTasks();
+    if (currentSource !== 'hubspot-tasks') loadTasks();
     loadMeetings();
     loadActivity();
     // Re-render tools (different users have different visibility)
@@ -3884,11 +3884,11 @@
     // Show/hide source toggle buttons based on user
     const SECOND_SOURCE = {
       'joan@happenventures.com':    'tickets',
-      'jessica@happenventures.com': null,
-      'ivan@happenventures.com':    null,
-      'danny@happenventures.com':   null,
-      'milos@happenventures.com':   null,
-      'mario@happenventures.com':   null,
+      'jessica@happenventures.com': 'hubspot-tasks',
+      'ivan@happenventures.com':    'hubspot-tasks',
+      'danny@happenventures.com':   'hubspot-tasks',
+      'milos@happenventures.com':   'hubspot-tasks',
+      'mario@happenventures.com':   'hubspot-tasks',
     };
     const userSelectEl = document.getElementById('userSelect');
     const activeEmail = userSelectEl ? userSelectEl.value : '';
