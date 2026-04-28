@@ -2242,6 +2242,7 @@
     tasksList.style.display = 'none';
     tasksEmpty.style.display = 'none';
     tasksList.innerHTML = '';
+    if (currentSource === 'hubspot-tasks') return; // guard: HubSpot active
     tasksLoader.style.display = 'flex';
     tasksError.style.display = 'none';
     try {
@@ -2250,6 +2251,7 @@
       const raw = await res.json();
       // n8n sometimes wraps response in an array — normalize to object
       const data = Array.isArray(raw) ? raw[0] : raw;
+      if (currentSource === 'hubspot-tasks') return; // guard: source changed during fetch
       if (!res.ok) {
         tasksError.style.display = 'block';
         tasksError.innerHTML = `<strong>Could not load tasks</strong> ${esc((data && data.error) || 'Unknown error')}`;
@@ -2272,6 +2274,7 @@
         updateHomeFromTasksData(data);
       }
     } catch (err) {
+      if (currentSource === 'hubspot-tasks') return;
       tasksError.style.display = 'block';
       tasksError.innerHTML = `<strong>Network error</strong> ${esc(err.message)}`;
     } finally {
