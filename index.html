@@ -2162,7 +2162,7 @@
 
   function statusClass(status) {
     if (!status) return 'open';
-    const s = status.toLowerCase(
+    const s = status.toLowerCase();
     if (s.includes('overdue')) return 'overdue';
     if (s.includes('progress')) return 'in-progress';
     if (s.includes('closed') || s.includes('done')) return 'closed';
