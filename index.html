@@ -2271,6 +2271,7 @@ data-source="tasks"
 
   document.getElementById('tasksRefreshBtn').addEventListener('click', () => {
     if (currentSource === 'tasks') loadTasks();
+    else if (currentSource === 'hubspot-tasks') { hubspotTasksLoaded = false; loadHubspotTasks(); }
     else if (currentSource === 'tickets') loadTickets();
     else if (currentSource === 'ai-tasks') loadAiTasks();
   });
@@ -2280,7 +2281,8 @@ data-source="tasks"
     // Navigate home on user switch so no stale role panel is showing
     switchToTab('home', document.querySelector('#mainNav .nav-tab[data-tab="home"]'));
     // Always reload tasks + meetings so home page + tasks tab + badge stay in sync
-    loadTasks();
+    // Only load Airtable tasks if NOT using HubSpot tasks (avoid race condition overwriting HubSpot render)
+    if (currentSource !== 'hubspot-tasks') loadTasks();
     loadMeetings();
     loadActivity();
     // Re-render tools (different users have different visibility)
