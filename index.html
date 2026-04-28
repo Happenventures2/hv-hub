@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
 <style>
   :root {
-    --color-accent: #32BDAE;
+    --color-accent: #32BDAE
     --color-text: #1D1D1D;
     --color-text-secondary: #5A5A5A;
     --color-muted: #8A8A8A;
@@ -3831,30 +3831,35 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
                                                                     const hubspotBtn = document.getElementById('hubspotSourceBtn');
                                                                         if (ticketsBtn) ticketsBtn.style.display = (secondSrc === 'tickets') ? '' : 'none';
                                                                             if (hubspotBtn) hubspotBtn.style.display = (secondSrc === 'hubspot-tasks') ? '' : 'none';
-                                                                                // Auto-switch to correct source when user changes
-                                                                                    if (secondSrc === 'hubspot-tasks') {
-                                                                                          currentSource = 'hubspot-tasks';
-                                                                                                document.querySelectorAll('.source-btn').forEach(b => {
-                                                                                                        const on = b.dataset.source === 'hubspot-tasks';
-                                                                                                                b.classList.toggle('active', on);
-                                                                                                                        b.setAttribute('aria-selected', on ? 'true' : 'false');
-                                                                                                                              });
-                                                                                                                                    const _tv = document.getElementById('tasksView');
-                                                                                                                                          const _xv = document.getElementById('ticketsView');
-                                                                                                                                                const _av = document.getElementById('aiTasksView');
-                                                                                                                                                      if (_tv) _tv.style.display = '';
-                                                                                                                                                            if (_xv) _xv.style.display = 'none';
-                                                                                                                                                                  if (_av) _av.style.display = 'none';
-                                                                                                                                                                        const _ob = document.getElementById('tasksOpenBtn');
-                                                                                                                                                                              if (_ob) { _ob.href = 'https://app.hubspot.com/tasks/'; _ob.innerHTML = '<span class="material-symbols-outlined">open_in_new</span> Open in HubSpot'; }
-                                                                                                                                                                                    hubspotTasksLoaded = false;
-                                                                                                                                                                                          if (typeof loadHubspotTasks === 'function') loadHubspotTasks();
-                                                                                                                                                                                              } else if (currentSource === 'tickets' || currentSource === 'hubspot-tasks') {
-                                                                                                                                                                                                    currentSource = 'tasks';
-                                                                                                                                                                                                        }
+
+    // Auto-switch source when user changes
+    if (secondSrc === 'hubspot-tasks') {
+      currentSource = 'hubspot-tasks';
+      document.querySelectorAll('.source-btn').forEach(b => {
+        const isActive = b.dataset.source === 'hubspot-tasks';
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      const tasksView = document.getElementById('tasksView');
+      const ticketsView = document.getElementById('ticketsView');
+      const aiTasksView = document.getElementById('aiTasksView');
+      if (tasksView) tasksView.style.display = '';
+      if (ticketsView) ticketsView.style.display = 'none';
+      if (aiTasksView) aiTasksView.style.display = 'none';
+      const tasksOpenBtn = document.getElementById('tasksOpenBtn');
+      if (tasksOpenBtn) {
+        tasksOpenBtn.href = 'https://app.hubspot.com/tasks/';
+        tasksOpenBtn.innerHTML = '<span class="material-symbols-outlined">open_in_new</span> Open in HubSpot';
+      }
+      if (typeof loadHubspotTasks === 'function') loadHubspotTasks();
+    } else if (secondSrc === 'tickets') {
+      if (currentSource === 'hubspot-tasks') { currentSource = 'tasks'; }
+    } else {
+      if (currentSource === 'tickets' || currentSource === 'hubspot-tasks') { currentSource = 'tasks'; }
+    }
   }
 
-  // Central tab-switch function used by both universal and role tabs
+// Central tab-switch function used by both universal and role tabs
   function switchToTab(target, clickedTab) {
     // Deactivate all nav tabs (universal + role)
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
