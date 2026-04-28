@@ -3495,7 +3495,7 @@
   function tickAutoRefresh() {
     if (document.hidden) return;           // paused in background
     if (isAnyModalOpen()) return;           // user is mid-action
-    loadTasks();
+    if (currentSource === 'hubspot-tasks') loadHubspotTasks(); else loadTasks();
     loadMeetings();
     loadActivity();
     if (currentSource === 'tickets') loadTickets();
@@ -3949,7 +3949,10 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Lazy-loads
-    if (target === 'tasks') loadTasks();
+    if (target === 'tasks') {
+      if (currentSource === 'hubspot-tasks') loadHubspotTasks();
+      else loadTasks();
+    }
     if (target === 'deals') { if (typeof renderDealsTable === 'function') renderDealsTable(); }
   }
 
