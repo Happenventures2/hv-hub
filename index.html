@@ -3842,6 +3842,7 @@
       viewAsToggle: true,
     },
     'jazmin@happenventures.com': {
+    slug: 'jazmin',
       name: 'Jazmin Barrera', role: 'admin', subtitle: 'Admin', initials: 'JB',
       roleTabs: [],
     },
@@ -4707,6 +4708,8 @@
   }
 
   function applyURLState(slug, tab, skipHistory) {
+    // Fall back to home if tab panel doesn't exist
+    if (tab && !document.querySelector('.tab-panel[data-panel="' + tab + '"]')) tab = 'home';
     const email = SLUG_TO_EMAIL[slug];
     if (email && userSelect.value !== email) {
       userSelect.value = email;
