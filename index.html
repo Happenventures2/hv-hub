@@ -2309,6 +2309,7 @@
     if (currentSource === 'hubspot-tasks') loadHubspotTasks();
     const cfg = getCurrentUserConfig();
     showToast(`Switched to ${cfg.name}`);
+    updateURL(currentUserEmail(), 'home');
   });
 
   // ============ TICKETS + AI TASKS ============
@@ -3937,7 +3938,7 @@
   }
 
   // Central tab-switch function used by both universal and role tabs
-  function switchToTab(target, clickedTab) {
+  function switchToTab(target, clickedTab, skipHistory = false) {
     // Deactivate all nav tabs (universal + role)
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     // Activate clicked tab
@@ -3957,6 +3958,9 @@
       else loadTasks();
     }
     if (target === 'deals') { if (typeof renderDealsTable === 'function') renderDealsTable(); }
+
+    // Update URL (skip when called from popstate/applyURLState)
+    if (!skipHistory) updateURL(currentUserEmail(), target);
   }
 
   // ============ ROBIN CHAT (R3 ops bot) ============
@@ -4681,9 +4685,55 @@
       </div>`).join('');
   }
 
+  // ============ URL ROUTING ============
+  // Build slug to email lookup from USER_CONFIG
+  const SLUG_TO_EMAIL = Object.fromEntries(
+    Object.entries(USER_CONFIG).map(([email, cfg]) => [cfg.slug, email]).filter(([s]) => s)
+  );
+
+  function updateURL(email, tab) {
+    const cfg = USER_CONFIG[email];
+    if (!cfg || !cfg.slug) return;
+    const newPath = '/' + cfg.slug + '/' + tab;
+    if (location.pathname !== newPath) history.pushState({ slug: cfg.slug, tab }, '', newPath);
+  }
+
+  function applyURLState(slug, tab, skipHistory) {
+    const email = SLUG_TO_EMAIL[slug];
+    if (email && userSelect.value !== email) {
+      userSelect.value = email;
+      renderRoleNav();
+      loadTasks();
+      loadMeetings();
+      loadActivity();
+      renderTools('');
+      ticketsLoaded = false;
+      aiTasksLoaded = false;
+    }
+    const tabEl = document.querySelector('.nav-tab[data-tab="' + tab + '"]');
+    switchToTab(tab, tabEl, true);
+    if (!skipHistory) history.replaceState({ slug, tab }, '', '/' + slug + '/' + tab);
+  }
+
+  window.addEventListener('popstate', (e) => {
+    if (e.state && e.state.slug) applyURLState(e.state.slug, e.state.tab || 'home', true);
+  });
+
   // ============ INIT ============
-  // Run role nav on page load (default user is Jess)
-  renderRoleNav();
+  // Parse URL on load; fall back to jess/home
+  (function initFromURL() {
+    const parts = location.pathname.replace(/^\//, '').split('/');
+    const slug = parts[0];
+    const tab  = parts[1] || 'home';
+    if (slug && SLUG_TO_EMAIL[slug]) {
+      applyURLState(slug, tab, false);
+    } else {
+      const defaultEmail = 'jessica@happenventures.com';
+      const cfg = USER_CONFIG[defaultEmail];
+      if (cfg && cfg.slug) history.replaceState({ slug: cfg.slug, tab: 'home' }, '', '/' + cfg.slug + '/home');
+      renderRoleNav();
+    }
+  })();
   // Render deals table for initial load
   renderDealsTable();
 
