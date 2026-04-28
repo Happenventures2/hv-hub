@@ -2239,6 +2239,9 @@
   function escAttr(s) { return esc(s).replace(/"/g, '&quot;'); }
 
   async function loadTasks() {
+    tasksList.style.display = 'none';
+    tasksEmpty.style.display = 'none';
+    tasksList.innerHTML = '';
     tasksLoader.style.display = 'flex';
     tasksError.style.display = 'none';
     try {
