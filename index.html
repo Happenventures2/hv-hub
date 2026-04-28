@@ -1723,8 +1723,8 @@
 
     <!-- Recent activity (HVH-03) -->
     <div class="home-section" id="homeActivitySection">
-data-source="tasks"
-      <h3><span class="material-symbols-outlined">history</span>Recent activity</h3>
+      <div class="home-section-head">
+        <h3><span class="material-symbols-outlined">history</span>Recent activity</h3>
       </div>
       <div id="homeActivity">
         <div class="home-loading">Loading…</div>
@@ -1774,7 +1774,7 @@ data-source="tasks"
     <div class="source-toggle" role="tablist" aria-label="Task source">
       <button class="source-btn active" data-source="tasks" role="tab" aria-selected="true">
         <span class="material-symbols-outlined">checklist</span>
-        Airtable Tasks
+        Tasks
         <span class="source-count" id="tasksCount">—</span>
       </button>
       <button class="source-btn" data-source="tickets" id="ticketsSourceBtn" role="tab" aria-selected="false" style="display:none">
@@ -2202,10 +2202,16 @@ data-source="tasks"
             ${t.description ? `<div class="task-desc">${esc(t.description)}</div>` : ''}
           </div>
           <div class="task-actions">
-            <button class="task-btn" data-action="snooze" data-id="${t.id}"><span class="material-symbols-outlined">snooze</span> Snooze</button>
-            <button class="task-btn" data-action="comment" data-id="${t.id}"><span class="material-symbols-outlined">chat</span> Comment</button>
-            <button class="task-btn" data-action="update" data-id="${t.id}"><span class="material-symbols-outlined">tune</span> Update</button>
-            <a class="task-btn" href="${t.airtableUrl}" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Open</a>
+            ${currentSource === 'hubspot-tasks' ? `
+              <a class="task-btn" href="${t.airtableUrl}" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Open</a>
+              <button class="task-btn" data-action="comment" data-id="${t.id}"><span class="material-symbols-outlined">chat</span> Comment</button>
+              <button class="task-btn primary" data-action="hs-done" data-id="${t.id}"><span class="material-symbols-outlined">check_circle</span> Done</button>
+            ` : `
+              <button class="task-btn" data-action="snooze" data-id="${t.id}"><span class="material-symbols-outlined">snooze</span> Snooze</button>
+              <button class="task-btn" data-action="comment" data-id="${t.id}"><span class="material-symbols-outlined">chat</span> Comment</button>
+              <button class="task-btn" data-action="update" data-id="${t.id}"><span class="material-symbols-outlined">tune</span> Update</button>
+              <a class="task-btn" href="${t.airtableUrl}" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Open</a>
+            `}
           </div>
         </div>
       `;
@@ -2221,6 +2227,7 @@ data-source="tasks"
         if (action === 'snooze') openModal('snoozeModal', id, name);
         if (action === 'comment') openModal('commentModal', id, name);
         if (action === 'update') openModal('updateModal', id, name);
+        if (action === 'hs-done') markHubspotTaskDone(btn, id, name);
       });
     });
   }
@@ -2407,6 +2414,32 @@ data-source="tasks"
     } finally {
       tasksLoader.style.display = 'none';
       tasksLoaderText.textContent = 'Pulling from Airtable…';
+    }
+  }
+
+  async function markHubspotTaskDone(btn, id, name) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> Saving…';
+    try {
+      const res = await fetch('/api/hubspot-task-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskId: id, status: 'COMPLETED', email: currentUserEmail() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+      // Fade out the row
+      const row = btn.closest('.task-row');
+      row.classList.add('done');
+      btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Done';
+      btn.classList.remove('primary');
+      btn.classList.add('success');
+      logActivity('Task completed', { subject: name, source: 'HubSpot' });
+      setTimeout(() => row.remove(), 1500);
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Done';
+      showToast('Could not mark done: ' + err.message, true);
     }
   }
 
@@ -3150,11 +3183,20 @@ data-source="tasks"
     const btn = document.getElementById('commentSubmit');
     btn.disabled = true; btn.innerHTML = 'Posting…';
     try {
-      const res = await fetch('https://happenventures.app.n8n.cloud/webhook/hv-hub-comment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recordId: activeRecordId, text }),
-      });
+      let res;
+      if (currentSource === 'hubspot-tasks') {
+        res = await fetch('/api/hubspot-task-update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ taskId: activeRecordId, comment: text, email: currentUserEmail() }),
+        });
+      } else {
+        res = await fetch('https://happenventures.app.n8n.cloud/webhook/hv-hub-comment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ recordId: activeRecordId, text }),
+        });
+      }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
       showToast('Comment posted');
