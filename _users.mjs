@@ -13,6 +13,7 @@
 export const USER_CONFIG = {
 
   'jessica@happenventures.com': {
+    slug: 'jess',
     name: 'Jess Gonzalez',
     role: 'solutions-admin',
     subtitle: 'Solutions Admin',
@@ -25,6 +26,7 @@ export const USER_CONFIG = {
   },
 
   'joan@happenventures.com': {
+    slug: 'joan',
     name: 'Joan Moya',
     role: 'r3-laundry',
     subtitle: 'R3 · Laundry',
@@ -37,6 +39,7 @@ export const USER_CONFIG = {
   },
 
   'celi@happenventures.com': {
+    slug: 'celi',
     name: 'Celi',
     role: 'r3-amazon',
     subtitle: 'R3 · Amazon',
@@ -50,6 +53,7 @@ export const USER_CONFIG = {
   },
 
   'mario@happenventures.com': {
+    slug: 'mario',
     name: 'Mario',
     role: 'junk-pm',
     subtitle: 'Junk PM',
@@ -61,6 +65,7 @@ export const USER_CONFIG = {
   },
 
   'danny@happenventures.com': {
+    slug: 'danny',
     name: 'Danny',
     role: 'donations-pm',
     subtitle: 'Donations PM',
@@ -72,6 +77,7 @@ export const USER_CONFIG = {
   },
 
   'milos@happenventures.com': {
+    slug: 'milos',
     name: 'Milos',
     role: 'recycle-pm',
     subtitle: 'Recycle PM',
@@ -82,6 +88,7 @@ export const USER_CONFIG = {
   },
 
   'ivan@happenventures.com': {
+    slug: 'ivan',
     name: 'Ivan',
     role: 'cgo-sales',
     subtitle: 'CGO · Sales',
@@ -93,6 +100,7 @@ export const USER_CONFIG = {
   },
 
   'farid@happenventures.com': {
+    slug: 'farid',
     name: 'Farid',
     role: 'product-admin',
     subtitle: 'Product Admin',
@@ -115,8 +123,8 @@ export const USER_CONFIG = {
  *   /api/tasks?email=X filters by owner — every new user automatically inherits this.
  *   Never hardcode task data to a specific user.
  *
- * ROLE TABS — each tab maps to a data-panel="<tab>" section in index.html.
- *   If a panel hasn't been built yet, stub it with a "Coming soon" placeholder.
+ * ROLE TABS — each tab maps to a data-panel=\"<tab>\" section in index.html.
+ *   If a panel hasn't been built yet, stub it with a \"Coming soon\" placeholder.
  *
  * FILTER KEY: email is used everywhere data is fetched.
  *   currentUserEmail() → passed to all API calls, bot context, activity feed, etc.
