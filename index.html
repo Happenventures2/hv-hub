@@ -83,7 +83,7 @@
   .nav-tab .badge { background: var(--color-gray-100); color: var(--color-text-secondary); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
   .nav-tab .badge.alert { background: var(--color-text); color: var(--color-bg); }
   .nav-divider { width: 1px; height: 20px; background: var(--color-gray-100); margin: 0 6px; }
-  #roleNavTabs { display: flex; gap: 2px; align-items: center; }
+
   .topbar-right { display: flex; align-items: center; gap: 4px; }
   .icon-btn { width: 36px; height: 36px; border-radius: var(--radius-sm); background: transparent; display: flex; align-items: center; justify-content: center; color: var(--color-text-secondary); transition: background 0.12s; position: relative; }
   .icon-btn:hover { background: var(--color-gray-50); color: var(--color-text); }
@@ -367,11 +367,12 @@
   .task-due .material-symbols-outlined { font-size: 12px; }
   .task-type-tag { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: var(--color-gray-50); border: 1px solid var(--color-gray-100); color: var(--color-text-secondary); font-weight: 500; }
   .task-dept-tag { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); color: #6366f1; font-weight: 500; }
-    .task-priority-tag { font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; }
-      .task-priority-tag.high { background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.25); color: var(--color-red); }
-        .task-priority-tag.medium { background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.2); color: var(--color-amber); }
-          .task-priority-tag.low { background: rgba(5,150,105,0.08); border: 1px solid rgba(5,150,105,0.2); color: var(--color-green); }
-            .task-due.no-due { color: var(--color-muted); opacity: 0.55; }
+  .task-priority-tag { font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; }
+  .task-priority-tag.high { background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.25); color: var(--color-red); }
+  .task-priority-tag.medium { background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.2); color: var(--color-amber); }
+  .task-priority-tag.low { background: rgba(5,150,105,0.08); border: 1px solid rgba(5,150,105,0.2); color: var(--color-green); }
+  .task-due.no-due { color: var(--color-muted); opacity: 0.55; }
+
   .task-title { font-size: 14px; font-weight: 600; color: var(--color-text); line-height: 1.35; margin-bottom: 4px; }
   .task-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.45; max-width: 720px; }
 
@@ -915,7 +916,7 @@
     <a href="#" class="nav-tab" data-tab="bot"><span class="material-symbols-outlined">smart_toy</span> HV Bot</a>
     <a href="#" class="nav-tab" data-tab="tools"><span class="material-symbols-outlined">build</span> Tools</a>
     <div class="nav-divider" id="roleNavDivider" style="display:none"></div>
-    <div id="roleNavTabs"></div>
+    <span id="roleNavTabs"></span>
   </nav>
 
   <div class="topbar-right">
@@ -932,6 +933,7 @@
         <option value="milos@happenventures.com">Milos</option>
         <option value="ivan@happenventures.com">Ivan</option>
         <option value="farid@happenventures.com">Farid</option>
+        <option value="jazmin@happenventures.com">Jaz</option>
       </select>
     </label>
   </div>
@@ -1780,11 +1782,11 @@
         Tickets
         <span class="source-count" id="ticketsCount">—</span>
       </button>
-              <button class="source-btn" data-source="hubspot-tasks" id="hubspotSourceBtn" role="tab" aria-selected="false" style="display:none">
-                          <span class="material-symbols-outlined">hub</span>
-                                    HubSpot Tasks
-                                              <span class="source-count" id="hubspotTasksCount">—</span>
-                                                      </button>
+      <button class="source-btn" data-source="hubspot-tasks" id="hubspotSourceBtn" role="tab" aria-selected="false" style="display:none">
+        <span class="material-symbols-outlined">hub</span>
+        HubSpot Tasks
+        <span class="source-count" id="hubspotTasksCount">—</span>
+      </button>
       <button class="source-btn" data-source="ai-tasks" role="tab" aria-selected="false">
         <span class="material-symbols-outlined">smart_toy</span>
         AI Tasks
@@ -2162,17 +2164,18 @@
 
   function statusClass(status) {
     if (!status) return 'open';
-    const s = status.toLowerCase(
+    const s = status.toLowerCase();
     if (s.includes('overdue')) return 'overdue';
     if (s.includes('progress')) return 'in-progress';
     if (s.includes('closed') || s.includes('done')) return 'closed';
     return 'open';
   }
-  function renderTasks(data) 
-    if (!data || !data.user) { tasksError.style.display = 'block'; tasksError.innerHTML = '<strong>Could not load tasks</strong> — unexpected response'; tasksList.style.display = 'none'; tasksEmpty.style.display = 'none'; tasksMeta.textContent = 'Error loading tasks'; return; } const { tasks, count, user } = data;
+
+  function renderTasks(data) {
+    const { tasks, count, user } = data;
     if (currentSource === 'tasks') {
       tasksMeta.textContent = `Airtable Tasks · ${user.name} · ${user.role} · ${count} open task${count === 1 ? '' : 's'}`;
-    
+    }
     tasksNavBadge.textContent = count;
     if (tasksCountEl) tasksCountEl.textContent = count;
 
@@ -2191,9 +2194,9 @@
           <div class="task-main">
             <div class="task-meta-row">
               <span class="task-status-pill ${statusClass(t.status)}">${esc(t.status)}</span>
-${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${esc(t.priority)}</span>` : ''}
+              ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${esc(t.priority)}</span>` : ''}
               <span class="task-dept-tag">${esc(user.role)}</span>
-                            ${due ? `<span class="task-due ${due.cls}"><span class="material-symbols-outlined">schedule</span>${esc(due.label)}</span>` : `<span class="task-due no-due"><span class="material-symbols-outlined">event</span>No due date</span>`}
+              ${due ? `<span class="task-due ${due.cls}"><span class="material-symbols-outlined">schedule</span>${esc(due.label)}</span>` : `<span class="task-due no-due"><span class="material-symbols-outlined">event</span>No due date</span>`}
             </div>
             <div class="task-title">${esc(t.name)}</div>
             ${t.description ? `<div class="task-desc">${esc(t.description)}</div>` : ''}
@@ -2233,11 +2236,21 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
     tasksError.style.display = 'none';
     try {
       const email = currentUserEmail();
-      const res = await fetch(`/api/tasks?email=${encodeURIComponent(email)}`);
-      const raw = await res.json(); const data = Array.isArray(raw) ? raw[0] : raw;
+      const res = await fetch(`https://happenventures.app.n8n.cloud/webhook/hv-hub-tasks?email=${encodeURIComponent(email)}`);
+      const raw = await res.json();
+      // n8n sometimes wraps response in an array — normalize to object
+      const data = Array.isArray(raw) ? raw[0] : raw;
       if (!res.ok) {
         tasksError.style.display = 'block';
-        tasksError.innerHTML = `<strong>Could not load tasks</strong> ${esc(data.error || 'Unknown error')}`;
+        tasksError.innerHTML = `<strong>Could not load tasks</strong> ${esc((data && data.error) || 'Unknown error')}`;
+        tasksList.style.display = 'none';
+        tasksEmpty.style.display = 'none';
+        tasksMeta.textContent = 'Error loading tasks';
+        return;
+      }
+      if (!data || !data.user) {
+        tasksError.style.display = 'block';
+        tasksError.innerHTML = `<strong>Could not load tasks</strong> Unexpected response format`;
         tasksList.style.display = 'none';
         tasksEmpty.style.display = 'none';
         tasksMeta.textContent = 'Error loading tasks';
@@ -2307,7 +2320,7 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
   document.querySelectorAll('.source-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const src = btn.dataset.source;
-      if (src === currentSource) return
+      if (src === currentSource) return;
       currentSource = src;
       document.querySelectorAll('.source-btn').forEach(b => {
         const isActive = b.dataset.source === src;
@@ -2316,7 +2329,7 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
       });
 
       // Hide all, then show the active one
-              tasksView.style.display    = (src === 'tasks' || src === 'hubspot-tasks') ? '' : 'none';
+      tasksView.style.display    = (src === 'tasks' || src === 'hubspot-tasks') ? '' : 'none';
       ticketsView.style.display  = src === 'tickets'  ? '' : 'none';
       aiTasksView.style.display  = src === 'ai-tasks' ? '' : 'none';
 
@@ -2339,33 +2352,6 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
     });
   });
 
-  async function loadHubspotTasks() {
-    tasksLoader.style.display = 'flex';
-    tasksLoaderText.textContent = 'Pulling from HubSpot…';
-    tasksError.style.display = 'none';
-    try {
-      const email = currentUserEmail();
-      const res = await fetch(`/api/hubspot-tasks?email=${encodeURIComponent(email)}`);
-      const data = await res.json();
-      if (!res.ok) {
-        tasksError.style.display = 'block';
-        tasksError.innerHTML = `<strong>Could not load HubSpot tasks</strong> ${esc(data.error || 'Unknown error')}`;
-        tasksMeta.textContent = 'Error loading HubSpot tasks';
-        return;
-      }
-      const hubspotCountEl = document.getElementById('hubspotTasksCount');
-      if (hubspotCountEl) hubspotCountEl.textContent = data.count || 0;
-      renderTasks(data);
-      hubspotTasksLoaded = true;
-    } catch (err) {
-      tasksError.style.display = 'block';
-      tasksError.innerHTML = `<strong>Network error</strong> ${esc(err.message)}`;
-    } finally {
-      tasksLoader.style.display = 'none';
-      tasksLoaderText.textContent = 'Pulling from Airtable…';
-    }
-  }
-
   async function loadTickets() {
     tasksLoader.style.display = 'flex';
     tasksLoaderText.textContent = 'Pulling from Notion…';
@@ -2384,6 +2370,35 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
       }
       renderTickets(data);
       ticketsLoaded = true;
+    } catch (err) {
+      tasksError.style.display = 'block';
+      tasksError.innerHTML = `<strong>Network error</strong> ${esc(err.message)}`;
+    } finally {
+      tasksLoader.style.display = 'none';
+      tasksLoaderText.textContent = 'Pulling from Airtable…';
+    }
+  }
+
+  async function loadHubspotTasks() {
+    tasksLoader.style.display = 'flex';
+    tasksLoaderText.textContent = 'Pulling from HubSpot…';
+    tasksError.style.display = 'none';
+    try {
+      const email = currentUserEmail();
+      const res = await fetch(`/api/hubspot-tasks?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        tasksError.style.display = 'block';
+        tasksError.innerHTML = `<strong>Could not load HubSpot tasks</strong> ${esc(data.error || 'Unknown error')}`;
+        tasksMeta.textContent = 'Error loading HubSpot tasks';
+        return;
+      }
+      // Update count badge
+      const hubspotCountEl = document.getElementById('hubspotTasksCount');
+      if (hubspotCountEl) hubspotCountEl.textContent = data.count || 0;
+      // Render using the shared tasks renderer (same response shape)
+      renderTasks(data);
+      hubspotTasksLoaded = true;
     } catch (err) {
       tasksError.style.display = 'block';
       tasksError.innerHTML = `<strong>Network error</strong> ${esc(err.message)}`;
@@ -3101,7 +3116,7 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
       if (!activeRecordId) return;
       btn.disabled = true; btn.textContent = 'Snoozing…';
       try {
-        const res = await fetch('/api/snooze', {
+        const res = await fetch('https://happenventures.app.n8n.cloud/webhook/hv-hub-snooze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ recordId: activeRecordId, days }),
@@ -3133,7 +3148,7 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
     const btn = document.getElementById('commentSubmit');
     btn.disabled = true; btn.innerHTML = 'Posting…';
     try {
-      const res = await fetch('/api/comment', {
+      const res = await fetch('https://happenventures.app.n8n.cloud/webhook/hv-hub-comment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recordId: activeRecordId, text }),
@@ -3163,7 +3178,7 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
       if (!activeRecordId) return;
       btn.disabled = true;
       try {
-        const res = await fetch('/api/update-task', {
+        const res = await fetch('https://happenventures.app.n8n.cloud/webhook/hv-hub-update-task', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ recordId: activeRecordId, status }),
@@ -3764,6 +3779,10 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
       ],
       viewAsToggle: true,
     },
+    'jazmin@happenventures.com': {
+      name: 'Jazmin Barrera', role: 'admin', subtitle: 'Admin', initials: 'JB',
+      roleTabs: [],
+    },
   };
 
   // USERS_DISPLAY kept for backward-compat (chat avatars)
@@ -3818,24 +3837,50 @@ ${t.priority ? `<span class="task-priority-tag ${t.priority.toLowerCase()}">${es
       });
     });
 
-        // Show/hide source toggle buttons based on user
-            const SECOND_SOURCE = {
-                  'joan@happenventures.com':    'tickets',
-                        'jessica@happenventures.com': 'hubspot-tasks',
-                              'ivan@happenventures.com':    'hubspot-tasks',
-                                    'danny@happenventures.com':   'hubspot-tasks',
-                                          'milos@happenventures.com':   'hubspot-tasks',
-                                                'mario@happenventures.com':   'hubspot-tasks',
-                                                    };
-                                                        const email = (typeof currentUserEmail === 'function') ? currentUserEmail() : (userSelect ? userSelect.value : '');
-                                                            const secondSrc = SECOND_SOURCE[email] || null;
-                                                                const ticketsBtn = document.getElementById('ticketsSourceBtn');
-                                                                    const hubspotBtn = document.getElementById('hubspotSourceBtn');
-                                                                        if (ticketsBtn) ticketsBtn.style.display = (secondSrc === 'tickets') ? '' : 'none';
-                                                                            if (hubspotBtn) hubspotBtn.style.display = (secondSrc === 'hubspot-tasks') ? '' : 'none';
-                                                                                // If current source is no longer available for this user, reset to tasks
-                                                                                    if (currentSource === 'tickets' && secondSrc !== 'tickets') { currentSource = 'tasks'; }
-                                                                                        if (currentSource === 'hubspot-tasks' && secondSrc !== 'hubspot-tasks') { currentSource = 'tasks'; }
+    // Show/hide source toggle buttons based on user
+    const SECOND_SOURCE = {
+      'joan@happenventures.com':    'tickets',
+      'jessica@happenventures.com': 'hubspot-tasks',
+      'ivan@happenventures.com':    'hubspot-tasks',
+      'danny@happenventures.com':   'hubspot-tasks',
+      'milos@happenventures.com':   'hubspot-tasks',
+      'mario@happenventures.com':   'hubspot-tasks',
+    };
+    const userSelectEl = document.getElementById('userSelect');
+    const activeEmail = userSelectEl ? userSelectEl.value : '';
+    const secondSrc = SECOND_SOURCE[activeEmail] || null;
+    const ticketsBtn = document.getElementById('ticketsSourceBtn');
+    const hubspotBtn = document.getElementById('hubspotSourceBtn');
+    if (ticketsBtn) ticketsBtn.style.display = (secondSrc === 'tickets') ? '' : 'none';
+    if (hubspotBtn) hubspotBtn.style.display = (secondSrc === 'hubspot-tasks') ? '' : 'none';
+
+    // Auto-switch source when user changes
+    if (secondSrc === 'hubspot-tasks') {
+      // Switch to HubSpot Tasks automatically for these users
+      currentSource = 'hubspot-tasks';
+      document.querySelectorAll('.source-btn').forEach(b => {
+        const isActive = b.dataset.source === 'hubspot-tasks';
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      const tasksView = document.getElementById('tasksView');
+      const ticketsView = document.getElementById('ticketsView');
+      const aiTasksView = document.getElementById('aiTasksView');
+      if (tasksView) tasksView.style.display = '';
+      if (ticketsView) ticketsView.style.display = 'none';
+      if (aiTasksView) aiTasksView.style.display = 'none';
+      const tasksOpenBtn = document.getElementById('tasksOpenBtn');
+      if (tasksOpenBtn) {
+        tasksOpenBtn.href = 'https://app.hubspot.com/tasks/';
+        tasksOpenBtn.innerHTML = '<span class="material-symbols-outlined">open_in_new</span> Open in HubSpot';
+      }
+      if (typeof loadHubspotTasks === 'function') loadHubspotTasks();
+    } else if (secondSrc === 'tickets') {
+      if (currentSource === 'hubspot-tasks') { currentSource = 'tasks'; }
+    } else {
+      // No second source — reset to tasks if on a non-applicable source
+      if (currentSource === 'tickets' || currentSource === 'hubspot-tasks') { currentSource = 'tasks'; }
+    }
   }
 
   // Central tab-switch function used by both universal and role tabs
