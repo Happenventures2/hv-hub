@@ -66,3 +66,15 @@
   from = "/api/bot-feedback"
   to = "/.netlify/functions/bot-feedback"
   status = 200
+
+# SPA routing — serves index.html for /:slug and /:slug/:tab
+# MUST be last (after all /api/* rules)
+[[redirects]]
+  from = "/:slug/:tab"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/:slug"
+  to = "/index.html"
+  status = 200
