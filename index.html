@@ -1774,7 +1774,7 @@
     <div class="source-toggle" role="tablist" aria-label="Task source">
       <button class="source-btn active" data-source="tasks" role="tab" aria-selected="true">
         <span class="material-symbols-outlined">checklist</span>
-        Tasks
+        Airtable Tasks
         <span class="source-count" id="tasksCount">—</span>
       </button>
       <button class="source-btn" data-source="tickets" id="ticketsSourceBtn" role="tab" aria-selected="false" style="display:none">
@@ -2389,6 +2389,9 @@
   }
 
   async function loadHubspotTasks() {
+    tasksList.style.display = 'none';
+    tasksEmpty.style.display = 'none';
+    tasksList.innerHTML = '';
     tasksLoader.style.display = 'flex';
     tasksLoaderText.textContent = 'Pulling from HubSpot…';
     tasksError.style.display = 'none';
